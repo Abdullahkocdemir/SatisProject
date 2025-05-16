@@ -66,12 +66,11 @@
                     <div class="col-md-6">
                         <label class="form-label">Durum</label>
                         <select asp-for="Status" class="form-select">
-                            @foreach (var status in Enum.GetValues(typeof(SatışProject.Entities.ProductStatus)))
+                            @foreach (SatışProject.Entities.ProductStatus status in Enum.GetValues(typeof(SatışProject.Entities.ProductStatus)))
                             {
-                                <option value="@((int)status)">@status</option>
+                                <option value="@( (int)status )">@status.GetDisplayName()</option>
                             }
                         </select>
-                        <span asp-validation-for="Status" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6">

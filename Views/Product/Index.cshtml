@@ -2,18 +2,30 @@
 
 @{
     ViewData["Title"] = "Ürün Listesi";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // Gerekirse uygun layout'u ayarlayın
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    // Kategori listesini ViewBag üzerinden alalım
+    var categories = ViewBag.Categories as List<SatışProject.Entities.Category>;
 }
 
+<!-- CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
 
 <div class="container mt-5">
-    <h3 class="mb-4 text-center fw-bold text-primary">Ürün Listesi</h3>
+    <h3 class="text-center fw-bold text-primary mb-4">Ürün Listesi</h3>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex gap-2">
             <input type="text" id="searchInput" class="form-control" placeholder="Ara..." />
+            <select id="categoryFilter" class="form-select w-auto">
+                <option value="">Tüm Kategoriler</option>
+                @foreach (var category in categories)
+                {
+                    <option value="@category.Name">@category.Name</option>
+                }
+            </select>
             <select id="itemsPerPage" class="form-select w-auto">
                 <option value="5">5</option>
                 <option value="10" selected>10</option>
@@ -25,8 +37,8 @@
         </a>
     </div>
 
-    <div class="table-responsive shadow-sm rounded bg-white p-3">
-        <table id="productTable" class="table table-hover align-middle text-center">
+    <div class="table-responsive shadow-sm bg-white rounded p-3">
+        <table class="table table-hover text-center align-middle" id="productTable">
             <thead class="table-light">
                 <tr>
                     <th>#</th>
@@ -39,13 +51,13 @@
                     <th>İşlemler</th>
                 </tr>
             </thead>
-            <tbody id="productBody">
+            <tbody>
                 @foreach (var item in Model)
                 {
                     <tr>
                         <td>@item.ProductId</td>
                         <td class="text-start">@item.Name</td>
-                        <td>@item.UnitPrice.ToString("C2")</td>
+                        <td>@item.UnitPrice ₺</td>
                         <td>
                             @if (item.StockQuantity <= 5)
                             {
@@ -66,16 +78,11 @@
                                 <span class="text-muted">Yok</span>
                             }
                         </td>
-                        <td>@item.Category?.Name</td>
+                        <td class="category-name">@item.Category?.Name</td>
                         <td>
-                            @if (!item.IsDeleted)
-                            {
-                                <span class="badge bg-success">Aktif</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-danger">Pasif</span>
-                            }
+                            <span class="badge @(item.IsDeleted ? "bg-danger" : "bg-success")">
+                                @(item.IsDeleted ? "Pasif" : "Aktif")
+                            </span>
                         </td>
                         <td>
                             <a href="/Product/Edit/@item.ProductId" class="btn btn-outline-warning btn-sm" title="Düzenle">
@@ -84,11 +91,17 @@
                             <a href="/Product/Details/@item.ProductId" class="btn btn-outline-info btn-sm mx-1" title="Detaylar">
                                 <i class="bi bi-info-circle"></i>
                             </a>
-                            <a href="/Product/Delete/@item.ProductId" class="btn btn-outline-danger btn-sm" onclick="return confirm('Silmek istediğinize emin misiniz?');" title="Sil">
+                            <button type="button" class="btn btn-outline-danger btn-sm delete-btn"
+                                    data-id="@item.ProductId"
+                                    data-name="@item.Name"
+                                    title="Sil">
                                 <i class="bi bi-trash"></i>
-                            </a>
-                        </td>
+                            </button>
 
+                            <form id="deleteForm-@item.ProductId" action="/Product/Delete/@item.ProductId" method="post" style="display:none;">
+                                @Html.AntiForgeryToken()
+                            </form>
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -100,20 +113,49 @@
     </div>
 </div>
 
+<!-- JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     $(document).ready(function () {
-        const rowsPerPageSelect = $("#itemsPerPage");
         const searchInput = $("#searchInput");
+        const categoryFilter = $("#categoryFilter");
+        const rowsPerPageSelect = $("#itemsPerPage");
         const tableRows = $("#productTable tbody tr");
         const pagination = $("#pagination");
 
+        $(".delete-btn").on("click", function () {
+            const productId = $(this).data("id");
+            const productName = $(this).data("name");
+
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: `"${productName}" adlı ürünü silmek istediğinize emin misiniz?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Evet, sil!',
+                cancelButtonText: 'İptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $(`#deleteForm-${productId}`).submit();
+                }
+            });
+        });
+
         function renderTable() {
             const searchTerm = searchInput.val().toLowerCase();
+            const selectedCategory = categoryFilter.val().toLowerCase();
             const itemsPerPage = parseInt(rowsPerPageSelect.val());
+
             const filteredRows = tableRows.filter(function () {
-                return $(this).text().toLowerCase().includes(searchTerm);
+                const text = $(this).text().toLowerCase();
+                const category = $(this).find(".category-name").text().toLowerCase();
+
+                return text.includes(searchTerm) &&
+                    (selectedCategory === "" || category === selectedCategory);
             });
 
             tableRows.hide();
@@ -132,9 +174,9 @@
                 pagination.empty();
                 for (let i = 1; i <= pageCount; i++) {
                     pagination.append(
-                        `<li class="page-item ${i === page ? "active" : ""}">
-                                    <a class="page-link" href="#">${i}</a>
-                                </li>`
+                        `<li class="page-item ${i === page ? 'active' : ''}">
+                                <a class="page-link" href="#">${i}</a>
+                            </li>`
                     );
                 }
             }
@@ -151,8 +193,34 @@
         }
 
         searchInput.on("input", renderTable);
+        categoryFilter.on("change", renderTable);
         rowsPerPageSelect.on("change", renderTable);
 
-        renderTable(); // İlk yüklemede çalıştır
+        renderTable();
     });
 </script>
+
+<!-- SweetAlert Bildirimleri -->
+@if (TempData["Success"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Başarılı!',
+            text: '@TempData["Success"]',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    </script>
+}
+
+@if (TempData["Error"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Hata!',
+            text: '@TempData["Error"]'
+        });
+    </script>
+}

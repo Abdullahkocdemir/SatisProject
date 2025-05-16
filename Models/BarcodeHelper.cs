@@ -1,22 +1,27 @@
-﻿using System.Drawing;
+﻿using SkiaSharp;
 using ZXing;
-using ZXing.Windows.Compatibility;
+using ZXing.SkiaSharp;
+using ZXing.SkiaSharp.Rendering;
 
 public static class BarcodeHelper
 {
-    public static Bitmap GenerateBarcodeBitmap(string text)
+    public static byte[] GenerateBarcodeImage(string text, int width = 300, int height = 100)
     {
-        var barcodeWriter = new BarcodeWriter
+        var writer = new BarcodeWriter<SKBitmap>
         {
             Format = BarcodeFormat.CODE_128,
             Options = new ZXing.Common.EncodingOptions
             {
-                Height = 100,
-                Width = 300,
+                Width = width,
+                Height = height,
                 Margin = 10
-            }
+            },
+            Renderer = new SKBitmapRenderer()
         };
 
-        return barcodeWriter.Write(text);
+        using var bitmap = writer.Write(text);
+        using var image = SKImage.FromBitmap(bitmap);
+        using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+        return data.ToArray();
     }
 }

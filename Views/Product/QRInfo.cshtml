@@ -1,0 +1,98 @@
+﻿@model SatışProject.Entities.Product
+
+@{
+    ViewData["Title"] = "Ürün QR Bilgisi";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+<div class="container mt-3">
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-info text-white rounded-top-4">
+            <h4 class="mb-0"><i class="bi bi-qr-code me-2"></i>Ürün QR Bilgileri</h4>
+        </div>
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-4 text-center mb-4 mb-md-0">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl" alt="Ürün Görseli" class="img-fluid rounded shadow-sm" style="max-height: 250px;" />
+                    }
+                    else
+                    {
+                        <div class="bg-light rounded p-5 d-flex align-items-center justify-content-center" style="height: 250px;">
+                            <i class="bi bi-image text-secondary" style="font-size: 4rem;"></i>
+                        </div>
+                    }
+                    <div class="mt-3">
+                        @if (!string.IsNullOrEmpty(Model.Barcode))
+                        {
+                            <img src="@Model.Barcode" alt="QR Kod" class="img-thumbnail" style="max-height: 120px;" />
+                        }
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <h3 class="mb-4 text-primary fw-bold">@Model.Name</h3>
+                    <div class="list-group">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-upc me-2"></i>Stok Kodu (SKU)</span>
+                            <span class="fw-bold">@Model.SKU</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-tag me-2"></i>Kategori</span>
+                            <span class="fw-bold">@Model.Category?.Name</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-award me-2"></i>Marka</span>
+                            <span class="fw-bold">@Model.Brand?.Name</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-currency-dollar me-2"></i>Satış Fiyatı</span>
+                            <span class="fw-bold text-success">@Model.UnitPrice.ToString("0.00") TL</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-percent me-2"></i>KDV Oranı</span>
+                            <span class="fw-bold">%@Model.TaxRate.ToString("0.00")</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-box-seam me-2"></i>Stok Durumu</span>
+                            @if (Model.Status == SatışProject.Entities.ProductStatus.InStock && Model.StockQuantity > 0)
+                            {
+                                <span class="badge bg-success">Stokta (@Model.StockQuantity adet)</span>
+                            }
+                            else if (Model.Status == SatışProject.Entities.ProductStatus.OutOfStock || Model.StockQuantity <= 0)
+                            {
+                                <span class="badge bg-danger">Tükendi</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Pasif</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>Eklenme Tarihi: @Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")</span>
+                            @if (Model.UpdatedDate.HasValue)
+                            {
+                                <span>Son Güncelleme: @Model.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm")</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 text-end">
+                <a href="javascript:history.back()" class="btn btn-outline-secondary px-4">
+                    <i class="bi bi-arrow-left-circle me-1"></i>Geri Dön
+                </a>
+                <a href="/Product/Details/@Model.ProductId" class="btn btn-primary px-4">
+                    <i class="bi bi-info-circle me-1"></i>Detaylı Bilgi
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
