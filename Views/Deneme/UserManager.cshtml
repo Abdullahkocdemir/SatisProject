@@ -1,0 +1,179 @@
+﻿@{
+    ViewData["Title"] = "UserManager";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+
+<div class="container-fluid">
+    <!-- Page Title -->
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="page-title">Kullanıcı Yönetimi</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/Admin">Ana Sayfa</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Kullanıcı Yönetimi</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Kullanıcı Listesi</h5>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="fas fa-plus me-2"></i>Yeni Kullanıcı Ekle
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover datatable">
+                            <thead>
+                                <tr>
+                                    <th>Kullanıcı Adı</th>
+                                    <th>Ad Soyad</th>
+                                    <th>Email</th>
+                                    <th>Roller</th>
+                                    <th>Durum</th>
+                                    <th>Kayıt Tarihi</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>admin</td>
+                                    <td>Admin User</td>
+                                    <td>kcdmirapo96@gmail.com</td>
+                                    <td>
+                                        <span class="badge bg-primary">Admin</span>
+                                    </td>
+                                    <td><span class="badge bg-success">Aktif</span></td>
+                                    <td>01.01.2025</td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                İşlemler
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editUserModal"><i class="fas fa-edit me-2"></i>Düzenle</a></li>
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal"><i class="fas fa-key me-2"></i>Şifre Değiştir</a></li>
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#assignRolesModal"><i class="fas fa-user-tag me-2"></i>Rol Ata</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteUserModal"><i class="fas fa-trash-alt me-2"></i>Sil</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>manager</td>
+                                    <td>Ahmet Yılmaz</td>
+                                    <td>ahmet@example.com</td>
+                                    <td>
+                                        <span class="badge bg-info">Yönetici</span>
+                                    </td>
+                                    <td><span class="badge bg-success">Aktif</span></td>
+                                    <td>15.01.2025</td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                İşlemler
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editUserModal"><i class="fas fa-edit me-2"></i>Düzenle</a></li>
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal"><i class="fas fa-key me-2"></i>Şifre Değiştir</a></li>
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#assignRolesModal"><i class="fas fa-user-tag me-2"></i>Rol Ata</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteUserModal"><i class="fas fa-trash-alt me-2"></i>Sil</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>sales</td>
+                                    <td>Mehmet Demir</td>
+                                    <td>mehmet@example.com</td>
+                                    <td>
+                                        <span class="badge bg-success">Satış Temsilcisi</span>
+                                    </td>
+                                    <td><span class="badge bg-success">Aktif</span></td>
+                                    <td>20.02.2025</td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                İşlemler
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editUserModal"><i class="fas fa-edit me-2"></i>Düzenle</a></li>
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal"><i class="fas fa-key me-2"></i>Şifre Değiştir</a></li>
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#assignRolesModal"><i class="fas fa-user-tag me-2"></i>Rol Ata</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteUserModal"><i class="fas fa-trash-alt me-2"></i>Sil</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>inventory</td>
+                                    <td>Ayşe Kaya</td>
+                                    <td>ayse@example.com</td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark">Stok Yöneticisi</span>
+                                    </td>
+                                    <td><span class="badge bg-success">Aktif</span></td>
+                                    <td>05.03.2025</td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                İşlemler
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editUserModal"><i class="fas fa-edit me-2"></i>Düzenle</a></li>
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal"><i class="fas fa-key me-2"></i>Şifre Değiştir</a></li>
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#assignRolesModal"><i class="fas fa-user-tag me-2"></i>Rol Ata</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteUserModal"><i class="fas fa-trash-alt me-2"></i>Sil</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>customer</td>
+                                    <td>Ali Yıldız</td>
+                                    <td>ali@example.com</td>
+                                    <td>
+                                        <span class="badge bg-danger">Devre Dışı</span>
+                                    </td>
+                                    <td><span class="badge bg-danger">Pasif</span></td>
+                                    <td>10.04.2025</td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                İşlemler
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editUserModal"><i class="fas fa-edit me-2"></i>Düzenle</a></li>
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal"><i class="fas fa-key me-2"></i>Şifre Değiştir</a></li>
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#assignRolesModal"><i class="fas fa-user-tag me-2"></i>Rol Ata</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteUserModal"><i class="fas fa-trash-alt me-2"></i>Sil</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div
+

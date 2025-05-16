@@ -1,0 +1,104 @@
+﻿@model SatışProject.Entities.Product
+
+@{
+    ViewData["Title"] = "Ürün Detayı";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+<div class="container mt-5">
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-primary text-white rounded-top-4">
+            <h4 class="mb-0"><i class="bi bi-box-seam me-2"></i>Ürün Detayı</h4>
+        </div>
+        <div class="card-body p-4">
+            <form>
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Ürün Adı</label>
+                        <input class="form-control" value="@Model.Name" readonly />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">SKU</label>
+                        <input class="form-control" value="@Model.SKU" readonly />
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">QR Kod</label><br />
+                        @if (!string.IsNullOrEmpty(Model.Barcode))
+                        {
+                            <img src="@Model.Barcode" alt="QR Kod" style="max-height: 200px;" />
+                        }
+                        else
+                        {
+                            <p>QR Kod mevcut değil</p>
+                        }
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Satış Fiyatı</label>
+                        <input class="form-control" value="@Model.UnitPrice.ToString("0.00")" readonly />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Maliyet Fiyatı</label>
+                        <input class="form-control" value="@Model.CostPrice.ToString("0.00")" readonly />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Stok Adedi</label>
+                        <input class="form-control" value="@Model.StockQuantity" readonly />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Vergi Oranı (%)</label>
+                        <input class="form-control" value="@Model.TaxRate.ToString("0.00")" readonly />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Kategori</label>
+                        <input class="form-control" value="@Model.Category?.Name" readonly />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Marka</label>
+                        <input class="form-control" value="@Model.Brand?.Name" readonly />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Durum</label>
+                        <input class="form-control" value="@Model.Status.ToString()" readonly />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Aktif mi?</label>
+                        <input class="form-control" value="@(Model.IsDeleted ? "Hayır" : "Evet")" readonly />
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Ürün Görseli</label><br />
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl" alt="Ürün Görseli" class="img-thumbnail" style="max-height: 200px;" />
+                        }
+                        else
+                        {
+                            <p>Görsel yok</p>
+                        }
+                    </div>
+
+                </div>
+
+                <div class="mt-4 text-end">
+                    <a href="/Product/Index/" class="btn btn-secondary px-4">
+                        <i class="bi bi-arrow-left-circle me-1"></i> Geri Dön
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

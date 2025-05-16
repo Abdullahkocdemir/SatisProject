@@ -1,0 +1,209 @@
+﻿@model SatışProject.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Giriş Yap";
+    Layout = null;
+}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Hoş Geldiniz</h2>
+            <p>Hesabınıza giriş yapın</p>
+        </div>
+
+        <form asp-action="Login" method="post" class="auth-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Email" class="form-label">E-posta</label>
+                <input asp-for="Email" class="form-control" placeholder="email@example.com" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password" class="form-label">Şifre</label>
+                <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-group remember-me">
+                <input asp-for="RememberMe" class="form-check-input" />
+                <label asp-for="RememberMe" class="form-check-label">Beni Hatırla</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary auth-btn">Giriş Yap</button>
+
+            <div class="auth-footer">
+                <a href="#" class="text-link">Şifremi Unuttum?</a>
+                <span>Hesabınız yok mu? <a asp-action="Register" class="text-link">Kayıt Olun</a></span>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --text-color: #333;
+        --light-gray: #f8f9fa;
+        --white: #fff;
+        --danger-color: #e63946;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background-color: var(--light-gray);
+        color: var(--text-color);
+    }
+
+    .auth-container {
+        display: flex;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .auth-card {
+        background: var(--white);
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 450px;
+        margin-right: -50px;
+        z-index: 2;
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+        .auth-header h2 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .auth-header p {
+            color: #666;
+        }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--text-color);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+        .remember-me .form-check-input {
+            margin-right: 10px;
+        }
+
+    .auth-btn {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--primary-color);
+        border: none;
+        border-radius: 5px;
+        color: var(--white);
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .auth-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+    .auth-footer {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+        .auth-footer span {
+            display: block;
+            margin-top: 10px;
+        }
+
+    .text-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+        .text-link:hover {
+            text-decoration: underline;
+        }
+
+    .text-danger {
+        color: var(--danger-color);
+        font-size: 14px;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .auth-image {
+        max-width: 500px;
+    }
+
+        .auth-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+    @@media (max-width: 768px) {
+        .auth-container {
+            flex-direction: column;
+        }
+
+        .auth-card {
+            margin-right: 0;
+            margin-bottom: 30px;
+        }
+
+        .auth-image {
+            display: none;
+        }
+    }
+</style>
