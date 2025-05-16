@@ -5,6 +5,9 @@ using SatışProject.Models;
 
 namespace İdentityRollemeDenemesi.Controllers
 {
+    /// <summary>
+    /// denee7
+    /// </summary>
     public class AccountController : Controller
     {
         private readonly SignInManager<AppUser> _signInManager;
