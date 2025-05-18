@@ -1,0 +1,49 @@
+﻿@model SatışProject.Entities.Brand
+
+@{
+    ViewData["Title"] = "Yeni Marka Ekle";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<div class="container mt-5">
+    <div class="card shadow border-0 rounded-4 col-md-8 mx-auto">
+        <div class="card-header bg-dark text-white rounded-top-4">
+            <h4 class="mb-0"><i class="bi bi-tags-fill me-2"></i>Yeni Marka Ekle</h4>
+        </div>
+        <div class="card-body p-4 bg-light rounded-bottom-4">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">Marka Adı</label>
+                    <input asp-for="Name" class="form-control" placeholder="Marka adını giriniz..." required />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Marka Logosu</label>
+                    <input type="file" name="LogoFile" class="form-control" accept="image/*" />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Aktif mi?</label>
+                    <div class="form-check form-switch">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" />
+                        <label class="form-check-label" asp-for="IsActive">Evet</label>
+                    </div>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success px-4 me-2">
+                        <i class="bi bi-save2 me-1"></i>Kaydet
+                    </button>
+                    <a href="/AdminBrand" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-x-circle me-1"></i>İptal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

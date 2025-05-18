@@ -21,7 +21,7 @@
             <input type="text" id="searchInput" class="form-control" placeholder="Ara..." />
             <select id="categoryFilter" class="form-select w-auto">
                 <option value="">Tüm Kategoriler</option>
-                @foreach (var category in categories)
+                @foreach (var category in categories!)
                 {
                     <option value="@category.Name">@category.Name</option>
                 }
@@ -32,9 +32,12 @@
                 <option value="25">25</option>
             </select>
         </div>
-        <a href="/Product/Create" class="btn btn-success">
-            <i class="bi bi-plus-circle me-1"></i> Yeni Ürün Ekle
-        </a>
+        @if (User.IsInRole("Admin"))
+        {
+            <a href="/AdminProduct/Create" class="btn btn-success">
+                <i class="bi bi-plus-circle me-1"></i> Yeni Ürün Ekle
+            </a>
+        }
     </div>
 
     <div class="table-responsive shadow-sm bg-white rounded p-3">
@@ -52,10 +55,13 @@
                 </tr>
             </thead>
             <tbody>
+                @{
+                    int count = 1;
+                }
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td>@item.ProductId</td>
+                        <td>@count</td>
                         <td class="text-start">@item.Name</td>
                         <td>@item.UnitPrice ₺</td>
                         <td>
@@ -85,24 +91,34 @@
                             </span>
                         </td>
                         <td>
-                            <a href="/Product/Edit/@item.ProductId" class="btn btn-outline-warning btn-sm" title="Düzenle">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a href="/Product/Details/@item.ProductId" class="btn btn-outline-info btn-sm mx-1" title="Detaylar">
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a href="/AdminProduct/Edit/@item.ProductId" class="btn btn-outline-warning btn-sm" title="Düzenle">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                            }
+
+                            <a href="/AdminProduct/Details/@item.ProductId" class="btn btn-outline-info btn-sm mx-1" title="Detaylar">
                                 <i class="bi bi-info-circle"></i>
                             </a>
-                            <button type="button" class="btn btn-outline-danger btn-sm delete-btn"
-                                    data-id="@item.ProductId"
-                                    data-name="@item.Name"
-                                    title="Sil">
-                                <i class="bi bi-trash"></i>
-                            </button>
 
-                            <form id="deleteForm-@item.ProductId" action="/Product/Delete/@item.ProductId" method="post" style="display:none;">
-                                @Html.AntiForgeryToken()
-                            </form>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <button type="button" class="btn btn-outline-danger btn-sm delete-btn"
+                                        data-id="@item.ProductId"
+                                        data-name="@item.Name"
+                                        title="Sil">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+
+                                <form id="deleteForm-@item.ProductId" action="/AdminProduct/Delete/@item.ProductId" method="post" style="display:none;">
+                                    @Html.AntiForgeryToken()
+                                </form>
+                            }
                         </td>
+
                     </tr>
+                    count++;
                 }
             </tbody>
         </table>
@@ -175,8 +191,8 @@
                 for (let i = 1; i <= pageCount; i++) {
                     pagination.append(
                         `<li class="page-item ${i === page ? 'active' : ''}">
-                                <a class="page-link" href="#">${i}</a>
-                            </li>`
+                                                <a class="page-link" href="#">${i}</a>
+                                            </li>`
                     );
                 }
             }
@@ -200,27 +216,3 @@
     });
 </script>
 
-<!-- SweetAlert Bildirimleri -->
-@if (TempData["Success"] != null)
-{
-    <script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Başarılı!',
-            text: '@TempData["Success"]',
-            showConfirmButton: false,
-            timer: 2000
-        });
-    </script>
-}
-
-@if (TempData["Error"] != null)
-{
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Hata!',
-            text: '@TempData["Error"]'
-        });
-    </script>
-}

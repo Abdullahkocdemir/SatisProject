@@ -8,20 +8,22 @@ using SatışProject.Models;
 using System.Drawing.Imaging;
 using System.Drawing;
 using ZXing.QrCode.Internal;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SatışProject.Controllers
 {
-    public class ProductController : Controller
+    public class AdminProductController : Controller
     {
         private readonly SatısContext _context;
         private readonly IWebHostEnvironment _environment;
 
-        public ProductController(SatısContext context, IWebHostEnvironment environment)
+        public AdminProductController(SatısContext context, IWebHostEnvironment environment)
         {
             _context = context;
             _environment = environment;
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Index()
         {
             // Ürünlerle birlikte Kategori ve Marka bilgilerini getir
@@ -38,6 +40,7 @@ namespace SatışProject.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             LoadDropdowns();
@@ -45,12 +48,13 @@ namespace SatışProject.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product product, IFormFile? imageFile)
         {
             // Stok Kodu
             var now = DateTime.Now;
-            string datePart = now.ToString("MMMyydd"); // Ör: May2516
+            string datePart = now.ToString("MMMyyyydd"); // Ör: May2516
             string randomCode = new Random().Next(100000, 999999).ToString();
             product.SKU = $"{datePart}-{randomCode}";
 
@@ -136,6 +140,7 @@ namespace SatışProject.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {

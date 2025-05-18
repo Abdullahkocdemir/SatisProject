@@ -86,7 +86,7 @@
                     <button type="submit" class="btn btn-success px-4 me-2">
                         <i class="bi bi-save2 me-1"></i>Kaydet
                     </button>
-                    <a href="/Product/Index" class="btn btn-outline-secondary px-4">
+                    <a href="/AdminProduct/Index" class="btn btn-outline-secondary px-4">
                         <i class="bi bi-x-circle me-1"></i>İptal
                     </a>
                 </div>
@@ -94,19 +94,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-
-    @if (TempData["Success"] != null)
-    {
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: '@TempData["Success"]',
-                showConfirmButton: false,
-                timer: 2000
-            });
-        </script>
-    }
-}
