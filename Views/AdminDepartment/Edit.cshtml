@@ -1,6 +1,6 @@
-﻿@model SatışProject.Entities.Brand
+﻿@model Department
 @{
-    ViewData["Title"] = "Marka Güncelleme";
+    ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -12,12 +12,16 @@
         </div>
         <div class="card-body p-4 bg-light rounded-bottom-4">
             <form asp-action="Edit" asp-controller="AdminBrand" method="post">
-                <input type="hidden" asp-for="BrandID" />
+                <input type="hidden" asp-for="DepartmentID" />
 
                 <div class="mb-3">
-                    <label asp-for="Name" class="form-label">Marka Adı</label>
+                    <label class="form-label">Departman Adı</label>
                     <input asp-for="Name" class="form-control" required />
-                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Departman Açıklaması</label>
+                    <input asp-for="Description" class="form-control" required />
                 </div>
 
 
@@ -33,7 +37,6 @@
                             <label class="form-check-label" for="IsActive">Pasif</label>
                         </div>
                     </div>
-                    <span asp-validation-for="IsActive" class="text-danger"></span>
                 </div>
 
                 <div class="mt-4 text-end">
@@ -48,3 +51,4 @@
         </div>
     </div>
 </div>
+

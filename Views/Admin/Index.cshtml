@@ -1,0 +1,178 @@
+﻿@model List<(SatışProject.Entities.AppUser, IList<string>)>
+
+@{
+    ViewData["Title"] = "Admin Panel";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-users-cog me-2"></i>Admin Panel</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="d-grid gap-2 d-md-block">
+                                <a asp-action="CreateRole" class="btn btn-outline-primary btn-lg">
+                                    <i class="fas fa-user-tag me-2"></i>Rol Oluştur
+                                </a>
+                                <a asp-action="Create" class="btn btn-outline-success btn-lg ms-md-2">
+                                    <i class="fas fa-user-plus me-2"></i>Kullanıcı Oluştur
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" id="userSearchInput" class="form-control form-control-lg" placeholder="Kullanıcı Ara...">
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="usersTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th><i class="fas fa-user me-2"></i>Ad Soyad</th>
+                                    <th><i class="fas fa-envelope me-2"></i>Email</th>
+                                    <th><i class="fas fa-tags me-2"></i>Roller</th>
+                                    <th><i class="fas fa-cogs me-2"></i>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var (user, roles) in Model)
+                                {
+                                    <tr>
+                                        <td class="fw-bold">@user.FirstName @user.LastName</td>
+                                        <td>
+                                            <span class="text-muted">@user.Email</span>
+                                        </td>
+                                        <td>
+                                            @if (roles.Any())
+                                            {
+                                                @foreach (var role in roles)
+                                                {
+                                                    <span class="badge bg-info text-dark me-1 mb-1">@role</span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Rol Yok</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a asp-action="UserRoles" asp-route-userId="@user.Id" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-user-tag me-1"></i>Rol Ata
+                                                </a>
+                                                <button class="btn btn-sm btn-danger ms-1" onclick="confirmDelete('@user.Id', '@user.FirstName @user.LastName')">
+                                                    <i class="fas fa-trash-alt me-1"></i>Sil
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form id="deleteForm" asp-action="Delete" method="post" style="display:none;">
+    <input type="hidden" name="userId" id="userIdInput" />
+</form>
+
+@section Scripts {
+    <script>
+        // Search functionality
+        document.getElementById('userSearchInput').addEventListener('keyup', function () {
+            const searchTerm = this.value.toLowerCase();
+            const table = document.getElementById('usersTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const fullName = rows[i].cells[0].textContent.toLowerCase();
+                const email = rows[i].cells[1].textContent.toLowerCase();
+                const roles = rows[i].cells[2].textContent.toLowerCase();
+
+                if (fullName.includes(searchTerm) || email.includes(searchTerm) || roles.includes(searchTerm)) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        });
+
+        function confirmDelete(userId, userName) {
+            Swal.fire({
+                title: 'Kullanıcı Silme',
+                html: `<strong>${userName}</strong> kullanıcısını silmek istediğinizden emin misiniz?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-trash-alt me-1"></i>Evet, Sil!',
+                cancelButtonText: '<i class="fas fa-times me-1"></i>İptal',
+                buttonsStyling: true,
+                customClass: {
+                    confirmButton: 'btn btn-danger',
+                    cancelButton: 'btn btn-secondary'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById("userIdInput").value = userId;
+                    document.getElementById("deleteForm").submit();
+                }
+            });
+        }
+
+        // Display SweetAlert notifications
+        @if (TempData["DeleteUserSuccess"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'İşlem Başarılı',
+                        text: '@TempData["DeleteUserSuccess"]',
+                        confirmButtonColor: '#198754'
+                    });
+            </text>
+        }
+        else if (TempData["DeleteUserError"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'İşlem Başarısız',
+                        text: '@TempData["DeleteUserError"]',
+                        confirmButtonColor: '#dc3545'
+                    });
+            </text>
+        }
+        @if (TempData["RoleAssignSuccess"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Rol Atama Başarılı',
+                        text: '@TempData["RoleAssignSuccess"]',
+                        confirmButtonColor: '#198754'
+                    });
+            </text>
+        }
+        else if (TempData["RoleAssignError"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Rol Atama Başarısız',
+                        text: '@TempData["RoleAssignError"]',
+                        confirmButtonColor: '#dc3545'
+                    });
+            </text>
+        }
+    </script>
+}

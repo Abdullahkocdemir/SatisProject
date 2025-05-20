@@ -1,0 +1,159 @@
+﻿@{
+    ViewData["Title"] = "AssignRole";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@{
+    var userId = ViewBag.UserId as string;
+    var userName = ViewBag.UserName as string;
+    var allRoles = ViewBag.AllRoles as List<SatışProject.Entities.AppRole>;
+    var userRoles = ViewBag.UserRoles as IList<string>;
+    ViewData["Title"] = "Rol Atama";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-gradient bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user-tag me-2"></i>Rol Yönetimi
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                        <i class="fas fa-info-circle me-2 fs-4"></i>
+                        <div>
+                            <strong>@userName</strong> kullanıcısı için rol yönetimi işlemleri yapabilirsiniz.
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Rol Atama Formu -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card border h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Rol Ata</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form asp-action="AssignRole" method="post">
+                                        <input type="hidden" name="userId" value="@userId" />
+                                        <div class="form-group mb-3">
+                                            <label class="form-label fw-bold">Rol Seçimi</label>
+                                            <select name="roleName" class="form-select form-select-lg">
+                                                @foreach (var role in allRoles!)
+                                                {
+                                                    <option value="@role.Name">@role.Name</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-plus me-2"></i>Rol Ata
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mevcut Roller -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card border h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Mevcut Roller</h5>
+                                </div>
+                                <div class="card-body">
+                                    @if (userRoles!.Count > 0)
+                                    {
+                                        <div class="list-group">
+                                            @foreach (var role in userRoles!)
+                                            {
+                                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <span>
+                                                        <i class="fas fa-tag me-2 text-primary"></i>
+                                                        <span class="fw-bold">@role</span>
+                                                    </span>
+                                                    <form method="post" asp-action="RemoveRole" asp-route-userId="@userId" asp-route-roleName="@role" class="d-inline">
+                                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bu rolü kaldırmak istediğinizden emin misiniz?')">
+                                                            <i class="fas fa-trash-alt me-1"></i>Kaldır
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            Bu kullanıcıya atanmış rol bulunmamaktadır.
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Kullanıcı Listesine Dön
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        @if (TempData["RoleAssignSuccess"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'success',
+                    title: 'Başarılı!',
+                    text: '@TempData["RoleAssignSuccess"]',
+                    confirmButtonColor: '#198754',
+                    confirmButtonText: 'Tamam'
+                                            });
+            </text>
+        }
+        else if (TempData["RoleAssignError"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'error',
+                    title: 'Hata!',
+                    text: '@TempData["RoleAssignError"]',
+                    confirmButtonColor: '#dc3545',
+                    confirmButtonText: 'Tamam'
+                                            });
+            </text>
+        }
+        else if (TempData["RoleRemoveSuccess"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'success',
+                    title: 'Başarılı!',
+                    text: '@TempData["RoleRemoveSuccess"]',
+                    confirmButtonColor: '#198754',
+                    confirmButtonText: 'Tamam'
+                                            });
+            </text>
+        }
+        else if (TempData["RoleRemoveError"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'error',
+                    title: 'Hata!',
+                    text: '@TempData["RoleRemoveError"]',
+                    confirmButtonColor: '#dc3545',
+                    confirmButtonText: 'Tamam'
+                                            });
+            </text>
+        }
+    </script>
+}
+

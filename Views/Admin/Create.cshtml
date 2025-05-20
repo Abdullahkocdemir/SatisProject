@@ -1,0 +1,118 @@
+﻿@model SatışProject.ViewModels.EmployeeCreateViewModel
+@{
+    ViewData["Title"] = "Yeni Çalışan ve Kullanıcı Ekle";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="card shadow border-0 rounded-4 col-md-8 mx-auto">
+        <div class="card-header bg-dark text-white rounded-top-4 d-flex align-items-center">
+            <i class="bi bi-person-plus-fill me-2 fs-4"></i>
+            <h4 class="mb-0">Yeni Çalışan ve Kullanıcı Ekle</h4>
+        </div>
+        <div class="card-body p-4 bg-light rounded-bottom-4">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <h5>Kullanıcı Bilgileri</h5>
+                <div class="mb-3">
+                    <label asp-for="FirstName" class="form-label"></label>
+                    <input asp-for="FirstName" class="form-control" placeholder="Adınızı giriniz..." />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="LastName" class="form-label"></label>
+                    <input asp-for="LastName" class="form-control" placeholder="Soyadınızı giriniz..." />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" placeholder="E-posta adresinizi giriniz..." />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control" type="password" placeholder="Şifre giriniz..." />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <h5 class="mt-4">Çalışan Bilgileri</h5>
+                <div class="mb-3">
+                    <label asp-for="Address" class="form-label"></label>
+                    <input asp-for="Address" class="form-control" placeholder="Adresinizi giriniz..." />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="City" class="form-label"></label>
+                    <input asp-for="City" class="form-control" placeholder="Şehir giriniz..." />
+                    <span asp-validation-for="City" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Country" class="form-label"></label>
+                    <input asp-for="Country" class="form-control" placeholder="Ülke giriniz..." />
+                    <span asp-validation-for="Country" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" placeholder="Pozisyon giriniz..." />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="DepartmentId" class="form-label">Departman</label>
+                    <select asp-for="DepartmentId" class="form-select"
+                            asp-items="@(ViewBag.Departments != null ?
+                                new SelectList(ViewBag.Departments, "DepartmentID", "Name") :
+                                new SelectList(new List<string>()))">
+                        <option value="">Seçiniz...</option>
+                    </select>
+                    <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="BirthDate" class="form-label"></label>
+                    <input asp-for="BirthDate" type="date" class="form-control" value="@DateTime.Now.AddYears(-20).ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="BirthDate" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Salary" class="form-label"></label>
+                    <input asp-for="Salary" class="form-control" placeholder="Maaş giriniz..." />
+                    <span asp-validation-for="Salary" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Notes" class="form-label"></label>
+                    <textarea asp-for="Notes" class="form-control" placeholder="Notlarınızı giriniz..."></textarea>
+                    <span asp-validation-for="Notes" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="ProfilePhoto" class="form-label">Profil Fotoğrafı</label>
+                    <input asp-for="ProfilePhoto" type="file" class="form-control" />
+                    <span asp-validation-for="ProfilePhoto" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label for="SelectedRole" class="form-label">Rol Seçiniz</label>
+                    <select asp-for="SelectedRole" class="form-select" asp-items="@(new SelectList(ViewBag.Roles, "Name", "Name"))">
+                        <option value="">Seçiniz...</option>
+                    </select>
+                    <span asp-validation-for="SelectedRole" class="text-danger"></span>
+                </div>
+
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success px-4 me-2">
+                        <i class="bi bi-save2 me-1"></i> Kaydet
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-x-circle me-1"></i> İptal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SatışProject.Context;
 
@@ -11,9 +12,11 @@ using SatışProject.Context;
 namespace SatışProject.Migrations
 {
     [DbContext(typeof(SatısContext))]
-    partial class SatısContextModelSnapshot : ModelSnapshot
+    [Migration("20250519013936_Mig_add_employe_IsActive")]
+    partial class Mig_add_employe_IsActive
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,21 @@ namespace SatışProject.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("AppRoleAppUser", b =>
+                {
+                    b.Property<string>("UserRolesId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UsersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("UserRolesId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("AppRoleAppUser");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
@@ -102,17 +120,7 @@ namespace SatışProject.Migrations
                     b.Property<string>("RoleId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("AppRoleId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("AppRoleId");
-
-                    b.HasIndex("AppUserId");
 
                     b.HasIndex("RoleId");
 
@@ -149,8 +157,7 @@ namespace SatışProject.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
@@ -197,16 +204,14 @@ namespace SatışProject.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -732,6 +737,21 @@ namespace SatışProject.Migrations
                     b.ToTable("UserLoginHistories");
                 });
 
+            modelBuilder.Entity("AppRoleAppUser", b =>
+                {
+                    b.HasOne("SatışProject.Entities.AppRole", null)
+                        .WithMany()
+                        .HasForeignKey("UserRolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SatışProject.Entities.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("SatışProject.Entities.AppRole", null)
@@ -761,14 +781,6 @@ namespace SatışProject.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("SatışProject.Entities.AppRole", null)
-                        .WithMany("UserRoles")
-                        .HasForeignKey("AppRoleId");
-
-                    b.HasOne("SatışProject.Entities.AppUser", null)
-                        .WithMany("UserRoles")
-                        .HasForeignKey("AppUserId");
-
                     b.HasOne("SatışProject.Entities.AppRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
@@ -904,19 +916,11 @@ namespace SatışProject.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("SatışProject.Entities.AppRole", b =>
-                {
-                    b.Navigation("UserRoles");
-                });
-
             modelBuilder.Entity("SatışProject.Entities.AppUser", b =>
                 {
-                    b.Navigation("Employee")
-                        .IsRequired();
+                    b.Navigation("Employee");
 
                     b.Navigation("LoginHistories");
-
-                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("SatışProject.Entities.Brand", b =>

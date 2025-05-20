@@ -1,0 +1,135 @@
+﻿@model SatışProject.ViewModels.UserRoleViewModel
+
+@{
+    ViewData["Title"] = "Kullanıcı Rolleri";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Kullanıcı Rolleri</h1>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <strong>@Model.UserName</strong> kullanıcısının rolleri
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Mevcut Roller -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Mevcut Roller</h5>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.UserRoles.Any())
+                            {
+                                <div class="list-group">
+                                    @foreach (var role in Model.UserRoles)
+                                    {
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            @role
+                                            <form asp-action="RemoveUserRole" method="post" class="remove-role-form">
+
+                                                <input type="hidden" name="userId" value="@Model.UserId" />
+                                                <input type="hidden" name="roleName" value="@role" />
+                                                <button type="submit" class="btn btn-danger btn-sm remove-role-btn">
+                                                    <i class="fas fa-times"></i> Kaldır
+                                                </button>
+
+                                            </form>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning">Bu kullanıcıya atanmış herhangi bir rol bulunmamaktadır.</div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rol Atama -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">Rol Ata</h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="AddUserRole" method="post">
+                                <input type="hidden" name="userId" value="@Model.UserId" />
+                                <div class="form-group">
+                                    <label>Rol Seçin</label>
+                                    <select name="roleName" class="form-control" required>
+                                        <option value="">-- Rol Seçin --</option>
+                                        @foreach (var role in Model.AllRoles)
+                                        {
+                                            if (!Model.UserRoles.Contains(role.Name!))
+                                            {
+                                                <option value="@role.Name">@role.Name</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-plus"></i> Rol Ata
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Kullanıcı Listesine Dön
+            </a>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.querySelectorAll('.remove-role-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault(); // Formun hemen gönderilmesini engelle
+
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: "Bu rol kullanıcıdan kaldırılacak!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Evet, kaldır!',
+                cancelButtonText: 'Vazgeç'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit(); // Onaylanırsa formu gönder
+                }
+            });
+        });
+    });
+</script>
+

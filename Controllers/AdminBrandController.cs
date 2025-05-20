@@ -8,55 +8,41 @@ namespace SatışProject.Controllers
     public class AdminBrandController : Controller
     {
         private readonly SatısContext _context;
-        private readonly IWebHostEnvironment _environment;
 
-        public AdminBrandController(SatısContext context, IWebHostEnvironment environment)
+        public AdminBrandController(SatısContext context)
         {
             _context = context;
-            _environment = environment;
         }
 
+        // Marka listesini gösteren ana sayfa (Index View)
         public IActionResult Index()
         {
             var values = _context.Brands.ToList();
             return View(values);
         }
+
+        // Yeni marka ekleme formunu gösteren GET metodu
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
+        // Yeni marka oluşturma işlemini yapan POST metodu (Logo işlemi kaldırıldı)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Brand brand, IFormFile? LogoFile)
+        public async Task<IActionResult> Create(Brand brand)
         {
             if (ModelState.IsValid)
             {
-                if (LogoFile != null && LogoFile.Length > 0)
-                {
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/brands");
-                    if (!Directory.Exists(uploadsFolder))
-                        Directory.CreateDirectory(uploadsFolder);
-
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(LogoFile.FileName);
-                    var filePath = Path.Combine(uploadsFolder, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await LogoFile.CopyToAsync(stream);
-                    }
-
-                    brand.LogoPath = "/uploads/brands/" + fileName;
-                }
-
-
                 _context.Brands.Add(brand);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(brand);
         }
+
+        // Düzenleme formunu gösteren GET metodu
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -66,9 +52,11 @@ namespace SatışProject.Controllers
 
             return View(brand);
         }
+
+        // Marka düzenleme işlemi (POST, logo işlemleri kaldırıldı)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Brand brand, IFormFile? LogoFile)
+        public async Task<IActionResult> Edit(Brand brand)
         {
             if (!ModelState.IsValid)
                 return View(brand);
@@ -77,45 +65,24 @@ namespace SatışProject.Controllers
             if (existingBrand == null)
                 return NotFound();
 
-            // Yeni logo yüklenmişse
-            if (LogoFile != null && LogoFile.Length > 0)
-            {
-                // Eski logoyu sil
-                if (!string.IsNullOrEmpty(existingBrand.LogoPath))
-                {
-                    var oldLogoPath = Path.Combine(_environment.WebRootPath, existingBrand.LogoPath.TrimStart('/'));
-                    if (System.IO.File.Exists(oldLogoPath))
-                        System.IO.File.Delete(oldLogoPath);
-                }
-
-                // Yeni logoyu yükle
-                var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "brands");
-                Directory.CreateDirectory(uploadsFolder);
-
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(LogoFile.FileName);
-                var filePath = Path.Combine(uploadsFolder, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await LogoFile.CopyToAsync(stream);
-                }
-
-                brand.LogoPath = "/uploads/brands/" + fileName;
-            }
-            else
-            {
-                // Yeni logo yüklenmediyse eski logo yolu korunur
-                brand.LogoPath = existingBrand.LogoPath;
-            }
-
             _context.Brands.Update(brand);
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
 
+        // Marka detaylarını gösteren GET metodu
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var brand = await _context.Brands.FindAsync(id);
+            if (brand == null)
+                return NotFound();
 
+            return View(brand);
+        }
 
+        // Marka silme işlemi (Logo silme işlemi kaldırıldı)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -124,22 +91,13 @@ namespace SatışProject.Controllers
             if (brand == null)
                 return NotFound();
 
-            // Logo dosyası varsa sunucudan sil
-            if (!string.IsNullOrEmpty(brand.LogoPath))
-            {
-                var logoFullPath = Path.Combine(_environment.WebRootPath, brand.LogoPath.TrimStart('/'));
+            // Silmek yerine pasif yap
+            brand.IsActive = false;
 
-                if (System.IO.File.Exists(logoFullPath))
-                {
-                    System.IO.File.Delete(logoFullPath);
-                }
-            }
-
-            _context.Brands.Remove(brand);
+            _context.Brands.Update(brand);
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index");
         }
-
     }
 }

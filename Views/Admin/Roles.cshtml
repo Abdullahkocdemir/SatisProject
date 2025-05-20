@@ -1,0 +1,108 @@
+﻿@model IEnumerable<SatışProject.Entities.AppRole>
+@{
+    ViewData["Title"] = "Rol Yönetimi";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-gray-800"><i class="fas fa-user-shield"></i> Rol Yönetimi</h1>
+        <a asp-action="CreateRole" class="btn btn-success shadow-sm">
+            <i class="fas fa-plus-circle"></i> Yeni Rol Ekle
+        </a>
+    </div>
+
+    <!-- Bilgilendirme Mesajları -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Kapat">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> @TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Kapat">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="card shadow-lg border-left-primary">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold">Sistemdeki Roller</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped" id="rolesTable" width="100%">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Rol Adı</th>
+                            <th>Açıklama</th>
+                            <th style="width: 180px;">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var role in Model)
+                        {
+                            <tr>
+                                <td>@role.Name</td>
+                                <td>@role.Description</td>
+                                <td>
+                                    <a asp-action="EditRole" asp-route-id="@role.Id" class="btn btn-outline-primary btn-sm mr-1">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+
+                                    <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteModal-@role.Id">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="deleteModal-@role.Id" tabindex="-1" role="dialog" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content shadow">
+                                                <div class="modal-header bg-danger text-white">
+                                                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Silme Onayı</h5>
+                                                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p><strong>@role.Name</strong> rolünü silmek istediğinize emin misiniz?</p>
+                                                    <small class="text-danger">Not: Bu rol kullanıcılarla ilişkiliyse silme başarısız olur.</small>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                                                    <form asp-action="DeleteRole" method="post" class="d-inline">
+                                                        <input type="hidden" name="id" value="@role.Id" />
+                                                        <button type="submit" class="btn btn-danger">Sil</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#rolesTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Turkish.json"
+                }
+            });
+        });
+    </script>
+}

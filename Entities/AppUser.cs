@@ -1,44 +1,49 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace SatışProject.Entities
 {
-    // AppUser sınıfı, IdentityUser sınıfından türetilmiştir.
-    // ASP.NET Core Identity sistemindeki kullanıcı yapısını genişletir.
+    // AppUser sınıfı, IdentityUser sınıfından türetilmiştir
     public class AppUser : IdentityUser
     {
-        // Kullanıcının adı
+        [Required]
+        [Display(Name = "Ad")]
+        [StringLength(50)]
         public string FirstName { get; set; } = string.Empty;
 
-        // Kullanıcının soyadı
+        [Required]
+        [Display(Name = "Soyad")]
+        [StringLength(50)]
         public string LastName { get; set; } = string.Empty;
 
-        // FullName, FirstName ve LastName'in birleşimidir.
+        [Display(Name = "Ad Soyad")]
         public string FullName => $"{FirstName} {LastName}";
 
-        // Kullanıcının aktiflik durumu
-        public bool IsActive { get; set; }
+        [Display(Name = "Aktif Mi?")]
+        public bool IsActive { get; set; } = true;
 
-        // Kullanıcının oluşturulma tarihi
-        public DateTime CreatedAt { get; set; }
+        [Display(Name = "Oluşturulma Tarihi")]
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        // Kullanıcının son güncellenme tarihi (null olabilir)
+        [Display(Name = "Güncelleme Tarihi")]
         public DateTime? UpdatedAt { get; set; }
 
-        public DateTime?ClosedAt { get; set; }
+        [Display(Name = "Kapanış Tarihi")]
+        public DateTime? ClosedAt { get; set; }
 
-        // Profil fotoğrafının URL'si (null olabilir)
+        [Display(Name = "Profil Fotoğrafı")]
         public string? ProfilePhotoUrl { get; set; }
 
-        // Kullanıcıya bağlı çalışan bilgisi (ilişkisel, null olabilir)
-        // virtual sayesinde Lazy Loading etkin olur
-        public virtual Employee? Employee { get; set; }
+        // Her kullanıcının mutlaka bir Employee kaydı olmalı (birebir ilişki)
+        public virtual Employee Employee { get; set; } = null!;
 
         // Kullanıcının giriş geçmişleri (1 kullanıcı - n giriş kaydı)
-        // virtual ile EF Core ilişkileri gerektiğinde yükleyebilir
         public virtual ICollection<UserLoginHistory> LoginHistories { get; set; } = new List<UserLoginHistory>();
 
-        // Kullanıcının rollerinin listesi (1 kullanıcı - n rol ilişkisi)
-        // virtual ile Lazy Loading aktif olur
-        public virtual ICollection<AppRole> UserRoles { get; set; } = new List<AppRole>();
+        // Kullanıcının rolleri aracılığıyla ilişki (çoka-çok ilişki)
+        // Not: Bu, Identity sisteminin kendi rollerinden farklı bir kolleksiyon
+        // Doğrudan erişmek için kullanışlı olabilir
+        public virtual ICollection<IdentityUserRole<string>> UserRoles { get; set; } = new List<IdentityUserRole<string>>();
     }
 }

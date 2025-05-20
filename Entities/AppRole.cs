@@ -1,17 +1,18 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace SatışProject.Entities
 {
-    // AppRole sınıfı, IdentityRole sınıfından türetilmiştir.
-    // ASP.NET Core Identity sistemine entegre bir rol yapısı sunar.
     public class AppRole : IdentityRole
     {
-        // Rolün açıklaması: Bu rol ne işe yarıyor? (örn: "Yönetici", "Satış Sorumlusu" gibi)
+        [Required]
+        [Display(Name = "Rol Açıklaması")]
+        [StringLength(256)]
         public string Description { get; set; } = string.Empty;
 
-        // Bu rolde bulunan kullanıcılar.
-        // ICollection ile ilişki tipi tanımlanır (1 role - n kullanıcı ilişkisi).
-        // virtual anahtar kelimesi Lazy Loading (tembel yükleme) özelliği için kullanılır.
-        public virtual ICollection<AppUser> Users { get; set; } = new List<AppUser>();
+        // Kullanıcılar (Çoka-çok ilişki için, bu bir kolaylık özelliğidir)
+        // Bu koleksiyonu doğrudan sorgulama yerine UserManager üzerinden roller sorgulanmalıdır
+        // Bu özellik genellikle Include ile veriler yüklendiğinde kolaylık sağlar
+        public virtual ICollection<IdentityUserRole<string>> UserRoles { get; set; } = new List<IdentityUserRole<string>>();
     }
 }

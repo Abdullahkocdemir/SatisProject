@@ -1,7 +1,6 @@
-﻿@model List<SatışProject.Entities.Brand>
-
+﻿@model List<Department>
 @{
-    ViewData["Title"] = "Marka Listesi";
+    ViewData["Title"] = "Departmanlar";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -11,11 +10,11 @@
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
 
 <div class="container mt-5">
-    <h3 class="text-center fw-bold text-primary mb-4">Marka Listesi</h3>
+    <h3 class="text-center fw-bold text-primary mb-4">Departman Listesi</h3>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex gap-2">
-            <input type="text" id="searchInput" class="form-control" placeholder="Markalarda ara..." />
+            <input type="text" id="searchInput" class="form-control" placeholder="Departmanlarda ara..." />
             <select id="itemsPerPage" class="form-select w-auto">
                 <option value="5">5</option>
                 <option value="10" selected>10</option>
@@ -24,18 +23,18 @@
         </div>
         @if (User.IsInRole("Admin"))
         {
-            <a href="/AdminBrand/Create" class="btn btn-success">
-                <i class="bi bi-plus-circle me-1"></i> Yeni Marka Ekle
+            <a href="/AdminDepartment/Create" class="btn btn-success">
+                <i class="bi bi-plus-circle me-1"></i> Yeni Departman Ekle
             </a>
         }
     </div>
 
     <div class="table-responsive shadow-sm bg-white rounded p-3">
-        <table class="table table-hover text-center align-middle" id="brandTable">
+        <table class="table table-hover text-center align-middle" id="departmentTable">
             <thead class="table-light">
                 <tr>
                     <th>#</th>
-                    <th class="text-start">Marka Adı</th>
+                    <th class="text-start">Departman Adı</th>
                     <th>Durum</th>
                     <th>İşlemler</th>
                 </tr>
@@ -48,35 +47,34 @@
                 {
                     <tr>
                         <td>@count</td>
-                        <td class="text-start fw-medium brand-name">@item.Name</td>
+                        <td class="text-start fw-medium department-name">@item.Name</td>
                         <td>
                             <span class="badge @(item.IsActive ? "bg-success" : "bg-danger")">
                                 @(item.IsActive ? "Aktif" : "Pasif")
                             </span>
                         </td>
-
                         <td>
                             @if (User.IsInRole("Admin"))
                             {
-                                <a href="/AdminBrand/Edit/@item.BrandID" class="btn btn-outline-warning btn-sm" title="Düzenle">
+                                <a href="/AdminDepartment/Edit/@item.DepartmentID" class="btn btn-outline-warning btn-sm" title="Düzenle">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
                             }
 
-                            <a href="/AdminBrand/Details/@item.BrandID" class="btn btn-outline-info btn-sm mx-1" title="Detaylar">
+                            <a href="/AdminDepartment/Details/@item.DepartmentID" class="btn btn-outline-info btn-sm mx-1" title="Detaylar">
                                 <i class="bi bi-info-circle"></i>
                             </a>
 
                             @if (User.IsInRole("Admin"))
                             {
                                 <button type="button" class="btn btn-outline-danger btn-sm delete-btn"
-                                        data-id="@item.BrandID"
+                                        data-id="@item.DepartmentID"
                                         data-name="@item.Name"
                                         title="Sil">
                                     <i class="bi bi-trash"></i>
                                 </button>
 
-                                <form id="deleteForm-@item.BrandID" action="/AdminBrand/Delete/@item.BrandID" method="post" style="display:none;">
+                                <form id="deleteForm-@item.DepartmentID" action="/AdminDepartment/Delete/@item.DepartmentID" method="post" style="display:none;">
                                     @Html.AntiForgeryToken()
                                 </form>
                             }
@@ -101,25 +99,26 @@
     $(document).ready(function () {
         const searchInput = $("#searchInput");
         const rowsPerPageSelect = $("#itemsPerPage");
-        const tableRows = $("#brandTable tbody tr");
+        const tableRows = $("#departmentTable tbody tr");
         const pagination = $("#pagination");
 
+        // Silme (Pasifleştirme) onayı
         $(".delete-btn").on("click", function () {
-            const brandId = $(this).data("id");
-            const brandName = $(this).data("name");
+            const departmentId = $(this).data("id");
+            const departmentName = $(this).data("name");
 
             Swal.fire({
                 title: 'Emin misiniz?',
-                text: `"${brandName}" adlı markayı silmek istediğinize emin misiniz?`,
+                text: `"${departmentName}" adlı departmanı pasif hale getirmek istediğinize emin misiniz?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Evet, sil!',
+                confirmButtonText: 'Evet, pasifleştir!',
                 cancelButtonText: 'İptal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $(`#deleteForm-${brandId}`).submit();
+                    $(`#deleteForm-${departmentId}`).submit();
                 }
             });
         });
@@ -149,8 +148,8 @@
                 for (let i = 1; i <= pageCount; i++) {
                     pagination.append(
                         `<li class="page-item ${i === page ? 'active' : ''}">
-                                        <a class="page-link" href="#">${i}</a>
-                                    </li>`
+                                <a class="page-link" href="#">${i}</a>
+                            </li>`
                     );
                 }
             }

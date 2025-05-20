@@ -1,0 +1,54 @@
+﻿@model SatışProject.Entities.AppRole
+@{
+    ViewData["Title"] = "Yeni Rol Oluştur";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-gray-800"><i class="fas fa-user-tag"></i> Yeni Rol Oluştur</h1>
+        <a asp-action="Roles" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Geri Dön
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-left-primary">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-id-badge"></i> Rol Bilgileri</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="CreateRole" method="post" autocomplete="off">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="form-group">
+                            <label asp-for="Name" class="font-weight-bold">Rol Adı</label>
+                            <input asp-for="Name" class="form-control" placeholder="Örn: Admin, Kullanıcı, Editör" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Description" class="font-weight-bold">Açıklama</label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Bu rolün amacı, yetki sınırları vb."></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="text-right mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Kaydet
+                            </button>
+                            <a asp-action="Roles" class="btn btn-light border ml-2">
+                                <i class="fas fa-times"></i> İptal
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

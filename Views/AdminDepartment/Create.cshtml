@@ -1,24 +1,27 @@
-﻿@model SatışProject.Entities.Brand
-
+﻿@model Department
 @{
-    ViewData["Title"] = "Yeni Marka Ekle";
+    ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+
 
 
 <div class="container mt-5">
     <div class="card shadow border-0 rounded-4 col-md-8 mx-auto">
         <div class="card-header bg-dark text-white rounded-top-4">
-            <h4 class="mb-0"><i class="bi bi-tags-fill me-2"></i>Yeni Marka Ekle</h4>
+            <h4 class="mb-0"><i class="bi bi-tags-fill me-2"></i>Yeni Departman Ekle</h4>
         </div>
         <div class="card-body p-4 bg-light rounded-bottom-4">
             <form asp-action="Create" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 <div class="mb-3">
-                    <label asp-for="Name" class="form-label">Marka Adı</label>
-                    <input asp-for="Name" class="form-control" placeholder="Marka adını giriniz..." required />
-                    <span asp-validation-for="Name" class="text-danger"></span>
+                    <label class="form-label">Departman Adı</label>
+                    <input asp-for="Name" class="form-control" placeholder="Departman adını giriniz..." required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Departman Açıklaması</label>
+                    <input asp-for="Description" class="form-control" placeholder="Departman açıklmasını giriniz..." required />
                 </div>
 
                 <div class="mb-4">

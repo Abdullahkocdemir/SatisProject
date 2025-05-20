@@ -12,6 +12,8 @@ namespace SatışProject.Entities
         [StringLength(50)]
         public string Name { get; set; } = null!;
 
+        public bool IsActive { get; set; } = true;
+
         // Departman açıklaması, opsiyonel, VarChar(500) tipinde.
         [Column(TypeName = "VarChar")]
         [StringLength(500)]

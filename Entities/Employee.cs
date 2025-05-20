@@ -3,13 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SatışProject.Entities
 {
-    public class Employee 
+    public class Employee
     {
         public int EmployeeID { get; set; }
         [Required]
         [Column(TypeName = "VarChar")]
         [StringLength(200)]
-        public string Address { get; set; } =string.Empty;
+        public string Address { get; set; } = string.Empty;
 
         [Required]
         [Column(TypeName = "VarChar")]
@@ -41,6 +41,9 @@ namespace SatışProject.Entities
 
         [Column(TypeName = "Decimal(18,2)")]
         public decimal Salary { get; set; }
+
+        [Required]
+        public bool IsActive { get; set; }
 
         // 🔁 AppUser ile zorunlu birebir ilişki
         [Required]
