@@ -1,0 +1,176 @@
+﻿@model SatışProject.Entities.SaleItem
+
+@{
+    ViewData["Title"] = "Satış Kalemi Düzenle";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // Admin layoutunu kullan
+}
+
+@* Gerekli CSS dosyaları (Font Awesome, Select2 için Bootstrap teması) *@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+<div class="container-fluid mt-5">
+    <h2 class="mb-4">@ViewData["Title"]</h2>
+
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-primary text-white rounded-top-4">
+            <h5 class="card-title mb-0"><i class="fas fa-pencil-alt me-2"></i>Satış No: @Model.Sale?.SaleNumber - Kalem Düzenle</h5>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Edit" method="post">
+                @* Model bazlı doğrulama hataları için genel alan *@
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                @* Gizli alanlar: SaleItem ID ve SaleID, form gönderildiğinde model bağlama için gereklidir *@
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="SaleId" />
+
+                <div class="row g-4">
+                    @* Bootstrap Gutter (g-4) ile boşluk eklendi *@
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="ProductId" class="form-label fw-bold">Ürün</label>
+                            <select name="ProductId" class="form-select select2" id="productSelect" required>
+                                <option value="">-- Ürün Seçin --</option>
+                                @foreach (var product in ViewBag.Products)
+                                {
+                                    // Ürün listesini oluştururken ProductId, UnitPrice ve StockQuantity'yi data nitelikleri olarak ekle
+                                    var selected = product.ProductId == Model.ProductId ? "selected" : "";
+                                    var optionText = $"{product.Name} ({product.UnitPrice.ToString("C2")}) - Stok: {product.StockQuantity}";
+                                    // Html.Raw kullanarak string'i doğrudan HTML olarak render et
+                                    @Html.Raw($"<option value='{product.ProductId}' data-price='{product.UnitPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)}' data-stock='{product.StockQuantity}' {selected}>{optionText}</option>")
+                                }
+                            </select>
+                            <span asp-validation-for="ProductId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Quantity" class="form-label fw-bold">Miktar</label>
+                            <input asp-for="Quantity" type="number" min="1" class="form-control" id="quantity" required />
+                            <span asp-validation-for="Quantity" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Birim Fiyat</label>
+                            <input type="text" id="unitPrice" class="form-control" readonly value="@Model.UnitPrice.ToString("F2")" />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">KDV Oranı (%)</label>
+                            @* KDV oranını değiştirebilir input olarak eklendi *@
+                            <input type="number" id="kdvRate" class="form-control" min="0" value="20" /> @* Varsayılan %20 *@
+                            <span class="text-muted small">Hesaplamalarda kullanılacak KDV oranı.</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Toplam</label>
+                            <input type="text" id="totalAmount" class="form-control" readonly value="@Model.TotalAmount.ToString("F2")" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-action="Details" asp-route-id="@Model.SaleId" class="btn btn-secondary px-4">
+                        <i class="fas fa-arrow-left me-2"></i> Geri Dön
+                    </a>
+                    <button type="submit" class="btn btn-success px-4" id="submitButton">
+                        <i class="fas fa-save me-2"></i> Değişiklikleri Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @* jQuery'yi Select2'den önce yükleyin *@
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Select2'yi başlat
+            $('#productSelect').select2({
+                theme: 'bootstrap-5', // Bootstrap 5 temasını kullan
+                width: '100%',
+                placeholder: "-- Ürün Seçin --" // Placeholder ekle
+            });
+
+            // Hesaplamaları yapan fonksiyon
+            function calculateTotals() {
+                var quantityInput = document.getElementById('quantity');
+                var productSelect = document.getElementById('productSelect');
+                var selectedOption = productSelect.options[productSelect.selectedIndex];
+                var kdvRateInput = document.getElementById('kdvRate'); // KDV oranı inputunu al
+
+                var quantity = parseFloat(quantityInput.value) || 0;
+                var unitPrice = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+                var availableStock = parseInt(selectedOption.getAttribute('data-stock')) || 0;
+                var kdvRate = parseFloat(kdvRateInput.value) || 0; // KDV oranını al
+
+                // Seçili ürünün birim fiyatını göster
+                document.getElementById('unitPrice').value = unitPrice.toFixed(2);
+
+                // Stok kontrolü
+                var oldProductId = @Model.ProductId;
+                var oldQuantity = @Model.Quantity;
+                var currentProductId = parseInt(productSelect.value);
+
+                if (currentProductId === oldProductId) {
+                    if ((availableStock + oldQuantity) < quantity) {
+                        alert('Stok yetersiz! Mevcut: ' + (availableStock + oldQuantity) + ', İstenen: ' + quantity);
+                        quantityInput.value = (availableStock + oldQuantity);
+                        quantity = (availableStock + oldQuantity);
+                    }
+                } else {
+                    if (availableStock < quantity) {
+                        alert('Stok yetersiz! Mevcut: ' + availableStock + ', İstenen: ' + quantity);
+                        quantityInput.value = availableStock;
+                        quantity = availableStock;
+                    }
+                }
+
+                // Negatif veya sıfır miktar girişi engelle (min="1" olsa bile JS tarafında emin olalım)
+                if (quantity <= 0) {
+                    quantity = 1;
+                    quantityInput.value = 1;
+                }
+
+                var subTotal = quantity * unitPrice;
+                var tax = subTotal * (kdvRate / 100); // KDV oranına göre hesapla
+                var total = subTotal + tax;
+
+                // KDV ve Toplam alanlarını güncelle
+                document.getElementById('taxAmount').value = tax.toFixed(2);
+                document.getElementById('totalAmount').value = total.toFixed(2);
+            }
+
+            // Ürün seçimi değiştiğinde
+            document.getElementById('productSelect').addEventListener('change', function () {
+                calculateTotals();
+            });
+
+            // Miktar değiştiğinde
+            document.getElementById('quantity').addEventListener('input', function () {
+                calculateTotals();
+            });
+
+            // KDV oranı değiştiğinde (yeni eklendi)
+            document.getElementById('kdvRate').addEventListener('input', function () {
+                calculateTotals();
+            });
+
+            // Sayfa yüklendiğinde veya model verisi geldiğinde ilk hesaplamayı yap
+            calculateTotals();
+        });
+    </script>
+}

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SatışProject.Context;
 
@@ -11,9 +12,11 @@ using SatışProject.Context;
 namespace SatışProject.Migrations
 {
     [DbContext(typeof(SatısContext))]
-    partial class SatısContextModelSnapshot : ModelSnapshot
+    [Migration("20250521163505_Mig_Update_adaasdasd")]
+    partial class Mig_Update_adaasdasd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -652,9 +655,6 @@ namespace SatışProject.Migrations
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("GrandTotal")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -676,14 +676,8 @@ namespace SatışProject.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("SubTotal")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("TaxAmount")
                         .HasColumnType("Decimal(18,2)");
-
-                    b.Property<decimal>("TaxTotal")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("Decimal(18,2)");

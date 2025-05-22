@@ -1,0 +1,37 @@
+﻿@model SatışProject.Entities.Customer
+
+@{
+    ViewData["Title"] = "Müşteri Detay";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+<div class="container mt-5">
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-dark text-white rounded-top-4">
+            <h4 class="mb-0"><i class="bi bi-person-vcard-fill me-2"></i>Müşteri Detayı</h4>
+        </div>
+        <div class="card-body p-4 bg-light">
+            <div class="row g-3">
+                <div class="col-md-6"><strong>Şirket Adı:</strong> @Model.CompanyName</div>
+                <div class="col-md-6"><strong>Email:</strong> @Model.Email</div>
+                <div class="col-md-6"><strong>Telefon:</strong> @Model.PhoneNumber</div>
+                <div class="col-md-6"><strong>Adres:</strong> @Model.Address</div>
+                <div class="col-md-6"><strong>Şehir:</strong> @Model.City</div>
+                <div class="col-md-6"><strong>Ülke:</strong> @Model.Country</div>
+                <div class="col-md-6"><strong>Vergi No:</strong> @Model.TaxNumber</div>
+                <div class="col-md-6"><strong>Vergi Dairesi:</strong> @(string.IsNullOrEmpty(Model.TaxOffice) ? "-" : Model.TaxOffice)</div>
+                <div class="col-md-6"><strong>Durumu:</strong> @Model.IsActive</div>
+
+            </div>
+
+            <div class="mt-4 text-end">
+                <a href="/Current/Index" class="btn btn-secondary px-4">
+                    <i class="bi bi-arrow-left-circle me-1"></i> Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

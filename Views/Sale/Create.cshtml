@@ -1,0 +1,241 @@
+﻿@model SatışProject.Entities.Sale
+
+@{
+    ViewData["Title"] = "Yeni Satış Oluştur";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <h2 class="mb-4">@ViewData["Title"]</h2>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <form asp-action="Create" method="post" id="saleForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Satış Numarası</label>
+                        <input asp-for="SaleNumber" class="form-control" readonly />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="SaleDate" class="form-label">Satış Tarihi</label>
+                        <input type="text" value="@Model.SaleDate.ToString("dd.MM.yyyy HH:mm")" class="form-control" readonly />
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="CustomerId" class="form-label">Müşteri</label>
+                        <select asp-for="CustomerId" class="form-select select2" required>
+                            <option value="">-- Müşteri Seçin --</option>
+                            @foreach (var customer in ViewBag.Customers)
+                            {
+                                <option value="@customer.CustomerID">@customer.CompanyName (@customer.City)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="EmployeeId" class="form-label">Satış Görevlisi</label>
+                        @* Satış görevlisi otomatik olarak oturum açmış kullanıcı olacak ve değiştirilemeyecek *@
+                        @{
+                            // ViewBag.Employees'i açıkça List<SatışProject.Entities.Employee> türüne dönüştürün
+                            var employeeList = ViewBag.Employees as List<SatışProject.Entities.Employee>;
+                            // İlk çalışanı alın veya null ise null döndürün
+                            var currentEmployee = employeeList?.FirstOrDefault();
+                        }
+                        <input type="hidden" asp-for="EmployeeId" value="@(currentEmployee?.EmployeeID)" />
+                        <input type="text" class="form-control" value="@(currentEmployee?.AppUser?.FullName)" readonly />
+                    </div>
+                </div>
+
+
+                <h5>Ürünler</h5>
+                <table class="table table-bordered" id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>Ürün</th>
+                            <th>Stok</th>
+                            <th>Birim Fiyat</th>
+                            <th>Miktar</th>
+                            <th>Ara Toplam</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <button type="button" class="btn btn-primary mb-3" id="addProductRow">Ürün Ekle</button>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Toplam Ara Toplam</label>
+                        <input type="text" class="form-control" id="totalSubTotal" readonly />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">KDV Oranı (%)</label>
+                        <input type="number" class="form-control" id="kdvRate" value="18" min="0" max="100" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">KDV Tutarı</label>
+                        <input type="text" class="form-control" id="totalTax" readonly />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Genel Toplam (KDV Dahil)</label>
+                        <input type="text" class="form-control" id="totalWithTax" readonly />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Notes" class="form-label">Notlar</label>
+                    <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                </div>
+
+                @* SaleItems'ı göndermek için *@
+                <div id="saleItemsContainer"></div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+                    <button type="submit" class="btn btn-success" id="saveBtn">Satışı Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Ürün satırlarını ekle
+            $('#addProductRow').click(function () {
+                addProductRow();
+            });
+
+            function addProductRow() {
+                var rowHtml = `
+                            <tr>
+                                <td>
+                                    <select class="form-select productSelect" required>
+                                        <option value="">-- Ürün Seçin --</option>
+        @foreach (var product in ViewBag.Products)
+        {
+                    // Sadece stokta olan ürünleri veya zaten seçili olan ürünü göster.
+        // Bu kısım JavaScript tarafında dinamik eklendiği için,
+            // ViewBag.Products'ın tamamını burada bırakmak yerine,
+            // JavaScript'te bir ürün listesi tutmak daha iyi olabilir.
+            // Ancak mevcut yapıyı korumak adına, tüm ürünleri listeliyoruz.
+            // Stok kontrolü JS tarafında yapılıyor.
+                                                <option value="@product.ProductId" data-price="@product.UnitPrice" data-stock="@product.StockQuantity">@product.Name (@product.UnitPrice.ToString("C2"))</option>
+        }
+                                    </select>
+                                </td>
+                                <td class="stockCell">-</td>
+                                <td>
+                                    <input type="text" class="form-control unitPrice" readonly />
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control quantity" min="1" value="1" />
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control subTotal" readonly />
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm removeRow">Sil</button>
+                                </td>
+                            </tr>`;
+                $('#productsTable tbody').append(rowHtml);
+            }
+
+            // Ürün seçildiğinde fiyat ve stok bilgisi
+            $('#productsTable').on('change', '.productSelect', function () {
+                var selectedOption = $(this).find('option:selected');
+                var price = parseFloat(selectedOption.data('price')) || 0;
+                var stock = parseInt(selectedOption.data('stock')) || 0;
+
+                var row = $(this).closest('tr');
+                row.find('.unitPrice').val(price.toFixed(2));
+                row.find('.stockCell').text(stock);
+                calculateRowSubtotal(row);
+                updateTotals();
+            });
+
+            // Miktar veya ürün değiştiğinde toplamları güncelle
+            $('#productsTable').on('input', '.quantity', function () {
+                var row = $(this).closest('tr');
+                calculateRowSubtotal(row);
+                updateTotals();
+            });
+
+            // Silme işlemi
+            $('#productsTable').on('click', '.removeRow', function () {
+                $(this).closest('tr').remove();
+                updateTotals();
+            });
+
+            // Hesaplama fonksiyonları
+            function calculateRowSubtotal(row) {
+                var price = parseFloat(row.find('.unitPrice').val()) || 0;
+                var quantity = parseInt(row.find('.quantity').val()) || 0;
+                var stockText = row.find('.stockCell').text();
+                var stock = parseInt(stockText) || 0;
+
+                if (quantity > stock) {
+                    // alert('Stok yetersiz!'); // Kullanıcıya modal veya daha iyi bir bildirim gösterilmeli
+                    console.warn('Stok yetersiz!'); // Konsola uyarı
+                    row.find('.quantity').val(stock);
+                    quantity = stock;
+                }
+
+                var subTotal = price * quantity;
+                row.find('.subTotal').val(subTotal.toFixed(2));
+            }
+
+            function updateTotals() {
+                var totalSubTotal = 0;
+                $('#productsTable tbody tr').each(function () {
+                    var subTotal = parseFloat($(this).find('.subTotal').val()) || 0;
+                    totalSubTotal += subTotal;
+                });
+
+                $('#totalSubTotal').val(totalSubTotal.toFixed(2));
+
+                var kdvRate = parseFloat($('#kdvRate').val()) || 0;
+                var taxAmount = totalSubTotal * kdvRate / 100;
+                var totalWithTax = totalSubTotal + taxAmount;
+
+                $('#totalTax').val(taxAmount.toFixed(2));
+                $('#totalWithTax').val(totalWithTax.toFixed(2));
+            }
+
+            // KDV oranı değiştiğinde toplamları güncelle
+            $('#kdvRate').on('change', function () {
+                updateTotals();
+            });
+
+            // Form gönderildiğinde SaleItems'ı hazırla
+            $('#saleForm').submit(function () {
+                // Tüm satırlar için
+                $('#saleItemsContainer').empty();
+                $('#productsTable tbody tr').each(function (index) {
+                    var productId = $(this).find('.productSelect').val();
+                    var quantity = $(this).find('.quantity').val();
+                    var unitPrice = $(this).find('.unitPrice').val();
+                    var subTotal = $(this).find('.subTotal').val();
+
+                    if (productId) {
+                        // Hidden inputlar oluştur
+                        var prefix = `SaleItems[${index}]`;
+                        $('#saleItemsContainer').append(`
+                                        <input type="hidden" name="${prefix}.ProductId" value="${productId}" />
+                                        <input type="hidden" name="${prefix}.Quantity" value="${quantity}" />
+                                        <input type="hidden" name="${prefix}.UnitPrice" value="${unitPrice}" />
+                                        <input type="hidden" name="${prefix}.SubTotal" value="${subTotal}" />
+                                    `);
+                    }
+                });
+                // Form gönder
+                return true;
+            });
+        });
+    </script>
+}

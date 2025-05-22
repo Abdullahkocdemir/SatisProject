@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SatışProject.Context;
 
@@ -11,9 +12,11 @@ using SatışProject.Context;
 namespace SatışProject.Migrations
 {
     [DbContext(typeof(SatısContext))]
-    partial class SatısContextModelSnapshot : ModelSnapshot
+    [Migration("20250521125542_Mig_Update")]
+    partial class Mig_Update
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -652,9 +655,6 @@ namespace SatışProject.Migrations
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("GrandTotal")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -662,7 +662,10 @@ namespace SatışProject.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("VarChar(500)");
 
-                    b.Property<int?>("ProductId")
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("SaleDate")
@@ -677,15 +680,15 @@ namespace SatışProject.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("SubTotal")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("Decimal(18,2)");
 
                     b.Property<decimal>("TaxAmount")
                         .HasColumnType("Decimal(18,2)");
 
-                    b.Property<decimal>("TaxTotal")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("TotalAmount")
+                        .HasColumnType("Decimal(18,2)");
+
+                    b.Property<decimal>("UnitPrice")
                         .HasColumnType("Decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedDate")
@@ -700,44 +703,6 @@ namespace SatışProject.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("Sales");
-                });
-
-            modelBuilder.Entity("SatışProject.Entities.SaleItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SaleId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("SubTotal")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TaxAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("SaleId");
-
-                    b.ToTable("SaleItems");
                 });
 
             modelBuilder.Entity("SatışProject.Entities.UserLoginHistory", b =>
@@ -921,32 +886,17 @@ namespace SatışProject.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SatışProject.Entities.Product", null)
+                    b.HasOne("SatışProject.Entities.Product", "Product")
                         .WithMany("Sales")
-                        .HasForeignKey("ProductId");
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Customer");
 
                     b.Navigation("Employee");
-                });
-
-            modelBuilder.Entity("SatışProject.Entities.SaleItem", b =>
-                {
-                    b.HasOne("SatışProject.Entities.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SatışProject.Entities.Sale", "Sale")
-                        .WithMany("SaleItems")
-                        .HasForeignKey("SaleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Product");
-
-                    b.Navigation("Sale");
                 });
 
             modelBuilder.Entity("SatışProject.Entities.UserLoginHistory", b =>
@@ -1017,8 +967,6 @@ namespace SatışProject.Migrations
             modelBuilder.Entity("SatışProject.Entities.Sale", b =>
                 {
                     b.Navigation("Invoices");
-
-                    b.Navigation("SaleItems");
                 });
 #pragma warning restore 612, 618
         }

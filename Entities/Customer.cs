@@ -56,6 +56,9 @@ namespace SatışProject.Entities
         [StringLength(50)]
         public string? TaxOffice { get; set; }
 
+        // Yumuşak silme için aktiflik durumu
+        public bool IsActive { get; set; } = true;
+
         // Müşterinin yaptığı satışlar koleksiyonu, virtual.
         public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
 

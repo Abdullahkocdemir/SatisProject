@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SatışProject.Context;
 
@@ -11,9 +12,11 @@ using SatışProject.Context;
 namespace SatışProject.Migrations
 {
     [DbContext(typeof(SatısContext))]
-    partial class SatısContextModelSnapshot : ModelSnapshot
+    [Migration("20250521170346_Mig_addsa_")]
+    partial class Mig_addsa_
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

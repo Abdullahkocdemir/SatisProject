@@ -1,0 +1,217 @@
+﻿@model IEnumerable<SatışProject.Entities.Sale>
+
+@{
+    // Sayfa başlığını ayarlar.
+    ViewData["Title"] = "Satış Listesi";
+    // Yönetici paneli düzenini (layout) kullanır.
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    // Kullanıcının yönetici olup olmadığını ViewBag'den al.
+    bool isAdmin = ViewBag.IsAdmin != null && (bool)ViewBag.IsAdmin;
+
+    // Filtreleme için mevcut seçili değerleri ViewBag'den alır.
+    int? selectedEmployeeId = ViewBag.SelectedEmployeeId;
+    int? selectedMonth = ViewBag.SelectedMonth;
+    int? selectedYear = ViewBag.SelectedYear;
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.min.css" rel="stylesheet" /> --}} @* DataTables CSS kaldırıldı *@
+
+<div class="container-fluid mt-5">
+    <h3 class="text-center fw-bold text-primary mb-4">@ViewData["Title"]</h3>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row mb-3 align-items-center">
+        <div class="col-md-9 d-flex align-items-center">
+            <form asp-action="Index" method="get" id="filterForm" class="d-flex w-100 flex-wrap">
+                <div class="me-2 mb-2 flex-grow-1">
+                    <label for="employeeId" class="form-label visually-hidden">Personel</label>
+                    <select name="employeeId" id="employeeId" class="form-select">
+                        @{
+                            string allEmployeesSelected = (!selectedEmployeeId.HasValue) ? "selected" : "";
+                            @Html.Raw($"<option value=\"\" {allEmployeesSelected}>Tüm Personel</option>")
+                        }
+                        @foreach (var employee in ViewBag.Employees)
+                        {
+                            string selectedAttr = (selectedEmployeeId.HasValue && selectedEmployeeId.Value == employee.EmployeeID) ? "selected" : "";
+                            @Html.Raw($"<option value=\"{employee.EmployeeID}\" {selectedAttr}>{employee.AppUser?.FullName ?? employee.EmployeeID.ToString()}</option>")
+                        }
+                    </select>
+                </div>
+                <div class="me-2 mb-2 flex-grow-1">
+                    <label for="month" class="form-label visually-hidden">Ay</label>
+                    <select name="month" id="month" class="form-select">
+                        @{
+                            string allMonthsSelected = (!selectedMonth.HasValue) ? "selected" : "";
+                            @Html.Raw($"<option value=\"\" {allMonthsSelected}>Tüm Aylar</option>")
+                        }
+                        @for (int i = 1; i <= 12; i++)
+                        {
+                            string selectedAttr = (selectedMonth.HasValue && selectedMonth.Value == i) ? "selected" : "";
+                            string monthName = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i);
+                            @Html.Raw($"<option value=\"{i}\" {selectedAttr}>{monthName}</option>")
+                        }
+                    </select>
+                </div>
+                <div class="me-2 mb-2 flex-grow-1">
+                    <label for="year" class="form-label visually-hidden">Yıl</label>
+                    <select name="year" id="year" class="form-select">
+                        @{
+                            string allYearsSelected = (!selectedYear.HasValue) ? "selected" : "";
+                            @Html.Raw($"<option value=\"\" {allYearsSelected}>Tüm Yıllar</option>")
+                        }
+                        @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 10; i--) // Son 10 yıl
+                        {
+                            string selectedAttr = (selectedYear.HasValue && selectedYear.Value == i) ? "selected" : "";
+                            @Html.Raw($"<option value=\"{i}\" {selectedAttr}>{i}</option>")
+                        }
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-3 d-flex justify-content-end">
+            <a asp-action="Create" class="btn btn-success">
+                <i class="fas fa-plus-circle me-1"></i> Yeni Satış Ekle
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow rounded p-3">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover text-center align-middle" {{-- id="salesTable" --}} @* id kaldırıldı *@>
+                    <thead class="table-light">
+                        <tr>
+                            <th>Satış No</th>
+                            <th>Müşteri</th>
+                            <th>Satış Sorumlusu</th>
+                            <th>Toplam Tutar</th>
+                            <th>Tarih</th>
+                            <th>Durum</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.SaleNumber</td>
+                                <td>@(item.Customer?.CompanyName ?? "N/A")</td>
+                                <td>@(item.Employee?.AppUser?.FullName ?? "N/A")</td>
+                                <td>@item.GrandTotal.ToString("C2")</td>
+                                <td>@item.SaleDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td>
+                                    <span class="badge @GetStatusBadge(item.Status)">@item.Status.GetDisplayName()</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm" title="Detaylar">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger btn-sm delete-btn ms-1"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteModal"
+                                                data-id="@item.Id"
+                                                data-name="@item.SaleNumber"
+                                                title="Sil">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">Satış Silme Onayı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteConfirmationText"></p>
+                <p><strong>Dikkat:</strong> Bu işlem geri alınamaz ve silinen satış kaydına ait ürün stok bilgisi otomatik olarak geri yüklenir.</p>
+            </div>
+            <div class="modal-footer">
+                <form asp-action="Delete" method="post" id="deleteForm">
+                    <input type="hidden" id="itemId" name="id" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-danger">Sil</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    {{-- DataTables JavaScript dosyaları kaldırıldı --}}
+    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
+    {{-- <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script> --}}
+    {{-- <script src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.min.js"></script> --}}
+    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> --}}
+    {{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
+
+    <script>
+        $(document).ready(function () {
+            // DataTable entegrasyonu kaldırıldı, bu kısım artık gerekli değil.
+            // $('#salesTable').DataTable({ /* ... */ });
+
+            // Personel, Ay veya Yıl seçimi değiştiğinde formu otomatik olarak gönderir.
+            $('#employeeId, #month, #year').on('change', function() {
+                $('#filterForm').submit();
+            });
+
+            // Silme modalı açıldığında verileri hazırlar.
+            $('#deleteModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var id = button.data('id');
+                var name = button.data('name');
+
+                $('#itemId').val(id);
+                $('#deleteConfirmationText').text(name + ' numaralı satış kaydını silmek istediğinizden emin misiniz?');
+            });
+
+            // Başarı/Hata alert'lerini 5 saniye sonra otomatik olarak kapatır.
+            setTimeout(function () {
+                $('.alert').alert('close');
+            }, 5000);
+        });
+    </script>
+}
+
+@functions {
+    string GetStatusBadge(SatışProject.Entities.SaleStatus status)
+    {
+        return status switch
+        {
+            SatışProject.Entities.SaleStatus.Completed => "bg-success",
+            SatışProject.Entities.SaleStatus.Pending => "bg-warning text-dark",
+            SatışProject.Entities.SaleStatus.Cancelled => "bg-danger",
+            SatışProject.Entities.SaleStatus.Returned => "bg-info text-dark",
+            SatışProject.Entities.SaleStatus.OnHold => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+}

@@ -22,7 +22,9 @@ namespace SatışProject.Context
         public DbSet<InvoiceItem> InvoiceItems { get; set; }    // Fatura detay tablosu
         public DbSet<Product> Products { get; set; }            // Ürün tablosu
         public DbSet<Sale> Sales { get; set; }                  // Satış tablosu
+        public DbSet<SaleItem> SaleItems { get; set; }                  
         public DbSet<UserLoginHistory> UserLoginHistories { get; set; } // Kullanıcı giriş geçmişi
+
 
         // Model konfigürasyonları
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -68,12 +70,6 @@ namespace SatışProject.Context
                 .HasOne(s => s.Employee)
                 .WithMany(e => e.Sales)
                 .HasForeignKey(s => s.EmployeeId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Sale>()
-                .HasOne(s => s.Product)
-                .WithMany(p => p.Sales)
-                .HasForeignKey(s => s.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Fatura -> Müşteri ilişkisi

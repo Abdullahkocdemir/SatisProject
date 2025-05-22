@@ -1,0 +1,170 @@
+﻿@model SatışProject.Entities.Sale
+
+@{
+    ViewData["Title"] = "Satış Detayları";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <h2 class="mb-4">@ViewData["Title"]</h2>
+
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Satış Bilgileri - Satış No: @Model.SaleNumber</h5>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Satış Numarası:</dt>
+                <dd class="col-sm-9">@Model.SaleNumber</dd>
+
+                <dt class="col-sm-3">Satış Tarihi:</dt>
+                <dd class="col-sm-9">@Model.SaleDate.ToString("dd.MM.yyyy HH:mm")</dd>
+
+                <dt class="col-sm-3">Müşteri:</dt>
+                <dd class="col-sm-9">@(Model.Customer!.CompanyName ?? "N/A")</dd>
+
+                <dt class="col-sm-3">Satış Sorumlusu:</dt>
+                <dd class="col-sm-9">@(Model.Employee?.AppUser?.FullName ?? "N/A")</dd>
+
+                <dt class="col-sm-3">Durum:</dt>
+                <dd class="col-sm-9">@Model.Status.GetDisplayName()</dd> @* Requires a GetDisplayName extension method if not already implemented *@
+
+                <dt class="col-sm-3">Notlar:</dt>
+                <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.Notes) ? "Yok" : Model.Notes)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="card-title mb-0">Satış Kalemleri</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.SaleItems != null && Model.SaleItems.Any())
+            {
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Ürün Adı</th>
+                            <th>Miktar</th>
+                            <th>Birim Fiyat</th>
+                            <th>Ara Toplam</th>
+                            <th>KDV</th>
+                            <th>Toplam Tutar</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.SaleItems.OrderBy(si => si.Product?.Name))
+                        {
+                            <tr>
+                                <td>@(item.Product?.Name ?? "Ürün Silinmiş")</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.UnitPrice.ToString("C2")</td>
+                                <td>@item.SubTotal.ToString("C2")</td>
+                                <td>@item.TaxAmount.ToString("C2")</td>
+                                <td>@item.TotalAmount.ToString("C2")</td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i> Düzenle
+                                    </a>
+                                    @* Add a delete option for sale item if needed, but be careful with stock reversal *@
+                                    <button type="button" class="btn btn-sm btn-danger delete-sale-item-btn" data-id="@item.Id" data-sale-id="@Model.Id">
+                                        <i class="fas fa-trash"></i> Sil
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>Bu satışa ait herhangi bir ürün kalemi bulunmamaktadır.</p>
+            }
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="card-title mb-0">Satış Toplamları</h5>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Ara Toplam (KDV Hariç):</dt>
+                <dd class="col-sm-9"><strong>@Model.SubTotal.ToString("C2")</strong></dd>
+
+                <dt class="col-sm-3">KDV Toplamı:</dt>
+                <dd class="col-sm-9"><strong>@Model.TaxTotal.ToString("C2")</strong></dd>
+
+                <dt class="col-sm-3">Genel Toplam (KDV Dahil):</dt>
+                <dd class="col-sm-9"><h4 class="text-primary"><strong>@Model.GrandTotal.ToString("C2")</strong></h4></dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Satış Listesine Dön
+        </a>
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Bu satışı silmek istediğinizden emin misiniz? Bu işlem, ürün stoklarını geri ekleyecektir.');">
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Satışı Sil
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Optional: SweetAlert for delete confirmation for Sale Item
+            $('.delete-sale-item-btn').click(function () {
+                var saleItemId = $(this).data('id');
+                var saleId = $(this).data('sale-id');
+                Swal.fire({
+                    title: 'Emin misiniz?',
+                    text: "Bu satış kalemini silmek, ilgili ürün stoğunu geri ekleyecektir. Bu işlemi geri alamazsınız!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Evet, sil!',
+                    cancelButtonText: 'İptal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/AdminSale/DeleteSaleItem/' + saleItemId, // You would need to create this action
+                            type: 'POST',
+                            data: { id: saleItemId }, // Send the ID in the request body
+                            success: function (response) {
+                                if (response.success) {
+                                    Swal.fire(
+                                        'Silindi!',
+                                        'Satış kalemi başarıyla silindi.',
+                                        'success'
+                                    ).then(() => {
+                                        window.location.href = '/AdminSale/Details/' + saleId; // Redirect to refresh details
+                                    });
+                                } else {
+                                    Swal.fire(
+                                        'Hata!',
+                                        response.message || 'Satış kalemi silinirken bir hata oluştu.',
+                                        'error'
+                                    );
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                Swal.fire(
+                                    'Hata!',
+                                    'Bir sunucu hatası oluştu: ' + error,
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

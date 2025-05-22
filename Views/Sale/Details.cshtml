@@ -1,0 +1,339 @@
+﻿@model SatışProject.Entities.Sale
+
+@{
+    ViewData["Title"] = "Satış Detayları";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    // Kullanıcının yönetici olup olmadığını ViewBag'den al
+    bool isAdmin = ViewBag.IsAdmin != null && (bool)ViewBag.IsAdmin;
+}
+
+@* Font Awesome için güncel CDN *@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+@* Bootstrap ikonları zaten Bootstrap 5 ile gelir, ayrı bir linke gerek yok. Eğer bi bi-box-seam gibi özel ikonlar kullanılıyorsa kalsın. *@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+
+<div class="container-fluid mt-5">
+    @* Konteyneri daha geniş tuttum *@
+    <h2 class="mb-4">@ViewData["Title"]</h2>
+
+    <div class="card shadow mb-4 border-0 rounded-4">
+        @* Stil güncellendi *@
+        <div class="card-header bg-primary text-white rounded-top-4">
+            @* Başlık rengi ve köşe stili *@
+            <h5 class="card-title mb-0"><i class="fas fa-info-circle me-2"></i>Satış Bilgileri - Satış No: @Model.SaleNumber</h5>
+        </div>
+        <div class="card-body p-4">
+            @* İç boşluk eklendi *@
+            <dl class="row mb-0">
+                @* dl etiketi daha düzenli bilgi sunar *@
+                <dt class="col-sm-3 fw-bold">Satış Numarası:</dt>
+                <dd class="col-sm-9">@Model.SaleNumber</dd>
+
+                <dt class="col-sm-3 fw-bold">Satış Tarihi:</dt>
+                <dd class="col-sm-9">@Model.SaleDate.ToString("dd.MM.yyyy HH:mm")</dd>
+
+                <dt class="col-sm-3 fw-bold">Müşteri:</dt>
+                <dd class="col-sm-9">@(Model.Customer?.CompanyName ?? "N/A")</dd>
+
+                <dt class="col-sm-3 fw-bold">Satış Sorumlusu:</dt>
+                <dd class="col-sm-9">@(Model.Employee?.AppUser?.FullName ?? "N/A")</dd>
+
+                <dt class="col-sm-3 fw-bold">Durum:</dt>
+                <dd class="col-sm-9">
+                    <span class="badge @GetStatusBadge(Model.Status)">@Model.Status.GetDisplayName()</span>
+                </dd>
+
+                <dt class="col-sm-3 fw-bold">Notlar:</dt>
+                <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.Notes) ? "Yok" : Model.Notes)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4 border-0 rounded-4">
+        @* Stil güncellendi *@
+        <div class="card-header bg-info text-white rounded-top-4">
+            @* Başlık rengi ve köşe stili *@
+            <h5 class="card-title mb-0"><i class="fas fa-boxes me-2"></i>Satış Kalemleri</h5>
+        </div>
+        <div class="card-body p-4">
+            @* İç boşluk eklendi *@
+            @if (Model.SaleItems != null && Model.SaleItems.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped text-center align-middle">
+                        <thead>
+                            <tr>
+                                <th>Ürün Adı</th>
+                                <th>Miktar</th>
+                                <th>Birim Fiyat</th>
+                                <th>Ara Toplam</th>
+                                <th>KDV</th>
+                                <th>Toplam Tutar</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.SaleItems.OrderBy(si => si.Product?.Name))
+                            {
+                                <tr>
+                                    <td>@(item.Product?.Name ?? "Ürün Silinmiş")</td>
+                                    <td>@item.Quantity</td>
+                                    <td>@item.UnitPrice.ToString("C2")</td>
+                                    <td>@item.SubTotal.ToString("C2")</td>
+                                    <td>@item.TaxAmount.ToString("C2")</td>
+                                    <td>@item.TotalAmount.ToString("C2")</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            @* Satış kalemi düzenleme butonu (Sadece kendi satışları için) *@
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning" title="Düzenle">
+                                                <i class="fas fa-edit"></i> Düzenle
+                                            </a>
+                                            @* Satış kalemi silme butonu - SADECE Admin ise göster *@
+                                            @if (isAdmin)
+                                            {
+                                                <button type="button" class="btn btn-sm btn-danger ms-1 delete-sale-item-btn"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteSaleItemModal"
+                                                        data-id="@item.Id"
+                                                        data-product-name="@(item.Product?.Name ?? "Ürün Yok")"
+                                                        title="Satış Kalemini Sil">
+                                                    <i class="fas fa-trash-alt"></i> Sil
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p>Bu satışa ait herhangi bir ürün kalemi bulunmamaktadır.</p>
+            }
+        </div>
+    </div>
+
+    <div class="card shadow mb-4 border-0 rounded-4">
+        @* Stil güncellendi *@
+        <div class="card-header bg-success text-white rounded-top-4">
+            @* Başlık rengi ve köşe stili *@
+            <h5 class="card-title mb-0"><i class="fas fa-calculator me-2"></i>Satış Toplamları</h5>
+        </div>
+        <div class="card-body p-4">
+            @* İç boşluk eklendi *@
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Ara Toplam (KDV Hariç):</dt>
+                <dd class="col-sm-9"><strong class="text-secondary">@Model.SubTotal.ToString("C2")</strong></dd>
+
+                <dt class="col-sm-3">KDV Toplamı:</dt>
+                <dd class="col-sm-9"><strong class="text-secondary">@Model.TaxTotal.ToString("C2")</strong></dd>
+
+                <dt class="col-sm-3">Genel Toplam (KDV Dahil):</dt>
+                <dd class="col-sm-9"><h4 class="text-primary mt-0 mb-0"><strong>@Model.GrandTotal.ToString("C2")</strong></h4></dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Satış Listesine Dön
+        </a>
+        @* Satış Silme Butonu - SADECE Admin ise göster *@
+        @if (isAdmin)
+        {
+            <button type="button" class="btn btn-danger"
+                    data-bs-toggle="modal"
+                    data-bs-target="#deleteSaleModal"
+                    data-id="@Model.Id"
+                    data-name="@Model.SaleNumber"
+                    title="Satışı Sil">
+                <i class="fas fa-trash"></i> Satışı Sil
+            </button>
+        }
+    </div>
+</div>
+
+@* Satış Kalemi Silme Modal'ı (mevcut) *@
+<div class="modal fade" id="deleteSaleItemModal" tabindex="-1" aria-labelledby="deleteSaleItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteSaleItemModalLabel">Satış Kalemi Silme Onayı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteSaleItemConfirmationText"></p>
+                <p><strong>Dikkat:</strong> Bu işlem geri alınamaz ve silinen ürün kalemine ait stok otomatik olarak geri yüklenir.</p>
+            </div>
+            <div class="modal-footer">
+                <form asp-action="DeleteSaleItem" asp-controller="Sale" method="post" id="deleteSaleItemForm">
+                    <input type="hidden" id="saleItemIdToDelete" name="id" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-danger">Sil</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Ana Satışı Silme Modal'ı (Yeni eklendi) *@
+<div class="modal fade" id="deleteSaleModal" tabindex="-1" aria-labelledby="deleteSaleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteSaleModalLabel">Satış Silme Onayı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteConfirmationText"></p>
+                <p><strong>Dikkat:</strong> Bu işlem geri alınamaz ve silinen satış kaydına ait tüm ürün stok bilgileri otomatik olarak geri yüklenir.</p>
+            </div>
+            <div class="modal-footer">
+                <form asp-action="Delete" asp-controller="Sale" method="post" id="deleteForm">
+                    <input type="hidden" id="saleIdToDelete" name="id" /> @* Ana satışın ID'sini tutar *@
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-danger">Sil</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @* SweetAlert2 için CDN (opsiyonel, eğer kullanmak istiyorsanız) *@
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Satış Kalemi Silme Modalını hazırlama (mevcut mantık)
+            $('#deleteSaleItemModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var id = button.data('id');
+                var productName = button.data('product-name');
+
+                $('#saleItemIdToDelete').val(id);
+                $('#deleteSaleItemConfirmationText').text(`'${productName}' ürününü bu satıştan silmek istediğinizden emin misiniz?`);
+            });
+
+            // Ana Satış Silme Modalını hazırlama (yeni eklendi)
+            $('#deleteSaleModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var id = button.data('id');
+                var saleNumber = button.data('name'); // data-name olarak almıştık
+
+                $('#saleIdToDelete').val(id);
+                $('#deleteConfirmationText').text(`${saleNumber} numaralı satış kaydını silmek istediğinizden emin misiniz?`);
+            });
+
+            // Eğer SweetAlert kullanmak isterseniz (opsiyonel)
+            // Satış Kalemi Silme için SweetAlert
+            $(document).on('click', '.delete-sale-item-btn', function (e) {
+                e.preventDefault(); // Varsayılan buton davranışını engelle
+                var saleItemId = $(this).data('id');
+                var saleNumber = '@Model.SaleNumber'; // Mevcut satış numarasını al
+                var productName = $(this).data('product-name');
+
+                Swal.fire({
+                    title: 'Satış Kalemini Silmek İstiyor Musunuz?',
+                    text: `'${productName}' ürününü bu satıştan silmek üzeresiniz. Bu işlem geri alınamaz ve stok güncellenecektir.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Evet, Sil!',
+                    cancelButtonText: 'İptal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Formu submit et yerine Ajax çağrısı yapabiliriz.
+                        // Ama mevcut modal form yapınızı korumak için, modalı tetikleyelim.
+                        // Ya da doğrudan burada bir AJAX POST isteği yapabiliriz.
+                        $.ajax({
+                            url: '@Url.Action("DeleteSaleItem", "Sale")', // Controller ve Action adı
+                            type: 'POST',
+                            data: { id: saleItemId }, // ID'yi gönder
+                            headers: {
+                                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() // Anti-forgery token ekle
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    Swal.fire(
+                                        'Silindi!',
+                                        response.message,
+                                        'success'
+                                    ).then(() => {
+                                        // Satış kalemi silindikten sonra sayfayı yeniden yükle veya ilgili satırı kaldır
+                                        window.location.reload(); // En basit yol: sayfayı yeniden yükle
+                                        // Veya
+                                        // $(e.target).closest('tr').remove(); // Satırı doğrudan DOM'dan kaldır
+                                        // ve ardından toplamları güncellemek için ek JS kodu yazın.
+                                    });
+                                } else {
+                                    Swal.fire(
+                                        'Hata!',
+                                        response.message || 'Satış kalemi silinirken bir hata oluştu.',
+                                        'error'
+                                    );
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                Swal.fire(
+                                    'Hata!',
+                                    'Bir sunucu hatası oluştu: ' + error,
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Ana Satış Silme için SweetAlert (Ana Delete butonu için)
+            $(document).on('click', '[data-bs-target="#deleteSaleModal"]', function (e) {
+                e.preventDefault(); // Varsayılan buton davranışını engelle
+                var id = $(this).data('id');
+                var saleNumber = $(this).data('name');
+
+                Swal.fire({
+                    title: 'Satışı Silmek İstiyor Musunuz?',
+                    text: `${saleNumber} numaralı satışı silmek üzeresiniz. Bu işlem geri alınamaz ve tüm ürün stokları geri yüklenecektir!`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Evet, Satışı Sil!',
+                    cancelButtonText: 'İptal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Modalı açmak yerine doğrudan formu gönderiyoruz veya AJAX yapıyoruz
+                        // Şimdilik modal formunuzu submit edelim
+                        $('#deleteForm').submit();
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+@functions {
+    // Satış durumuna göre uygun Bootstrap rozet (badge) sınıfını döndüren yardımcı fonksiyon.
+    // Bu metodun projenizde SatışProject.Entities namespace'i altında veya erişilebilir bir yerde tanımlı olduğunu varsayar.
+    string GetStatusBadge(SatışProject.Entities.SaleStatus status)
+    {
+        return status switch
+        {
+            SatışProject.Entities.SaleStatus.Completed => "bg-success",    // Tamamlandı: Yeşil
+            SatışProject.Entities.SaleStatus.Pending => "bg-warning text-dark",     // Beklemede: Sarı
+            SatışProject.Entities.SaleStatus.Cancelled => "bg-danger",    // İptal Edildi: Kırmızı
+            SatışProject.Entities.SaleStatus.Returned => "bg-info text-dark",      // İade Edildi: Açık Mavi
+            SatışProject.Entities.SaleStatus.OnHold => "bg-secondary",       // Askıda: Gri
+            _ => "bg-secondary" // Varsayılan: Gri
+        };
+    }
+}

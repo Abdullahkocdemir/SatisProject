@@ -24,20 +24,29 @@ namespace SatışProject.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        public IActionResult Index()
+        public IActionResult Index(int? categoryId)
         {
-            // Ürünlerle birlikte Kategori ve Marka bilgilerini getir
-            var products = _context.Products
+            // Ürünleri kategori ve marka ile birlikte al
+            var productsQuery = _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Brand)
-                .ToList();
+                .Where(p => !p.IsDeleted); // Soft delete'e dikkat
 
-            // ViewBag ile kategorileri filtreleme için gönder
-            var categories = _context.Categories.ToList();
-            ViewBag.Categories = categories;
+            // Eğer filtreleme yapılmışsa
+            if (categoryId.HasValue)
+            {
+                productsQuery = productsQuery.Where(p => p.CategoryId == categoryId.Value);
+            }
+
+            var products = productsQuery.ToList();
+
+            // Kategori listesini ViewBag ile gönder (dropdown için)
+            ViewBag.Categories = _context.Categories.ToList();
+            ViewBag.SelectedCategoryId = categoryId;
 
             return View(products);
         }
+
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
@@ -155,29 +164,29 @@ namespace SatışProject.Controllers
                 }
 
                 // İlişkili kayıtları kontrol et
-                bool hasRelatedRecords = await CheckForRelatedRecords(product);
+                //bool hasRelatedRecords = await CheckForRelatedRecords(product);
 
-                if (hasRelatedRecords)
-                {
-                    // Eğer ilişkili kayıt varsa soft delete uygula
-                    product.IsDeleted = true;
-                    product.UpdatedDate = DateTime.Now;
-                    _context.Products.Update(product);
-                    await _context.SaveChangesAsync();
+                //if (hasRelatedRecords)
+                //{
+                //    // Eğer ilişkili kayıt varsa soft delete uygula
+                //    product.IsDeleted = true;
+                //    product.UpdatedDate = DateTime.Now;
+                //    _context.Products.Update(product);
+                //    await _context.SaveChangesAsync();
 
-                    TempData["Success"] = "Ürün pasif duruma alındı. İlişkili kayıtlar olduğu için tamamen silinemedi.";
-                }
-                else
-                {
-                    // İlişkili dosyaları sil
-                    DeleteProductFiles(product);
+                //    TempData["Success"] = "Ürün pasif duruma alındı. İlişkili kayıtlar olduğu için tamamen silinemedi.";
+                //}
+                //else
+                //{
+                //    // İlişkili dosyaları sil
+                //    DeleteProductFiles(product);
 
-                    // Veritabanından ürünü kaldır
-                    _context.Products.Remove(product);
-                    await _context.SaveChangesAsync();
+                //    // Veritabanından ürünü kaldır
+                //    _context.Products.Remove(product);
+                //    await _context.SaveChangesAsync();
 
-                    TempData["Success"] = "Ürün başarıyla silindi.";
-                }
+                //    TempData["Success"] = "Ürün başarıyla silindi.";
+                //}
 
                 return RedirectToAction("Index");
             }
@@ -190,14 +199,14 @@ namespace SatışProject.Controllers
         }
 
         // İlişkili kayıtları kontrol eden yardımcı metod
-        private async Task<bool> CheckForRelatedRecords(Product product)
-        {
-            // Satış kaydı veya fatura kaydı var mı kontrol et
-            bool hasSales = await _context.Sales.AnyAsync(s => s.ProductId == product.ProductId);
-            bool hasInvoiceItems = await _context.InvoiceItems.AnyAsync(i => i.ProductId == product.ProductId);
+        //private async Task<bool> CheckForRelatedRecords(Product product)
+        //{
+        //    // Satış kaydı veya fatura kaydı var mı kontrol et
+        //    bool hasSales = await _context.Sales.AnyAsync(s => s.ProductId == product.ProductId);
+        //    bool hasInvoiceItems = await _context.InvoiceItems.AnyAsync(i => i.ProductId == product.ProductId);
 
-            return hasSales || hasInvoiceItems;
-        }
+        //    return hasSales || hasInvoiceItems;
+        //}
 
         // Ürün dosyalarını silen yardımcı metod
         private void DeleteProductFiles(Product product)
