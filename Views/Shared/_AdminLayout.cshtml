@@ -64,10 +64,10 @@
                 <i class="fas fa-chevron-down menu-toggle"></i>
             </a>
             <div class="submenu">
-                <a href="/Admin/Products" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Products" ? "active" : "")">
+                <a href="/AdminProduct/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Index" ? "active" : "")">
                     <span class="menu-text">Ürünler</span>
                 </a>
-                <a href="/Admin/Categories" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Categories" ? "active" : "")">
+                <a href="/AdminCategory/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Index" ? "active" : "")">
                     <span class="menu-text">Kategoriler</span>
                 </a>
                 <a href="/Admin/Inventory" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Inventory" ? "active" : "")">
@@ -82,13 +82,13 @@
                 <i class="fas fa-chevron-down menu-toggle"></i>
             </a>
             <div class="submenu">
-                <a href="/Admin/Orders" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Orders" ? "active" : "")">
+                <a href="/AdminSale/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Orders" ? "active" : "")">
                     <span class="menu-text">Siparişler</span>
                 </a>
-                <a href="/Admin/Customers" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Customers" ? "active" : "")">
+                <a href="/Current/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Customers" ? "active" : "")">
                     <span class="menu-text">Müşteriler</span>
                 </a>
-                <a href="/Admin/Invoices" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Invoices" ? "active" : "")">
+                <a href="/Invoice/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Invoices" ? "active" : "")">
                     <span class="menu-text">Faturalar</span>
                 </a>
             </div>
@@ -99,14 +99,6 @@
                 <span class="menu-text">Finans</span>
                 <i class="fas fa-chevron-down menu-toggle"></i>
             </a>
-            <div class="submenu">
-                <a href="/Admin/Reports" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Reports" ? "active" : "")">
-                    <span class="menu-text">Raporlar</span>
-                </a>
-                <a href="/Admin/Payments" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Payments" ? "active" : "")">
-                    <span class="menu-text">Ödemeler</span>
-                </a>
-            </div>
 
             @if (isAdmin)
             {

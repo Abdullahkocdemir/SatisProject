@@ -8,7 +8,7 @@
 
 <h1>@ViewData["Title"]</h1>
 
-<p class="mb-3"style="color:red">
+<p class="mb-3" style="color:red">
     Sistemdeki satışların listesi. Her satış için PDF fatura oluşturup önizleyebilirsiniz.
 </p>
 
@@ -96,6 +96,11 @@
                     xhrFields: {
                         responseType: 'blob' // Yanıtı blob olarak al
                     },
+                    beforeSend: function () {
+                        // Optionally show a loading spinner
+                        // For example: $('.loading-spinner').show();
+                        console.log("PDF yükleniyor...");
+                    },
                     success: function (blob) {
                         // Blob'dan bir URL oluştur
                         const blobUrl = URL.createObjectURL(blob);
@@ -115,12 +120,24 @@
                         console.error("PDF yükleme hatası:", status, error);
                         // Hata mesajını kullanıcıya göster
                         alert("Fatura önizlemesi yüklenirken bir hata oluştu. Detaylar için konsolu kontrol edin.");
+                    },
+                    complete: function () {
+                        // Hide loading spinner
+                        // For example: $('.loading-spinner').hide();
+                        console.log("PDF yükleme tamamlandı.");
                     }
                 });
             });
 
             // "Faturayı Oluştur" butonuna tıklandığında (modal içinde)
             $('#confirmInvoiceCreationBtn').on('click', function () {
+                // In this setup, the PDF is ALREADY generated and saved when the preview is loaded.
+                // The "Faturayı Oluştur" button here primarily serves as a confirmation to the user
+                // that they have reviewed and accepted the generated invoice.
+                // You could, if desired, add another AJAX call here to perform a different action
+                // (e.g., mark the invoice as 'finalized' in the database, send an email, etc.)
+                // For now, it just closes the modal and gives a confirmation message.
+
                 console.log(`Fatura ${selectedSaleNumber} (${selectedSaleId}) için oluşturuldu ve onaylandı.`);
 
                 // Modalı kapat
@@ -128,7 +145,7 @@
                 invoiceModal.hide();
 
                 // Kullanıcıya bilgi verebilirsin (örn. Toast mesajı)
-                alert(`Fatura ${selectedSaleNumber} oluşturuldu.`);
+                alert(`Fatura ${selectedSaleNumber} başarıyla oluşturuldu ve kaydedildi.`);
             });
         });
     </script>
