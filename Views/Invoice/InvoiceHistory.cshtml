@@ -1,0 +1,67 @@
+﻿@model List<SatışProject.Entities.Sale>
+
+@{
+    ViewData["Title"] = "Oluşturulan Faturalar";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p class="mb-3" style="color:red">
+    Daha önce oluşturulmuş faturaların listesi. Buradan faturaları görüntüleyebilir veya indirebilirsiniz.
+</p>
+
+<table class="table table-bordered table-hover">
+    <thead class="thead-dark">
+        <tr>
+            <th>Satış No</th>
+            <th>Müşteri</th>
+            <th>Satış Tarihi</th>
+            <th>Genel Toplam</th>
+            <th>Durum</th>
+            <th>Fatura</th>
+            <th>Detaylar</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var sale in Model)
+            {
+                <tr>
+                    <td>@sale.SaleNumber</td>
+                    <td>@sale.Customer?.CompanyName (@sale.Customer?.City)</td>
+                    <td>@sale.SaleDate.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@sale.GrandTotal.ToString("C2")</td>
+                    <td>@sale.Status.ToString()</td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(sale.InvoiceFilePath))
+                        {
+                            <a href="~/@sale.InvoiceFilePath" target="_blank" class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye"></i> Görüntüle / İndir
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Fatura Yok</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-controller="AdminSale" asp-route-id="@sale.Id" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-info-circle"></i> Detaylar
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" class="text-center">Henüz oluşturulmuş bir fatura bulunmamaktadır.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+}

@@ -1,69 +1,62 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// SatışProject.Entities/Customer.cs
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SatışProject.Entities
 {
-    // Müşteri varlıklarını temsil eden sınıf, BaseEntity'den kalıtım alır.
     public class Customer
     {
         public int CustomerID { get; set; }
-        // Şirket adı, zorunlu, VarChar(100) tipinde.
+
         [Required]
         [Column(TypeName = "VarChar")]
         [StringLength(100)]
         public string CompanyName { get; set; } = null!;
 
-        // E-posta adresi, zorunlu, VarChar(100) tipinde, email formatında.
+        // Eğer müşteriler için bireysel bir iletişim adı tutmak istiyorsan, bunu ekle:
+        [Column(TypeName = "VarChar")]
+        [StringLength(100)]
+        public string? ContactName { get; set; } // Bu alanı ekledim
+
         [Required]
         [Column(TypeName = "VarChar")]
         [StringLength(100)]
         [EmailAddress]
         public string Email { get; set; } = null!;
 
-        // Telefon numarası, zorunlu, VarChar(20) tipinde, telefon formatında.
         [Required]
         [Column(TypeName = "VarChar")]
         [StringLength(20)]
         [Phone]
-        public string PhoneNumber { get; set; } = null!;
+        public string PhoneNumber { get; set; } = null!; // Burası zaten 'PhoneNumber' olarak tanımlıydı
 
-        // Adres, zorunlu, VarChar(100) tipinde.
         [Required]
         [Column(TypeName = "VarChar")]
         [StringLength(400)]
         public string Address { get; set; } = null!;
 
-        // Şehir, zorunlu, VarChar(50) tipinde.
         [Required]
         [Column(TypeName = "VarChar")]
         [StringLength(50)]
         public string City { get; set; } = null!;
 
-        // Ülke, zorunlu, VarChar(50) tipinde.
         [Required]
         [Column(TypeName = "VarChar")]
         [StringLength(50)]
         public string Country { get; set; } = null!;
 
-        // Vergi numarası, zorunlu, VarChar(20) tipinde.
         [Required]
         [Column(TypeName = "VarChar")]
         [StringLength(20)]
         public string TaxNumber { get; set; } = null!;
 
-        // Vergi dairesi, opsiyonel, VarChar(50) tipinde.
         [Column(TypeName = "VarChar")]
         [StringLength(50)]
         public string? TaxOffice { get; set; }
 
-        // Yumuşak silme için aktiflik durumu
         public bool IsActive { get; set; } = true;
 
-        // Müşterinin yaptığı satışlar koleksiyonu, virtual.
         public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
-
-        // Müşteriye ait faturalar koleksiyonu, virtual.
         public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
     }
-
 }

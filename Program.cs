@@ -4,7 +4,14 @@ using SatışProject.Entities;
 using System;
 using SatışProject.Context;
 
+// QuestPDF için gerekli using ifadelerini ekleyin
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure; // <<--- BU SATIRI EKLEYİN
+
 var builder = WebApplication.CreateBuilder(args);
+
+// QuestPDF Lisans Ayarı - Bu satırı buraya ekleyin!
+QuestPDF.Settings.License = LicenseType.Community;
 
 builder.Services.AddControllersWithViews();
 

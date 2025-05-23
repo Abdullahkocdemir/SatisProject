@@ -1,0 +1,135 @@
+﻿@model List<SatışProject.Entities.Sale>
+
+@{
+    ViewData["Title"] = "Fatura Listesi";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<h1>@ViewData["Title"]</h1>
+
+<p class="mb-3"style="color:red">
+    Sistemdeki satışların listesi. Her satış için PDF fatura oluşturup önizleyebilirsiniz.
+</p>
+
+<table class="table table-bordered table-hover">
+    <thead class="thead-dark">
+        <tr>
+            <th>Satış No</th>
+            <th>Müşteri</th>
+            <th>Satış Tarihi</th>
+            <th>Genel Toplam</th>
+            <th>Durum</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var sale in Model)
+            {
+                <tr>
+                    <td>@sale.SaleNumber</td>
+                    <td>@sale.Customer?.CompanyName (@sale.Customer?.City)</td>
+                    <td>@sale.SaleDate.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@sale.GrandTotal.ToString("C2")</td>
+                    <td>@sale.Status.ToString()</td>
+                    <td>
+                        <a href="#" class="btn btn-info btn-sm generate-invoice-btn" data-sale-id="@sale.Id" data-sale-number="@sale.SaleNumber">
+                            <i class="fas fa-file-pdf"></i> Fatura Oluştur/Önizle
+                        </a>
+                        <a asp-action="Details" asp-controller="AdminSale" asp-route-id="@sale.Id" class="btn btn-secondary btn-sm ms-1">
+                            <i class="fas fa-info-circle"></i> Detaylar
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center">Henüz kaydedilmiş bir satış bulunmamaktadır.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="invoicePreviewModal" tabindex="-1" aria-labelledby="invoicePreviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        @* modal-xl (extra large) ile daha geniş modal *@
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="invoicePreviewModalLabel">Fatura Önizlemesi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <iframe id="invoicePdfIframe" style="width:100%; height:700px; border:none;"></iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-success" id="confirmInvoiceCreationBtn">Faturayı Oluştur</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let selectedSaleId = 0;
+            let selectedSaleNumber = '';
+
+            // "Fatura Oluştur/Önizle" butonuna tıklandığında
+            $('.generate-invoice-btn').on('click', function (e) {
+                e.preventDefault(); // Varsayılan bağlantı davranışını engelle
+                selectedSaleId = $(this).data('sale-id');
+                selectedSaleNumber = $(this).data('sale-number');
+
+                const pdfUrl = `/Invoice/GenerateInvoicePdf?saleId=${selectedSaleId}`;
+                const iframe = $('#invoicePdfIframe');
+                iframe.attr('src', ''); // iframe'i temizle, önceki içeriği sil
+
+                // AJAX ile PDF verisini çek
+                $.ajax({
+                    url: pdfUrl,
+                    method: 'GET',
+                    xhrFields: {
+                        responseType: 'blob' // Yanıtı blob olarak al
+                    },
+                    success: function (blob) {
+                        // Blob'dan bir URL oluştur
+                        const blobUrl = URL.createObjectURL(blob);
+                        iframe.attr('src', blobUrl); // iframe'in src'sini ata
+
+                        // Modalı aç
+                        const invoiceModal = new bootstrap.Modal(document.getElementById('invoicePreviewModal'));
+                        invoiceModal.show();
+
+                        // Modal kapatıldığında Blob URL'ini serbest bırak (bellek yönetimi için)
+                        $('#invoicePreviewModal').on('hidden.bs.modal', function () {
+                            URL.revokeObjectURL(blobUrl); // Blob URL'i serbest bırak
+                            iframe.attr('src', ''); // iframe'i tekrar temizle
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("PDF yükleme hatası:", status, error);
+                        // Hata mesajını kullanıcıya göster
+                        alert("Fatura önizlemesi yüklenirken bir hata oluştu. Detaylar için konsolu kontrol edin.");
+                    }
+                });
+            });
+
+            // "Faturayı Oluştur" butonuna tıklandığında (modal içinde)
+            $('#confirmInvoiceCreationBtn').on('click', function () {
+                console.log(`Fatura ${selectedSaleNumber} (${selectedSaleId}) için oluşturuldu ve onaylandı.`);
+
+                // Modalı kapat
+                const invoiceModal = bootstrap.Modal.getInstance(document.getElementById('invoicePreviewModal'));
+                invoiceModal.hide();
+
+                // Kullanıcıya bilgi verebilirsin (örn. Toast mesajı)
+                alert(`Fatura ${selectedSaleNumber} oluşturuldu.`);
+            });
+        });
+    </script>
+}

@@ -38,15 +38,20 @@ namespace SatışProject.Entities
         [Column(TypeName = "VarChar(500)")]
         [StringLength(500)]
         public string? Notes { get; set; }
-        public decimal SubTotal { get; set; }         // Ürünlerin toplamı (KDV hariç)
-        public decimal TaxTotal { get; set; }         // KDV toplamı
+        public decimal SubTotal { get; set; }       // Ürünlerin toplamı (KDV hariç)
+        public decimal TaxTotal { get; set; }       // KDV toplamı
         public decimal GrandTotal { get; set; }       // Genel toplam (KDV dahil)
+
+        // Yeni eklenecek kısım
+        [Display(Name = "Fatura Dosya Yolu")]
+        [Column(TypeName = "VarChar(500)")]
+        [StringLength(500)]
+        public string? InvoiceFilePath { get; set; } // Fatura dosyasının sunucu yolu
 
         public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
         public virtual List<SaleItem> SaleItems { get; set; } = new List<SaleItem>();
 
     }
-
 
     public enum SaleStatus
     {
