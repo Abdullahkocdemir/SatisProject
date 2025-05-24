@@ -1,0 +1,68 @@
+﻿@model EditProfileViewModel
+
+@{
+    ViewData["Title"] = "Profil Düzenle";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="text-center text-3xl font-extrabold text-gray-900 mb-6">
+    Profil Bilgilerini Düzenle
+</h2>
+<p class="mt-2 text-center text-sm text-gray-600 mb-8">
+    Kişisel bilgilerini buradan güncelleyebilirsin.
+</p>
+
+<form asp-action="Edit" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm mb-4"></div>
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-4">
+        <label asp-for="FirstName" class="block text-gray-700 text-sm font-semibold mb-2">Ad:</label>
+        <input asp-for="FirstName" class="form-control" />
+        <span asp-validation-for="FirstName" class="text-red-500 text-xs mt-1 block"></span>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="LastName" class="block text-gray-700 text-sm font-semibold mb-2">Soyad:</label>
+        <input asp-for="LastName" class="form-control" />
+        <span asp-validation-for="LastName" class="text-red-500 text-xs mt-1 block"></span>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="Email" class="block text-gray-700 text-sm font-semibold mb-2">E-posta:</label>
+        <input asp-for="Email" type="email" class="form-control" />
+        <span asp-validation-for="Email" class="text-red-500 text-xs mt-1 block"></span>
+    </div>
+
+    <div class="mb-6">
+        <label asp-for="PhoneNumber" class="block text-gray-700 text-sm font-semibold mb-2">Telefon Numarası:</label>
+        <input asp-for="PhoneNumber" type="tel" class="form-control" id="phoneNumberInput" />
+        <span asp-validation-for="PhoneNumber" class="text-red-500 text-xs mt-1 block"></span>
+    </div>
+
+    <div class="mt-4 text-end">
+        <button type="submit" class="btn btn-success px-4 me-2">
+            <i class="bi bi-save2 me-1"></i>Kaydet
+        </button>
+        <a href="/AdminProduct/Index" class="btn btn-outline-secondary px-4">
+            <i class="bi bi-x-circle me-1"></i>İptal
+        </a>
+    </div>
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        $(document).ready(function () {
+            var phoneNumberInput = $('#phoneNumberInput');
+            phoneNumberInput.inputmask('+90 (999) 999 99 99', {
+                placeholder: '_', 
+                showMaskOnHover: false,
+                showMaskOnFocus: true,
+                clearIncomplete: true
+            });
+        });
+    </script>
+}

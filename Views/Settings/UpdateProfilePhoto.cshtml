@@ -1,0 +1,53 @@
+﻿@model UpdateProfilePhotoViewModel
+
+@{
+    ViewData["Title"] = "Profil Fotoğrafı Güncelle";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Profil Fotoğrafı Güncelle</h1>
+
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <form asp-action="UpdateProfilePhoto" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-red-600 mb-4 font-medium"></div>
+
+            @if (!string.IsNullOrEmpty(Model.CurrentProfilePhotoUrl))
+            {
+                <div class="mb-4 text-center">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Mevcut Profil Fotoğrafı:</label>
+                    <img src="@(string.IsNullOrEmpty(Model.CurrentProfilePhotoUrl) ? "/images/default_profile.png" : Model.CurrentProfilePhotoUrl)"
+                         alt="Mevcut Profil Fotoğrafı"
+                         class="w-32 h-32 rounded-full object-cover border-4 border-blue-300 shadow-lg mx-auto"
+                         onerror="this.onerror=null;this.src='/images/default_profile.png';" />
+                </div>
+            }
+
+            <div class="mb-6">
+                <label asp-for="ProfilePhotoFile" class="block text-gray-700 text-sm font-bold mb-2"></label>
+                <input asp-for="ProfilePhotoFile" type="file" class="block w-full text-sm text-gray-500
+                       file:mr-4 file:py-2 file:px-4
+                       file:rounded-full file:border-0
+                       file:text-sm file:font-semibold
+                       file:bg-blue-50 file:text-blue-700
+                       hover:file:bg-blue-100" />
+                <span asp-validation-for="ProfilePhotoFile" class="text-red-600 text-sm"></span>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300">
+                    Fotoğrafı Yükle
+                </button>
+                <a asp-action="Index" class="inline-block align-baseline font-bold text-sm text-gray-500 hover:text-gray-800">
+                    İptal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
