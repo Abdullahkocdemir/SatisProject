@@ -7,39 +7,25 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <!-- CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
-    <!-- CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Satış Yönetim Paneli</title>
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet" />
-
-    <!-- Font Awesome for icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet" />
-
-    <!-- DataTables CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
 
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/AdminLayout.css">
 
     @RenderSection("Styles", required: false)
 </head>
 <body>
-    <!-- Sidebar Overlay for Mobile -->
     <div class="sidebar-overlay"></div>
 
-    <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="sidebar-header"> 
+        <div class="sidebar-header">
             <a href="/Admin" class="logo-large">Satış Yönetim</a>
             <a href="/Admin" class="logo-small">SY</a>
         </div>
@@ -57,67 +43,71 @@
                 <span class="menu-text">Dashboard</span>
             </a>
 
-            <!-- Ürün Yönetimi Menüsü -->
             <a href="#" class="menu-item has-submenu">
                 <i class="fas fa-box"></i>
                 <span class="menu-text">Ürün Yönetimi</span>
                 <i class="fas fa-chevron-down menu-toggle"></i>
             </a>
             <div class="submenu">
-                <a href="/AdminProduct/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Index" ? "active" : "")">
+                <a href="/AdminProduct/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "AdminProduct" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")">
                     <span class="menu-text">Ürünler</span>
                 </a>
-                <a href="/AdminCategory/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Index" ? "active" : "")">
+                <a href="/AdminCategory/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "AdminCategory" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")">
                     <span class="menu-text">Kategoriler</span>
                 </a>
-                <a href="/Admin/Inventory" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Inventory" ? "active" : "")">
+                <a href="/Admin/Inventory" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Admin" && ViewContext.RouteData.Values["action"]!.ToString() == "Inventory" ? "active" : "")">
                     <span class="menu-text">Stok Yönetimi</span>
                 </a>
             </div>
 
-            <!-- Satış Yönetimi Menüsü -->
             <a href="#" class="menu-item has-submenu">
                 <i class="fas fa-shopping-cart"></i>
                 <span class="menu-text">Satış Yönetimi</span>
                 <i class="fas fa-chevron-down menu-toggle"></i>
             </a>
             <div class="submenu">
-                <a href="/AdminSale/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Orders" ? "active" : "")">
+                <a href="/AdminSale/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "AdminSale" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")">
                     <span class="menu-text">Siparişler</span>
                 </a>
-                <a href="/Current/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Customers" ? "active" : "")">
+                <a href="/Current/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Current" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")">
                     <span class="menu-text">Müşteriler</span>
                 </a>
-                <a href="/Invoice/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Invoices" ? "active" : "")">
+                <a href="/Invoice/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Invoice" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")">
                     <span class="menu-text">Faturalar</span>
                 </a>
             </div>
 
-            <!-- Finans Menüsü -->
             <a href="#" class="menu-item has-submenu">
                 <i class="fas fa-chart-line"></i>
                 <span class="menu-text">Finans</span>
                 <i class="fas fa-chevron-down menu-toggle"></i>
             </a>
+            <div class="submenu">
+                <a href="/Admin/Reports" class="menu-item">
+                    <span class="menu-text">Raporlar</span>
+                </a>
+                <a href="/Admin/Expenses" class="menu-item">
+                    <span class="menu-text">Giderler</span>
+                </a>
+            </div>
 
             @if (isAdmin)
             {
                 <div class="menu-header">YÖNETİM</div>
 
-                <!-- Sistem Yönetimi Menüsü -->
                 <a href="#" class="menu-item has-submenu">
                     <i class="fas fa-cogs"></i>
                     <span class="menu-text">Sistem Yönetimi</span>
                     <i class="fas fa-chevron-down menu-toggle"></i>
                 </a>
                 <div class="submenu">
-                    <a href="/Admin/Users" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Users" ? "active" : "")">
+                    <a href="/Admin/Users" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Admin" && ViewContext.RouteData.Values["action"]!.ToString() == "Users" ? "active" : "")">
                         <span class="menu-text">Kullanıcı Yönetimi</span>
                     </a>
-                    <a href="/Admin/Roles" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Roles" ? "active" : "")">
+                    <a href="/Admin/Roles" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Admin" && ViewContext.RouteData.Values["action"]!.ToString() == "Roles" ? "active" : "")">
                         <span class="menu-text">Rol Yönetimi</span>
                     </a>
-                    <a href="/Admin/Settings" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Settings" ? "active" : "")">
+                    <a href="/Admin/Settings" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Admin" && ViewContext.RouteData.Values["action"]!.ToString() == "Settings" ? "active" : "")">
                         <span class="menu-text">Sistem Ayarları</span>
                     </a>
                 </div>
@@ -125,30 +115,33 @@
 
             <div class="menu-header">DİĞER</div>
 
-            <a href="/Admin/Help" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Help" ? "active" : "")">
+            <a href="/Admin/Help" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Admin" && ViewContext.RouteData.Values["action"]!.ToString() == "Help" ? "active" : "")">
                 <i class="fas fa-question-circle"></i>
                 <span class="menu-text">Yardım</span>
             </a>
         </div>
     </aside>
 
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Top Navigation -->
         <header class="topbar">
             <button class="toggle-sidebar">
                 <i class="fas fa-bars"></i>
             </button>
 
             <div class="topbar-actions">
-                <!-- Notifications Dropdown -->
                 <div class="dropdown">
                     <button class="dropdown-toggle" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-bell"></i>
-                        <span class="badge bg-danger">3</span>
+                        <span class="badge bg-danger">3</span> @* Bu bildirim sayısı dinamikleştirilmeli *@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
                         <li><h6 class="dropdown-header">Bildirimler</h6></li>
+                        <li class="nav-item">
+                            <a class="dropdown-item d-flex align-items-center" asp-area="" asp-controller="Messages" asp-action="Inbox">
+                                <i class="fas fa-envelope me-2"></i> Mesajlar
+                                <span id="unread-message-count" class="badge bg-danger text-white ms-auto" style="display:none;"></span>
+                            </a>
+                        </li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="#">Yeni sipariş alındı</a></li>
                         <li><a class="dropdown-item" href="#">Stok uyarısı</a></li>
@@ -158,11 +151,10 @@
                     </ul>
                 </div>
 
-                <!-- Messages Dropdown -->
                 <div class="dropdown">
                     <button class="dropdown-toggle" type="button" id="messagesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-envelope"></i>
-                        <span class="badge bg-primary">5</span>
+                        <span class="badge bg-primary">5</span> @* Bu mesaj sayısı dinamikleştirilmeli *@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="messagesDropdown">
                         <li><h6 class="dropdown-header">Mesajlar</h6></li>
@@ -175,13 +167,12 @@
                     </ul>
                 </div>
 
-                <!-- User Profile Dropdown -->
                 <div class="dropdown user-dropdown">
                     <button class="dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         @if (SignInManager.IsSignedIn(User))
                         {
                             var user = await UserManager.GetUserAsync(User);
-                            var initials = user != null ? $"{user.FirstName[0]}{user.LastName[0]}" : "KU";
+                            var initials = user != null && !string.IsNullOrEmpty(user.FirstName) && !string.IsNullOrEmpty(user.LastName) ? $"{user.FirstName[0]}{user.LastName[0]}" : "KU";
 
                             <div class="avatar">@initials</div>
                             <div class="user-info d-none d-md-block">
@@ -216,23 +207,24 @@
             </div>
         </header>
 
-        <!-- Page Content -->
         <main class="content">
             @RenderBody()
         </main>
 
-        <!-- Footer -->
         <footer class="footer">
             <p>&copy; @DateTime.Now.Year - Satış Yönetim Paneli. Tüm hakları saklıdır.</p>
         </footer>
     </div>
 
-    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/dataTables.bootstrap5.min.js"></script>
+
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/message-client.js"></script>
 
     <script>
         $(document).ready(function () {
@@ -284,6 +276,3 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-<!-- JS -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

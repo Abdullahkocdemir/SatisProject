@@ -1,0 +1,79 @@
+﻿@model IEnumerable<SatışProject.Models.MessageViewModel>
+
+@{
+    ViewData["Title"] = "Gelen Kutusu";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Gelen Kutusu</h1>
+
+@{
+    ViewData["Title"] = "Gelen Kutusu";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Yeni Mesaj Gönder</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Durum</th>
+            <th>Gönderen</th>
+            <th>Konu</th>
+            <th>Tarih</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr id="message-row-@item.MessageId" class="@(item.IsRead ? "" : "unread")">
+                <td>
+                    <span class="badge @(item.IsRead ? "badge-success" : "badge-danger") read-status">
+                        @(item.IsRead ? "Okundu" : "Okunmadı")
+                    </span>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SenderFullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Subject)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SentAt)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.MessageId" class="btn btn-info btn-sm" onclick="window.markMessageAsRead(@item.MessageId)">Detaylar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    .unread {
+        font-weight: bold;
+        background-color: #f8f9fa; /* Hafif bir arkaplan rengi */
+    }
+
+    .badge-danger {
+        background-color: #dc3545; /* Bootstrap kırmızı */
+        color: white;
+    }
+
+    .badge-success {
+        background-color: #28a745; /* Bootstrap yeşil */
+        color: white;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Bu sayfaya özgü scriptler (varsa)
+        // message-client.js zaten _Layout içinde yükleneceği için buraya özel bir şey eklemeye gerek yok.
+        // Ancak markMessageAsRead fonksiyonunun düzgün çalıştığından emin olmalısın.
+    </script>
+}

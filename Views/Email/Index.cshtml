@@ -1,0 +1,61 @@
+﻿@{
+    ViewData["Title"] = "E-posta Gönder";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // Admin layoutunu kullan
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">E-posta Gönder</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <form asp-action="SendEmailFromForm" method="post">
+                <div class="mb-3">
+                    <label for="receiverEmail" class="form-label">Alıcı E-posta Adresi:</label>
+                    <input type="email" class="form-control" id="receiverEmail" name="receiverEmail" placeholder="ornek@example.com" required>
+                </div>
+                <div class="mb-3">
+                    <label for="subject" class="form-label">Konu:</label>
+                    <input type="text" class="form-control" id="subject" name="subject" placeholder="E-posta Konusu" required>
+                </div>
+                <div class="mb-3">
+                    <label for="body" class="form-label">Mesajınız:</label>
+                    <textarea class="form-control" id="body" name="body" rows="8" placeholder="E-posta içeriğini buraya yazın..." required></textarea>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-dark btn-lg">E-posta Gönder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // TempData'dan başarı mesajını kontrol et
+            var successMessage = '@TempData["SuccessMessage"]';
+            if (successMessage && successMessage.trim() !== '' && successMessage !== '&amp;nbsp;') {
+                Swal.fire({
+                    title: 'Başarılı!',
+                    text: "E-Postanız Başarılı Bir Şekilde Gönderilmiştir", // E-posta başarıyla gönderildi!
+                    icon: 'success',
+                    confirmButtonText: 'Tamam'
+                });
+            }
+
+            // TempData'dan hata mesajını kontrol et
+            var errorMessage = '@TempData["ErrorMessage"]';
+            if (errorMessage && errorMessage.trim() !== '' && errorMessage !== '&amp;nbsp;') {
+                Swal.fire({
+                    title: 'Hata!',
+                    text: "E-postayı Gönderirken Bir Hata Oluştu.", // E-posta gönderilirken bir hata oluştu.
+                    icon: 'error',
+                    confirmButtonText: 'Tamam'
+                });
+            }
+        });
+    </script>
+}

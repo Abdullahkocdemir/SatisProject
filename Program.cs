@@ -1,26 +1,23 @@
+// Program.cs
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SatýþProject.Entities;
-using System;
-using SatýþProject.Context;
-
-// QuestPDF için gerekli using ifadelerini ekleyin
+using SatýþProject.Context; // Bu using olmalý
 using QuestPDF.Fluent;
-using QuestPDF.Infrastructure; // <<--- BU SATIRI EKLEYÝN
+using QuestPDF.Infrastructure;
+using SatýþProject.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// QuestPDF Lisans Ayarý - Bu satýrý buraya ekleyin!
 QuestPDF.Settings.License = LicenseType.Community;
 
 builder.Services.AddControllersWithViews();
 
-// DbContext
 builder.Services.AddDbContext<SatýsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddSignalR(); // SignalR servisi eklenmiþ, doðru
 
-// Identity
 builder.Services.AddIdentity<AppUser, AppRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -32,7 +29,6 @@ builder.Services.AddIdentity<AppUser, AppRole>(options =>
 .AddEntityFrameworkStores<SatýsContext>()
 .AddDefaultTokenProviders();
 
-// Cookie
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -41,7 +37,6 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 var app = builder.Build();
 
-// HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -56,11 +51,13 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHub<MessageHub>("/messageHub"); // SignalR Hub'ý haritalanmýþ, doðru
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Admin rolü ve admin kullanýcýyý oluþtur
+// Admin rolü ve admin kullanýcýyý oluþturma kýsmý ayný kalabilir.
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<AppRole>>();
@@ -70,7 +67,6 @@ using (var scope = app.Services.CreateScope())
     string adminEmail = "kcdmirapo96@gmail.com";
     string adminPassword = "123456aA*";
 
-    // Rol yoksa oluþtur
     if (!await roleManager.RoleExistsAsync(adminRole))
     {
         await roleManager.CreateAsync(new AppRole
@@ -80,7 +76,6 @@ using (var scope = app.Services.CreateScope())
         });
     }
 
-    // Kullanýcý yoksa oluþtur
     var adminUser = await userManager.FindByEmailAsync(adminEmail);
     if (adminUser == null)
     {
@@ -89,8 +84,8 @@ using (var scope = app.Services.CreateScope())
             UserName = adminEmail,
             Email = adminEmail,
             EmailConfirmed = true,
-            FirstName = "Admin",
-            LastName = "User"
+            FirstName = "Abdullah",
+            LastName = "KOÇDEMÝR"
         };
 
         var result = await userManager.CreateAsync(adminUser, adminPassword);

@@ -1,0 +1,49 @@
+﻿@model IEnumerable<SatışProject.Models.MessageViewModel>
+
+@{
+    ViewData["Title"] = "Giden Kutusu";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Giden Kutusu</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Yeni Mesaj Gönder</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Konu</th>
+            <th>Alıcı(lar)</th>
+            <th>Tarih</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Subject)
+                </td>
+                <td>
+                    @if (item.Recipients != null && item.Recipients.Any())
+                    {
+                        <span>@string.Join(", ", item.Recipients.Select(r => r.RecipientFullName))</span>
+                    }
+                    else
+                    {
+                        <span>Yok</span>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SentAt)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.MessageId" class="btn btn-info btn-sm">Detaylar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
