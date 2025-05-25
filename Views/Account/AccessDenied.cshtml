@@ -1,0 +1,284 @@
+﻿@{
+    ViewData["Title"] = "Erişim Reddedildi";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erişim Reddedildi</title>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --error-color: #e63946;
+            --text-color: #2b2d42;
+            --text-light: #8d99ae;
+            --bg-color: #f8f9fa;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .background-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .shape {
+            position: absolute;
+            opacity: 0.5;
+            border-radius: 50%;
+        }
+
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            top: -150px;
+            right: -150px;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .shape-2 {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, var(--error-color), #fd8090);
+            bottom: -75px;
+            left: -75px;
+            animation: float 10s ease-in-out infinite;
+        }
+
+        .shape-3 {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(225deg, #4cc9f0, #4895ef);
+            top: 70%;
+            right: 10%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape-4 {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(315deg, #ffd166, #ffaa00);
+            top: 20%;
+            left: 15%;
+            animation: float 7s ease-in-out infinite;
+        }
+
+        @@keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+        }
+
+        .access-denied-container {
+            max-width: 800px;
+            width: 90%;
+            padding: 3rem;
+            background-color: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-icon {
+            font-size: 5rem;
+            color: var(--error-color);
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .error-code {
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            line-height: 1;
+        }
+
+        .error-title {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .error-message {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 500;
+            font-size: 1rem;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            margin: 0 0.5rem;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+        }
+
+        .action-btn-secondary {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            box-shadow: none;
+        }
+
+        .action-btn-secondary:hover {
+            background: rgba(67, 97, 238, 0.1);
+            box-shadow: none;
+        }
+
+        .action-btn i {
+            margin-right: 8px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* Responsive */
+        @@media screen and (max-width: 600px) {
+            .access-denied-container {
+                padding: 2rem;
+            }
+
+            .error-code {
+                font-size: 3.5rem;
+            }
+
+            .error-title {
+                font-size: 1.7rem;
+            }
+
+            .error-message {
+                font-size: 1rem;
+            }
+
+            .error-icon {
+                font-size: 3.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .action-btn {
+                margin: 0.5rem 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+    </div>
+
+    <div class="access-denied-container">
+        <div class="error-icon">
+            <i class="fas fa-lock"></i>
+        </div>
+        <h1 class="error-code">403</h1>
+        <h2 class="error-title">Erişim Reddedildi</h2>
+        <p class="error-message">
+            Bu sayfayı görüntülemek için gerekli yetkilere sahip değilsiniz.
+            Eğer buraya erişmeniz gerektiğini düşünüyorsanız, lütfen sistem yöneticinizle iletişime geçin.
+        </p>
+        <div class="action-buttons">
+            <a href="/" class="action-btn">
+                <i class="fas fa-home"></i> Ana Sayfaya Dön
+            </a>
+            <a href="javascript:history.back()" class="action-btn action-btn-secondary">
+                <i class="fas fa-arrow-left"></i> Geri Dön
+            </a>
+        </div>
+    </div>
+</body>
+</html>

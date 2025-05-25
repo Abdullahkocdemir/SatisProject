@@ -1,8 +1,7 @@
-// Program.cs
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SatýþProject.Entities;
-using SatýþProject.Context; // Bu using olmalý
+using SatýþProject.Context; 
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 using SatýþProject.Hubs;
@@ -29,10 +28,17 @@ builder.Services.AddIdentity<AppUser, AppRole>(options =>
 .AddEntityFrameworkStores<SatýsContext>()
 .AddDefaultTokenProviders();
 
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
     options.AccessDeniedPath = "/Account/AccessDenied";
+    options.ReturnUrlParameter = "ReturnUrl";
+    options.Cookie.Name = "SatisOtomasyonProject";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.ExpireTimeSpan = TimeSpan.FromHours(15); // Oturum süresi
 });
 
 var app = builder.Build();
@@ -51,13 +57,12 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHub<MessageHub>("/messageHub"); // SignalR Hub'ý haritalanmýþ, doðru
+app.MapHub<MessageHub>("/messageHub"); 
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Admin rolü ve admin kullanýcýyý oluþturma kýsmý ayný kalabilir.
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<AppRole>>();

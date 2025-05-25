@@ -92,8 +92,8 @@ namespace SatışProject.Controllers
                 .ToDictionary(
                     g => g.Key,
                     g => g.OrderBy(x => x.Year).ThenBy(x => x.Month)
-                          .Select(x => Tuple.Create($"{x.Month:D2}.{x.Year}", x.TotalSales))
-                          .ToList()
+                            .Select(x => Tuple.Create($"{x.Month:D2}.{x.Year}", x.TotalSales))
+                            .ToList()
                 );
 
             viewModel.EmployeeSalesStatistics = employeeSalesGrouped;

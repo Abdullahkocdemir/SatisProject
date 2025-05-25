@@ -56,7 +56,6 @@
 
 <div class="modal fade" id="invoicePreviewModal" tabindex="-1" aria-labelledby="invoicePreviewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
-        @* modal-xl (extra large) ile daha geniş modal *@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="invoicePreviewModalLabel">Fatura Önizlemesi</h5>
@@ -79,72 +78,52 @@
             let selectedSaleId = 0;
             let selectedSaleNumber = '';
 
-            // "Fatura Oluştur/Önizle" butonuna tıklandığında
             $('.generate-invoice-btn').on('click', function (e) {
-                e.preventDefault(); // Varsayılan bağlantı davranışını engelle
+                e.preventDefault(); e
                 selectedSaleId = $(this).data('sale-id');
                 selectedSaleNumber = $(this).data('sale-number');
 
                 const pdfUrl = `/Invoice/GenerateInvoicePdf?saleId=${selectedSaleId}`;
                 const iframe = $('#invoicePdfIframe');
-                iframe.attr('src', ''); // iframe'i temizle, önceki içeriği sil
+                iframe.attr('src', ''); 
 
-                // AJAX ile PDF verisini çek
                 $.ajax({
                     url: pdfUrl,
                     method: 'GET',
                     xhrFields: {
-                        responseType: 'blob' // Yanıtı blob olarak al
+                        responseType: 'blob' 
                     },
                     beforeSend: function () {
-                        // Optionally show a loading spinner
-                        // For example: $('.loading-spinner').show();
                         console.log("PDF yükleniyor...");
                     },
                     success: function (blob) {
                         // Blob'dan bir URL oluştur
                         const blobUrl = URL.createObjectURL(blob);
-                        iframe.attr('src', blobUrl); // iframe'in src'sini ata
-
-                        // Modalı aç
+                        iframe.attr('src', blobUrl); 
                         const invoiceModal = new bootstrap.Modal(document.getElementById('invoicePreviewModal'));
                         invoiceModal.show();
-
-                        // Modal kapatıldığında Blob URL'ini serbest bırak (bellek yönetimi için)
                         $('#invoicePreviewModal').on('hidden.bs.modal', function () {
-                            URL.revokeObjectURL(blobUrl); // Blob URL'i serbest bırak
-                            iframe.attr('src', ''); // iframe'i tekrar temizle
+                            URL.revokeObjectURL(blobUrl); 
+                            iframe.attr('src', ''); 
                         });
                     },
                     error: function (xhr, status, error) {
                         console.error("PDF yükleme hatası:", status, error);
-                        // Hata mesajını kullanıcıya göster
                         alert("Fatura önizlemesi yüklenirken bir hata oluştu. Detaylar için konsolu kontrol edin.");
                     },
                     complete: function () {
-                        // Hide loading spinner
-                        // For example: $('.loading-spinner').hide();
                         console.log("PDF yükleme tamamlandı.");
                     }
                 });
             });
 
-            // "Faturayı Oluştur" butonuna tıklandığında (modal içinde)
             $('#confirmInvoiceCreationBtn').on('click', function () {
-                // In this setup, the PDF is ALREADY generated and saved when the preview is loaded.
-                // The "Faturayı Oluştur" button here primarily serves as a confirmation to the user
-                // that they have reviewed and accepted the generated invoice.
-                // You could, if desired, add another AJAX call here to perform a different action
-                // (e.g., mark the invoice as 'finalized' in the database, send an email, etc.)
-                // For now, it just closes the modal and gives a confirmation message.
 
                 console.log(`Fatura ${selectedSaleNumber} (${selectedSaleId}) için oluşturuldu ve onaylandı.`);
 
-                // Modalı kapat
                 const invoiceModal = bootstrap.Modal.getInstance(document.getElementById('invoicePreviewModal'));
                 invoiceModal.hide();
 
-                // Kullanıcıya bilgi verebilirsin (örn. Toast mesajı)
                 alert(`Fatura ${selectedSaleNumber} başarıyla oluşturuldu ve kaydedildi.`);
             });
         });

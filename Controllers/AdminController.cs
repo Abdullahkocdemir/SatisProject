@@ -1,5 +1,4 @@
-﻿// Gerekli kütüphaneler (Kimlik yönetimi, yetkilendirme, veri erişimi vs.)
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,17 +10,14 @@ using System.Transactions;
 
 namespace SatışProject.Controllers
 {
-    // Bu controller sadece "Admin" rolüne sahip kullanıcılar tarafından erişilebilir
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        // Gerekli bağımlılıklar: veritabanı context'i, dosya kaydetme ortamı, kullanıcı ve rol yöneticileri
         private readonly SatısContext _context;
         private readonly IWebHostEnvironment _env;
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<AppRole> _roleManager;
 
-        // Constructor: Gerekli servisleri enjekte eder
         public AdminController(
             SatısContext context,
             IWebHostEnvironment env,
@@ -32,18 +28,6 @@ namespace SatışProject.Controllers
             _env = env;
             _userManager = userManager;
             _roleManager = roleManager;
-        }
-
-        // Aktif kullanıcıları listeleyen sayfa
-        [HttpGet]
-        public async Task<IActionResult> Users()
-        {
-            var users = await _userManager.Users
-                .Where(u => u.IsActive) // Sadece aktif kullanıcılar
-                .OrderBy(u => u.CreatedAt) // Oluşturulma tarihine göre sırala
-                .ToListAsync();
-
-            return View(users);
         }
 
         #region Employee Management (Çalışan Yönetimi)
@@ -319,22 +303,105 @@ namespace SatışProject.Controllers
             return View(role);
         }
 
-        // Rol silme
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteRole(string id)
         {
-            var role = await _roleManager.FindByIdAsync(id);
-            if (role == null) return NotFound();
+            // DEBUG: Method çağrılıyor mu kontrol et
+            System.Diagnostics.Debug.WriteLine($"DeleteRole method called with ID: {id}");
+            Console.WriteLine($"DeleteRole method called with ID: {id}");
 
-            var result = await _roleManager.DeleteAsync(role);
-            if (!result.Succeeded)
+            try
             {
-                TempData["Error"] = "Rol silinemedi. Bu role sahip kullanıcılar olabilir.";
+                // 1. ID kontrolü
+                if (string.IsNullOrEmpty(id))
+                {
+                    TempData["Error"] = "Geçersiz rol ID'si.";
+                    System.Diagnostics.Debug.WriteLine("ERROR: Empty ID received");
+                    return RedirectToAction("Roles");
+                }
+
+                System.Diagnostics.Debug.WriteLine($"Processing role deletion for ID: {id}");
+
+                // 2. Rolü bul
+                var role = await _roleManager.FindByIdAsync(id);
+                if (role == null)
+                {
+                    TempData["Error"] = "Silinmek istenen rol bulunamadı.";
+                    System.Diagnostics.Debug.WriteLine($"ERROR: Role not found for ID: {id}");
+                    return RedirectToAction("Roles");
+                }
+
+                System.Diagnostics.Debug.WriteLine($"Role found: {role.Name}");
+
+                // 3. Sistem rollerini koruma (isteğe bağlı)
+                var protectedRoles = new[] { "Admin", "SuperAdmin", "System" };
+                if (protectedRoles.Contains(role.Name, StringComparer.OrdinalIgnoreCase))
+                {
+                    TempData["Error"] = $"'{role.Name}' rolü sistem rolüdür ve silinemez.";
+                    System.Diagnostics.Debug.WriteLine($"ERROR: Protected role cannot be deleted: {role.Name}");
+                    return RedirectToAction("Roles");
+                }
+
+                // 4. Bu rolün atanmış kullanıcıları var mı kontrolü
+                var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name);
+                if (usersInRole != null && usersInRole.Any())
+                {
+                    TempData["Error"] = $"'{role.Name}' rolü silinemedi. Bu role sahip {usersInRole.Count} kullanıcı bulunmaktadır.";
+                    System.Diagnostics.Debug.WriteLine($"ERROR: Role has {usersInRole.Count} users assigned");
+                    return RedirectToAction("Roles");
+                }
+
+                // 5. Rol silme işlemi
+                System.Diagnostics.Debug.WriteLine($"Attempting to delete role: {role.Name}");
+                var result = await _roleManager.DeleteAsync(role);
+
+                if (result.Succeeded)
+                {
+                    TempData["Success"] = $"'{role.Name}' rolü başarıyla silindi.";
+                    System.Diagnostics.Debug.WriteLine($"SUCCESS: Role deleted successfully: {role.Name}");
+                }
+                else
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    TempData["Error"] = $"Rol silinirken bir hata oluştu: {errors}";
+                    System.Diagnostics.Debug.WriteLine($"ERROR: Role deletion failed: {errors}");
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Rol silinirken beklenmeyen bir hata oluştu.";
+                System.Diagnostics.Debug.WriteLine($"EXCEPTION: {ex.Message}");
+                Console.WriteLine($"EXCEPTION in DeleteRole: {ex}");
             }
 
+            System.Diagnostics.Debug.WriteLine("Redirecting to Roles action");
             return RedirectToAction("Roles");
         }
+
+        // Alternatif: GET version için de test ekle
+        [HttpGet]
+        public async Task<IActionResult> TestDeleteRole(string id)
+        {
+            System.Diagnostics.Debug.WriteLine($"TEST: TestDeleteRole called with ID: {id}");
+
+            if (string.IsNullOrEmpty(id))
+            {
+                TempData["Error"] = "Test: Geçersiz rol ID'si.";
+                return RedirectToAction("Roles");
+            }
+
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null)
+            {
+                TempData["Error"] = "Test: Rol bulunamadı.";
+                return RedirectToAction("Roles");
+            }
+
+            TempData["Success"] = $"Test başarılı! Rol bulundu: {role.Name}";
+            return RedirectToAction("Roles");
+        }
+
 
         #endregion
 

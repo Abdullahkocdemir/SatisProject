@@ -1,0 +1,252 @@
+﻿@model SatışProject.Models.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Kullanıcı Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="row mb-4">
+        <div class="col">
+            <h3 class="welcome-message">
+                Hoşgeldiniz <span id="userName" style="font-weight: bold;">@Model.UserFirstName @Model.UserLastName</span>
+            </h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-light-primary">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">@Model.TotalOrders.ToString("N0")</div>
+                    <div class="stat-label">Toplam Kendi Siparişlerim</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-light-success">
+                    <i class="fas fa-money-check-alt"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">@Model.TotalRevenue.ToString("N2")₺</div>
+                    <div class="stat-label">Kendi Satış Gelirim</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-light-warning">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">@Model.TotalCustomers.ToString("N0")</div>
+                    <div class="stat-label">Sistemdeki Toplam Müşteri</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-light-danger">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">@Model.TotalProducts.ToString("N0")</div>
+                    <div class="stat-label">Sistemdeki Toplam Ürün</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Kendi Satışlarımın İstatistikleri</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="salesChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Kendi En Çok Satan Ürünlerim</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="productsChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Son Yaptığım Satışlar</h5>
+                    <a href="/Sale/Index" class="btn btn-sm btn-primary">Tümünü Gör</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover datatable">
+                            <thead>
+                                <tr>
+                                    <th>Sipariş No</th>
+                                    <th>Müşteri</th>
+                                    <th>Tarih</th>
+                                    <th>Toplam</th>
+                                    <th>Durum</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model.RecentOrders)
+                                {
+                                    <tr>
+                                        <td>#@order.SaleNumber</td>
+                                        <td>@(order.Customer?.ContactName ?? order.Customer?.CompanyName)</td>
+                                        <td>@order.SaleDate.ToString("dd.MM.yyyy")</td>
+                                        <td>@order.GrandTotal.ToString("N2")₺</td>
+                                        <td><span class="badge @(order.Status == SaleStatus.Completed ? "bg-success" : order.Status == SaleStatus.Pending ? "bg-warning text-dark" : order.Status == SaleStatus.Cancelled ? "bg-danger" : "bg-primary")">@order.Status.ToString()</span></td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    İşlemler
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i> Görüntüle</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Düzenle</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-print me-2"></i> Yazdır</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Hoşgeldiniz mesajının rengini değiştiren JavaScript
+            var userNameSpan = document.getElementById('userName');
+            var colors = [
+                'rgb(255, 0, 0)',   // Red
+                'rgb(0, 255, 0)',   // Green
+                'rgb(0, 0, 255)'    // Blue
+            ];
+            var colorIndex = 0;
+
+            function changeColor() {
+                userNameSpan.style.color = colors[colorIndex];
+                colorIndex = (colorIndex + 1) % colors.length;
+            }
+
+            // Her 1.5 saniyede bir rengi değiştir (ayarlayabilirsiniz)
+            setInterval(changeColor, 1500);
+
+            // Kendi Satış İstatistikleri Grafiği
+            var salesCtx = document.getElementById('salesChart').getContext('2d');
+            var salesChart = new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.SalesStatistics.Select(s => s.Item1).ToList())),
+                    datasets: [{
+                        label: 'Satışlar',
+                        data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.SalesStatistics.Select(s => s.Item2).ToList())),
+                        backgroundColor: 'rgba(93, 135, 255, 0.1)',
+                        borderColor: '#5D87FF',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#5D87FF',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function (context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return value.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Kendi En Çok Satan Ürünleri Grafiği
+            var productsCtx = document.getElementById('productsChart').getContext('2d');
+            var productsChart = new Chart(productsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.TopSellingProducts.Keys.ToList())),
+                    datasets: [{
+                        data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.TopSellingProducts.Values.ToList())),
+                        backgroundColor: ['#5D87FF', '#13DEB9', '#FFAE1F', '#FA896B', '#49BEFF'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 15
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Tab geçişi yapıldığında Chart.js grafiklerini yeniden boyutlandırmak için
+            $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+                if (e.target.id === 'general-sales-tab') {
+                    salesChart.resize();
+                }
+            });
+        });
+    </script>
+}

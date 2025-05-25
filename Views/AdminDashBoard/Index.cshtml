@@ -112,7 +112,7 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-hover datatable">
+                        <table class="table table-hover ">
                             <thead>
                                 <tr>
                                     <th>Sipariş No</th>
@@ -225,23 +225,25 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         $(document).ready(function () {
-            // Genel Satış İstatistikleri Grafiği
+            // Genel Satış İstatistikleri Grafiği (Alan Grafiği - Line with fill)
             var salesCtx = document.getElementById('salesChart').getContext('2d');
             var salesChart = new Chart(salesCtx, {
-                type: 'line',
+                type: 'line', // Line chart tipi
                 data: {
                     labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.SalesStatistics.Select(s => s.Item1).ToList())),
                     datasets: [{
-                        label: 'Satışlar',
+                        label: 'Toplam Satış',
                         data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.SalesStatistics.Select(s => s.Item2).ToList())),
-                        backgroundColor: 'rgba(93, 135, 255, 0.1)',
+                        backgroundColor: 'rgba(93, 135, 255, 0.3)', // Daha hafif bir dolgu rengi
                         borderColor: '#5D87FF',
                         borderWidth: 2,
-                        tension: 0.3,
+                        tension: 0.4, // Eğri çizgiler için gerilim
+                        fill: true, // Alanı doldur
                         pointBackgroundColor: '#ffffff',
                         pointBorderColor: '#5D87FF',
                         pointBorderWidth: 2,
-                        pointRadius: 4
+                        pointRadius: 5,
+                        pointHoverRadius: 7
                     }]
                 },
                 options: {
@@ -265,51 +267,99 @@
                         x: {
                             grid: {
                                 display: false
+                            },
+                            ticks: {
+                                color: '#666', // X ekseni etiket rengi
                             }
                         },
                         y: {
                             beginAtZero: true,
+                            grid: {
+                                color: 'rgba(200, 200, 200, 0.2)' // Daha hafif grid çizgileri
+                            },
                             ticks: {
                                 callback: function (value) {
                                     return value.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
-                                }
+                                },
+                                color: '#666' // Y ekseni etiket rengi
                             }
                         }
                     }
                 }
             });
 
-            // En Çok Satan Ürünler Grafiği
+            // En Çok Satan Ürünler Grafiği (Yatay Çubuk Grafiği - Horizontal Bar Chart)
             var productsCtx = document.getElementById('productsChart').getContext('2d');
             var productsChart = new Chart(productsCtx, {
-                type: 'doughnut',
+                type: 'bar', // Çubuk grafiği tipi
                 data: {
                     labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.TopSellingProducts.Keys.ToList())),
                     datasets: [{
+                        label: 'Satılan Miktar',
                         data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.TopSellingProducts.Values.ToList())),
-                        backgroundColor: ['#5D87FF', '#13DEB9', '#FFAE1F', '#FA896B', '#49BEFF'],
-                        borderWidth: 0
+                        backgroundColor: [ // Her çubuk için farklı renkler
+                            'rgba(93, 135, 255, 0.8)', // Primary
+                            'rgba(19, 222, 185, 0.8)', // Success
+                            'rgba(255, 174, 31, 0.8)', // Warning
+                            'rgba(250, 137, 107, 0.8)', // Danger
+                            'rgba(73, 190, 255, 0.8)'  // Info
+                        ],
+                        borderColor: [
+                            '#5D87FF',
+                            '#13DEB9',
+                            '#FFAE1F',
+                            '#FA896B',
+                            '#49BEFF'
+                        ],
+                        borderWidth: 1
                     }]
                 },
                 options: {
+                    indexAxis: 'y', // Yatay çubuk grafiği için ekseni y yap
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom',
-                            labels: {
-                                boxWidth: 12,
-                                padding: 15
+                            display: false // Efsaneyi gizle, tek dataset olduğu için gereksiz
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return context.dataset.label + ': ' + context.parsed.x.toLocaleString();
+                                }
                             }
                         }
                     },
-                    cutout: '70%'
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#666'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Satılan Miktar'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#666'
+                            }
+                        }
+                    }
                 }
             });
 
-            // Çalışan Satış Performansı Grafiği
+            // Çalışan Satış Performansı Grafiği (Çubuk Grafiği - Bar Chart)
             var employeeSalesCtx = document.getElementById('employeeSalesChart').getContext('2d');
 
+            // Hatanın olduğu kısım: "Newtonoft" yerine "Newtonsoft" olacak
             var employeeSalesData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.EmployeeSalesStatistics));
             var employeeNames = Object.keys(employeeSalesData);
 
@@ -373,14 +423,15 @@
                     data: dataForEmployee,
                     backgroundColor: colors[index % colors.length],
                     borderColor: borderColors[index % borderColors.length],
-                    borderWidth: 2,
-                    fill: false,
-                    tension: 0.1
+                    borderWidth: 1, // Çubuk grafiği için border
+                    tension: 0.1, // Çubuk grafiği için tension'ın etkisi olmaz ama kalsın
+                    barPercentage: 0.8, // Çubuk genişliği
+                    categoryPercentage: 0.8 // Kategori genişliği
                 });
             });
 
             new Chart(employeeSalesCtx, {
-                type: 'line',
+                type: 'bar', // Çalışan performansı için çubuk grafiği
                 data: {
                     labels: allMonths,
                     datasets: employeeDatasets
@@ -393,25 +444,40 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Toplam Satış (₺)'
+                                text: 'Toplam Satış (₺)',
+                                color: '#666'
                             },
                             ticks: {
                                 callback: function (value) {
                                     return value.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
-                                }
+                                },
+                                color: '#666'
+                            },
+                            grid: {
+                                color: 'rgba(200, 200, 200, 0.2)'
                             }
                         },
                         x: {
                             title: {
                                 display: true,
-                                text: 'Ay.Yıl'
+                                text: 'Ay.Yıl',
+                                color: '#666'
+                            },
+                            ticks: {
+                                color: '#666'
+                            },
+                            grid: {
+                                display: false
                             }
                         }
                     },
                     plugins: {
                         legend: {
                             display: true,
-                            position: 'top'
+                            position: 'top',
+                            labels: {
+                                color: '#333' // Efsane etiket rengi
+                            }
                         },
                         tooltip: {
                             mode: 'index',

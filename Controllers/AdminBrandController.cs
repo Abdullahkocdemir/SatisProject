@@ -71,7 +71,6 @@ namespace SatışProject.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Marka detaylarını gösteren GET metodu
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -99,5 +98,6 @@ namespace SatışProject.Controllers
 
             return RedirectToAction("Index");
         }
+
     }
 }

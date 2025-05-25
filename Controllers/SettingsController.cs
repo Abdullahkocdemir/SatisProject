@@ -1,5 +1,4 @@
-﻿// File: SatışProject.Controllers/SettingsController.cs
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +14,7 @@ namespace SatışProject.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
-        private readonly IWebHostEnvironment _webHostEnvironment; // For file uploads
+        private readonly IWebHostEnvironment _webHostEnvironment; 
 
         public SettingsController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IWebHostEnvironment webHostEnvironment)
         {
@@ -29,21 +28,19 @@ namespace SatışProject.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                // If user is not found, sign out and redirect to login
+                
                 await _signInManager.SignOutAsync();
                 TempData["ErrorMessage"] = "Kullanıcı bulunamadı. Lütfen tekrar giriş yapın.";
-                return RedirectToAction("Login", "Account"); // Assuming an Account controller for login
+                return RedirectToAction("Login", "Account"); 
             }
 
-            // Load related Employee data
             user = await _userManager.Users
                          .Include(u => u.Employee)
-                            .ThenInclude(e => e.Department) // Include Department for Employee
+                            .ThenInclude(e => e.Department) 
                          .FirstOrDefaultAsync(u => u.Id == user.Id);
 
             if (user == null)
             {
-                // Should not happen if GetUserAsync succeeded, but as a safeguard
                 await _signInManager.SignOutAsync();
                 TempData["ErrorMessage"] = "Kullanıcı detayları yüklenirken bir hata oluştu. Lütfen tekrar giriş yapın.";
                 return RedirectToAction("Login", "Account");
@@ -132,13 +129,11 @@ namespace SatışProject.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Update user properties
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
             user.PhoneNumber = model.PhoneNumber;
-            user.UpdatedAt = DateTime.Now; // Update the UpdatedAt field
+            user.UpdatedAt = DateTime.Now; 
 
-            // Check if email has changed and update it
             if (user.Email != model.Email)
             {
                 var setEmailResult = await _userManager.SetEmailAsync(user, model.Email);
@@ -150,14 +145,12 @@ namespace SatışProject.Controllers
                     }
                     return View(model);
                 }
-                // If email changed, consider re-signing in the user to update claims
                 await _signInManager.RefreshSignInAsync(user);
             }
 
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
             {
-                // Re-sign in the user to update their claims (e.g., FullName)
                 await _signInManager.RefreshSignInAsync(user);
                 TempData["SuccessMessage"] = "Profil bilgileriniz başarıyla güncellendi.";
                 return RedirectToAction("Index");
@@ -194,7 +187,6 @@ namespace SatışProject.Controllers
             var changePasswordResult = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
             if (changePasswordResult.Succeeded)
             {
-                // Re-sign in the user after password change for security
                 await _signInManager.RefreshSignInAsync(user);
                 TempData["SuccessMessage"] = "Şifreniz başarıyla değiştirildi.";
                 return RedirectToAction("Index");
@@ -242,24 +234,19 @@ namespace SatışProject.Controllers
 
             if (model.ProfilePhotoFile != null && model.ProfilePhotoFile.Length > 0)
             {
-                // Define the path to save the image
                 string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "profile_photos");
                 if (!Directory.Exists(uploadsFolder))
                 {
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
-                // Generate a unique file name
                 string uniqueFileName = Guid.NewGuid().ToString() + "_" + model.ProfilePhotoFile.FileName;
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                // Save the file to the server
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await model.ProfilePhotoFile.CopyToAsync(fileStream);
                 }
-
-                // Delete old profile photo if it exists and is not the default
                 if (!string.IsNullOrEmpty(user.ProfilePhotoUrl) && user.ProfilePhotoUrl != "/images/default_profile.png")
                 {
                     string oldFilePath = Path.Combine(_webHostEnvironment.WebRootPath, user.ProfilePhotoUrl.TrimStart('/'));
@@ -269,7 +256,6 @@ namespace SatışProject.Controllers
                     }
                 }
 
-                // Update the user's ProfilePhotoUrl
                 user.ProfilePhotoUrl = "/images/profile_photos/" + uniqueFileName;
                 user.UpdatedAt = DateTime.Now;
 

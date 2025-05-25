@@ -5,6 +5,10 @@ namespace SatışProject.Models
 {
     public class AdminDashboardViewModel
     {
+        // Add these two properties for the user's name
+        public string UserFirstName { get; set; } = string.Empty;
+        public string UserLastName { get; set; } = string.Empty;
+
         public int TotalOrders { get; set; }
         public decimal TotalRevenue { get; set; }
         public int TotalCustomers { get; set; }

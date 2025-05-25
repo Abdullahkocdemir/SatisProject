@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<SatışProject.Entities.AppRole>
 @{
     ViewData["Title"] = "Rol Yönetimi";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // Layout yolunuzun doğru olduğundan emin olun
 }
 
 <div class="container-fluid">
@@ -12,7 +12,6 @@
         </a>
     </div>
 
-    <!-- Bilgilendirme Mesajları -->
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show shadow" role="alert">
@@ -54,37 +53,15 @@
                                 <td>@role.Description</td>
                                 <td>
                                     <a asp-action="EditRole" asp-route-id="@role.Id" class="btn btn-outline-primary btn-sm mr-1">
-                                        <i class="fas fa-pen"></i>
+                                        <i class="fas fa-pen"></i> Düzenle
                                     </a>
 
-                                    <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteModal-@role.Id">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="deleteModal-@role.Id" tabindex="-1" role="dialog" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered" role="document">
-                                            <div class="modal-content shadow">
-                                                <div class="modal-header bg-danger text-white">
-                                                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Silme Onayı</h5>
-                                                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <p><strong>@role.Name</strong> rolünü silmek istediğinize emin misiniz?</p>
-                                                    <small class="text-danger">Not: Bu rol kullanıcılarla ilişkiliyse silme başarısız olur.</small>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
-                                                    <form asp-action="DeleteRole" method="post" class="d-inline">
-                                                        <input type="hidden" name="id" value="@role.Id" />
-                                                        <button type="submit" class="btn btn-danger">Sil</button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <form asp-action="DeleteRole" asp-route-id="@role.Id" method="post" class="d-inline delete-role-form">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-trash"></i> Sil
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         }
@@ -96,12 +73,35 @@
 </div>
 
 @section Scripts {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.all.min.js"></script>
+
     <script>
         $(document).ready(function () {
-            $('#rolesTable').DataTable({
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Turkish.json"
-                }
+            // DataTables başlatma kodu (eğer kullanıyorsanız)
+            // $('#rolesTable').DataTable();
+
+            // SweetAlert2 ile silme onayı
+            $('.delete-role-form').on('submit', function (e) {
+                e.preventDefault(); // Formun varsayılan gönderimini engelle
+
+                const form = this; // Form referansını sakla
+
+                Swal.fire({
+                    title: 'Emin misiniz?',
+                    text: "Bu rolü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Evet, Sil!',
+                    cancelButtonText: 'İptal',
+                    reverseButtons: true // Onay ve İptal butonlarının sırasını değiştir
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit(); // Kullanıcı onaylarsa formu gönder
+                    }
+                });
             });
         });
     </script>

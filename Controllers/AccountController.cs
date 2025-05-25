@@ -5,9 +5,7 @@ using SatışProject.Models;
 
 namespace İdentityRollemeDenemesi.Controllers
 {
-    /// <summary>
-    /// denee7
-    /// </summary>
+
     public class AccountController : Controller
     {
         private readonly SignInManager<AppUser> _signInManager;
@@ -37,7 +35,14 @@ namespace İdentityRollemeDenemesi.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, false);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Deneme"); // veya "Home"
+                    if (await _userManager.IsInRoleAsync(user, "Admin"))
+                    {
+                        return RedirectToAction("Index", "AdminDashboard"); 
+                    }
+                    else
+                    {
+                        return RedirectToAction("Index", "Dashboard");
+                    }
                 }
             }
 

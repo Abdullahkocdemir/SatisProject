@@ -16,8 +16,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css" rel="stylesheet" />
 
-    <link rel="stylesheet" href="~/css/AdminLayout.css">
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SatışProject.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/AdminLayout.css" asp-append-version="true"> @* app-append-version ekledim *@
 
     @RenderSection("Styles", required: false)
 </head>
@@ -38,13 +42,19 @@
 
             <div class="menu-header">ANA MENÜ</div>
 
-            <a href="/Admin" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Admin" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")">
-                <i class="fas fa-tachometer-alt"></i>
+            @{
+                string dashboardController = isAdmin ? "AdminDashBoard" : "DashBoard";
+                string dashboardHref = $"/{dashboardController}/Index/";
+                string dashboardActiveClass = ViewContext.RouteData.Values["controller"]!.ToString() == dashboardController &&
+                ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "";
+            }
+            <a href="@dashboardHref" class="menu-item @dashboardActiveClass">
+                <i class="fas fa-chart-line"></i>
                 <span class="menu-text">Dashboard</span>
             </a>
 
             <a href="#" class="menu-item has-submenu">
-                <i class="fas fa-box"></i>
+                <i class="fas fa-boxes"></i>
                 <span class="menu-text">Ürün Yönetimi</span>
                 <i class="fas fa-chevron-down menu-toggle"></i>
             </a>
@@ -55,8 +65,8 @@
                 <a href="/AdminCategory/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "AdminCategory" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")">
                     <span class="menu-text">Kategoriler</span>
                 </a>
-                <a href="/Admin/Inventory" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Admin" && ViewContext.RouteData.Values["action"]!.ToString() == "Inventory" ? "active" : "")">
-                    <span class="menu-text">Stok Yönetimi</span>
+                <a href="/AdminBrand/Index/" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "AdminBrand" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")"> @* Admin değil AdminBrand controller olmalı *@
+                    <span class="menu-text">Markalar</span>
                 </a>
             </div>
 
@@ -66,7 +76,13 @@
                 <i class="fas fa-chevron-down menu-toggle"></i>
             </a>
             <div class="submenu">
-                <a href="/AdminSale/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "AdminSale" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")">
+                @{
+                    string salesController = isAdmin ? "AdminSale" : "Sale";
+                    string salesHref = $"/{salesController}/Index";
+                    string salesActiveClass = ViewContext.RouteData.Values["controller"]!.ToString() == salesController &&
+                    ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "";
+                }
+                <a href="@salesHref" class="menu-item @salesActiveClass">
                     <span class="menu-text">Siparişler</span>
                 </a>
                 <a href="/Current/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Current" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")">
@@ -76,32 +92,73 @@
                     <span class="menu-text">Faturalar</span>
                 </a>
             </div>
+            @if (isAdmin)
+            {
+                <a href="#" class="menu-item has-submenu">
+                    <i class="fas fa-users-cog"></i>
+                    <span class="menu-text">Çalışan Yönetimi</span>
+                    <i class="fas fa-chevron-down menu-toggle"></i>
+                </a>
+                <div class="submenu">
+                    <a href="/AdminEmploye/Index" class="menu-item">
+                        <span class="menu-text">Çalışanlar</span>
+                    </a>
+                    <a href="/AdminDepartment/Index/" class="menu-item">
+                        <span class="menu-text">Departmanlar</span>
+                    </a>
+                </div>
+            }
 
             <a href="#" class="menu-item has-submenu">
-                <i class="fas fa-chart-line"></i>
-                <span class="menu-text">Finans</span>
+                <i class="fas fa-comments"></i>
+                <span class="menu-text">Mesajlar</span>
                 <i class="fas fa-chevron-down menu-toggle"></i>
             </a>
             <div class="submenu">
-                <a href="/Admin/Reports" class="menu-item">
-                    <span class="menu-text">Raporlar</span>
+                <a href="/Messages/Inbox" class="menu-item">
+                    <span class="menu-text">Gelen Kutusu</span>
                 </a>
-                <a href="/Admin/Expenses" class="menu-item">
-                    <span class="menu-text">Giderler</span>
+                <a href="/Messages/SentItems" class="menu-item">
+                    <span class="menu-text">Giden Kutusu</span>
+                </a>
+                @if (isAdmin)
+                {
+                    <a href="/Email/Index/" class="menu-item">
+                        <span class="menu-text">E-Posta</span>
+                    </a>
+                }
+            </div>
+
+
+            <a href="#" class="menu-item has-submenu">
+                <i class="fas fa-cogs"></i>
+                <span class="menu-text">Ayarlar</span>
+                <i class="fas fa-chevron-down menu-toggle"></i>
+            </a>
+            <div class="submenu">
+                <a href="/Settings/Index/" class="menu-item">
+                    <span class="menu-text">Profil</span>
+                </a>
+                <a href="/Settings/ChangePassword" class="menu-item">
+                    <span class="menu-text">Şifre Değiştirme</span>
+                </a>
+                <a href="/Account/Logout" class="menu-item">
+                    <span class="menu-text">Çıkış Yap</span>
                 </a>
             </div>
+
 
             @if (isAdmin)
             {
                 <div class="menu-header">YÖNETİM</div>
 
                 <a href="#" class="menu-item has-submenu">
-                    <i class="fas fa-cogs"></i>
+                    <i class="fas fa-shield-alt"></i>
                     <span class="menu-text">Sistem Yönetimi</span>
                     <i class="fas fa-chevron-down menu-toggle"></i>
                 </a>
                 <div class="submenu">
-                    <a href="/Admin/Users" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Admin" && ViewContext.RouteData.Values["action"]!.ToString() == "Users" ? "active" : "")">
+                    <a href="/Admin/Index/" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Admin" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")"> @* Action Index olarak düzeltildi *@
                         <span class="menu-text">Kullanıcı Yönetimi</span>
                     </a>
                     <a href="/Admin/Roles" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Admin" && ViewContext.RouteData.Values["action"]!.ToString() == "Roles" ? "active" : "")">
@@ -191,8 +248,8 @@
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                        <li><a class="dropdown-item" href="/Admin/Profile"><i class="fas fa-user me-2"></i> Profil</a></li>
-                        <li><a class="dropdown-item" href="/Admin/Settings"><i class="fas fa-cog me-2"></i> Ayarlar</a></li>
+                        <li><a class="dropdown-item" href="/Settings/Index/"><i class="fas fa-user me-2"></i> Profil</a></li>
+                        <li><a class="dropdown-item" href="/Settings/ChangePassword/"><i class="fas fa-cog me-2"></i> Ayarlar</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <form action="/Account/Logout" method="post" id="logoutForm">
@@ -217,14 +274,20 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 
-    <script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="~/js/message-client.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/message-client.js" asp-append-version="true"></script>
 
     <script>
         $(document).ready(function () {
@@ -248,6 +311,7 @@
             $('.has-submenu').click(function (e) {
                 e.preventDefault();
 
+                // Eğer sidebar daraltılmışsa veya mobil görünümdeyse submenu açılır
                 if (!$('.sidebar').hasClass('collapsed') || $(window).width() < 992) {
                     $(this).toggleClass('active');
                     $(this).find('.menu-toggle').toggleClass('rotate');
@@ -255,7 +319,7 @@
                 }
             });
 
-            // Initialize DataTables if exists
+
             if ($.fn.DataTable) {
                 $('.datatable').DataTable({
                     language: {
@@ -265,7 +329,7 @@
                 });
             }
 
-            // Initialize tooltips
+            // Initialize tooltips (Bootstrap 5 için bu doğru)
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)

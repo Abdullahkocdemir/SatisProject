@@ -6,13 +6,12 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace SatışProject.Controllers
 {
-    /// <summary>
-    /// Yönetici satış işlemlerini yöneten kontrolcü.
-    /// Tüm satışları görmeyi, filtrelemeyi, oluşturmayı, düzenlemeyi ve silmeyi sağlar.
-    /// </summary>
+    [Authorize(Roles = "Admin")]
     public class AdminSaleController : Controller
     {
         private readonly SatısContext _context;
