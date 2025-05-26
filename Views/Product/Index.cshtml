@@ -1,0 +1,462 @@
+﻿@model SatışProject.Models.ProductListViewModel
+@{
+    ViewData["Title"] = "Hırdavat Dünyası - Ürünlerimiz";
+    Layout = null; // Layout kullanmadığınızı varsayıyorum
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/WebSite2.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container">
+            <a href="/" class="navbar-brand">Hırdavat Dünyası</a>
+            <nav>
+                <ul class="navbar-nav">
+                    <li><a href="/">Ana Sayfa</a></li>
+                    <li><a href="/Product/Index" class="active">Ürünler</a></li>
+                    <li><a href="#">Kampanyalar</a></li>
+                    <li><a href="#">Hakkımızda</a></li>
+                    <li><a href="#">İletişim</a></li>
+                    <li class="cart-icon-container">
+                        <a href="/Basket/Index" class="cart-link">
+                            <i class="fas fa-shopping-cart"></i> Sepet
+                            <span id="basket-item-count" class="basket-count">@Model.BasketItemCount</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="main-content-wrapper">
+            <aside class="category-sidebar">
+                <h3>Kategoriler</h3>
+                <ul>
+                    <li><a href="#" class="category-filter active" data-category-id="0">Tüm Ürünler</a></li>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <li><a href="#" class="category-filter" data-category-id="@category.CategoryId">@category.Name</a></li>
+                    }
+                </ul>
+            </aside>
+
+            <section class="product-listing-area">
+                <h2 id="current-category-title">Tüm Ürünler</h2>
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Ürün adı ile ara...">
+                    <button id="search-button"><i class="fas fa-search"></i> Ara</button>
+                    <div id="autocomplete-suggestions"></div>
+                </div>
+                <div id="did-you-mean"></div>
+                <div class="product-grid" id="product-grid">
+                    @foreach (var product in Model.Products)
+                    {
+                        <div class="product-card" data-category-id="@product.CategoryId" data-product-name="@product.Name.ToLower()">
+                            <a href="/Product/Details/@product.ProductId">
+                                <div class="product-image-container">
+                                    <img src="@product.ImageUrl" alt="@product.Name">
+                                </div>
+                                <div class="product-info">
+                                    <h3 class="product-title">@product.Name</h3>
+                                    <p class="product-price">@product.UnitPrice.ToString("C2", new System.Globalization.CultureInfo("tr-TR"))</p>
+                                </div>
+                            </a>
+                            <button class="add-to-cart-btn" data-product-id="@product.ProductId">Sepete Ekle</button>
+                        </div>
+                    }
+                </div>
+
+                <div class="pagination-controls">
+                    <button id="prev-page" class="pagination-button" disabled>Önceki</button>
+                    <div id="page-numbers" style="display: inline-block; margin: 0 15px;"></div>
+                    <button id="next-page" class="pagination-button">Sonraki</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-section about-us">
+                <h4>Hırdavat Dünyası</h4>
+                <p>
+                    Hırdavat Dünyası olarak, en kaliteli ve dayanıklı el aletlerini, yapı malzemelerini ve endüstriyel çözümleri sizlere sunuyoruz. Projelerinizi güvenle tamamlayın!
+                </p>
+                <div class="social-icons">
+                    <a href="#" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" target="_blank" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-section useful-links">
+                <h4>Hızlı Erişim</h4>
+                <ul>
+                    <li><a href="#">Anasayfa</a></li>
+                    <li><a href="/Product/Index">Tüm Ürünler</a></li>
+                    <li><a href="#">Hesabım</a></li>
+                    <li><a href="#">Sipariş Takibi</a></li>
+                    <li><a href="#">Gizlilik Politikası</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section contact-info-footer">
+                <h4>Bilgi</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Örnek Mah. Deneme Cad. No:123, Bursa, Türkiye</p>
+                <p><i class="fas fa-phone"></i> +90 (555) 123 45 67</p>
+                <p><i class="fas fa-envelope"></i> info@hirdavatdunyasi.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© @DateTime.Now.Year Hırdavat Dünyası. Tüm Hakları Saklıdır.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categoryFilters = document.querySelectorAll('.category-filter');
+            const productCards = document.querySelectorAll('.product-card');
+            const currentCategoryTitle = document.getElementById('current-category-title');
+            const searchInput = document.getElementById('search-input');
+            const searchButton = document.getElementById('search-button');
+            const autocompleteSuggestions = document.getElementById('autocomplete-suggestions');
+            const didYouMeanDiv = document.getElementById('did-you-mean');
+
+            const prevPageBtn = document.getElementById('prev-page');
+            const nextPageBtn = document.getElementById('next-page');
+            const pageNumbersContainer = document.getElementById('page-numbers');
+            const paginationControls = document.querySelector('.pagination-controls');
+
+            const productsPerPage = 8;
+            let currentPage = 1;
+            let currentFilter = "0";
+            let currentSearchTerm = "";
+
+            const allProductNames = Array.from(productCards).map(card => card.dataset.productName);
+
+            const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+            const basketItemCountSpan = document.getElementById('basket-item-count');
+
+            // Levenshtein distance algorithm (yazım hatalarını bulmak için)
+            function levenshteinDistance(a, b) {
+                const an = a.length;
+                const bn = b.length;
+                const costs = new Array(an + 1);
+                for (let i = 0; i <= an; i++) {
+                    costs[i] = new Array(bn + 1);
+                    costs[i][0] = i;
+                }
+                for (let j = 0; j <= bn; j++) {
+                    costs[0][j] = j;
+                }
+                for (let i = 1; i <= an; i++) {
+                    for (let j = 1; j <= bn; j++) {
+                        const cost = (a[i - 1] === b[j - 1]) ? 0 : 1;
+                        costs[i][j] = Math.min(
+                            costs[i - 1][j] + 1,
+                            costs[i][j - 1] + 1,
+                            costs[i - 1][j - 1] + cost
+                        );
+                    }
+                }
+                return costs[an][bn];
+            }
+
+            function findBestSuggestion(term) {
+                if (!term || term.length < 2) return null;
+
+                let bestMatch = null;
+                let minDistance = Infinity;
+                const lowerCaseTerm = term.toLowerCase();
+
+                allProductNames.forEach(productName => {
+                    const distance = levenshteinDistance(lowerCaseTerm, productName.toLowerCase());
+                    if (distance < minDistance && distance <= Math.ceil(lowerCaseTerm.length * 0.3)) {
+                        minDistance = distance;
+                        bestMatch = productName;
+                    }
+                });
+                return bestMatch;
+            }
+
+            let filteredProducts = [];
+
+            function displayProducts() {
+                let tempFiltered = Array.from(productCards).filter(card => {
+                    const matchesCategory = currentFilter === "0" || card.dataset.categoryId === currentFilter;
+                    return matchesCategory;
+                });
+
+                if (currentSearchTerm) {
+                    tempFiltered = tempFiltered.filter(card =>
+                        card.dataset.productName.includes(currentSearchTerm.toLowerCase())
+                    );
+                }
+
+                filteredProducts = tempFiltered;
+
+                productCards.forEach(card => card.style.display = 'none');
+
+                if (filteredProducts.length === 0 && currentSearchTerm.length > 0) {
+                    const suggestion = findBestSuggestion(currentSearchTerm);
+                    if (suggestion) {
+                        didYouMeanDiv.innerHTML = `<span>Bunu mu demek istediniz: <a href="#" class="suggested-link">${suggestion}</a>?</span>`;
+                        didYouMeanDiv.style.display = 'block';
+                        didYouMeanDiv.querySelector('.suggested-link').onclick = (e) => {
+                            e.preventDefault();
+                            searchInput.value = suggestion;
+                            currentSearchTerm = suggestion.toLowerCase();
+                            currentPage = 1;
+                            displayProducts();
+                            didYouMeanDiv.style.display = 'none';
+                        };
+                    } else {
+                        didYouMeanDiv.style.display = 'none';
+                    }
+                } else {
+                    didYouMeanDiv.style.display = 'none';
+                }
+
+                const startIndex = (currentPage - 1) * productsPerPage;
+                const endIndex = startIndex + productsPerPage;
+
+                const productsToShow = filteredProducts.slice(startIndex, endIndex);
+
+                if (productsToShow.length === 0 && filteredProducts.length === 0 && currentSearchTerm.length > 0) {
+                    document.getElementById('product-grid').innerHTML = '<p style="text-align: center; width: 100%; margin-top: 20px;">Aradığınız ürün bulunamadı.</p>';
+                } else if (productsToShow.length === 0 && filteredProducts.length === 0 && currentFilter !== "0") {
+                    document.getElementById('product-grid').innerHTML = '<p style="text-align: center; width: 100%; margin-top: 20px;">Bu kategoride ürün bulunamadı.</p>';
+                } else if (productsToShow.length === 0 && filteredProducts.length === 0) {
+                    document.getElementById('product-grid').innerHTML = '<p style="text-align: center; width: 100%; margin-top: 20px;">Hiç ürün bulunamadı.</p>';
+                }
+                else {
+                    document.getElementById('product-grid').innerHTML = '';
+                    productsToShow.forEach(card => {
+                        document.getElementById('product-grid').appendChild(card);
+                        card.style.display = 'flex';
+                    });
+                }
+                updatePaginationControls();
+            }
+
+            function updatePaginationControls() {
+                const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+
+                prevPageBtn.disabled = currentPage === 1;
+                nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+
+                pageNumbersContainer.innerHTML = '';
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageNumberSpan = document.createElement('span');
+                    pageNumberSpan.classList.add('page-number');
+                    pageNumberSpan.textContent = i;
+                    if (i === currentPage) {
+                        pageNumberSpan.classList.add('active-page');
+                    }
+                    pageNumberSpan.addEventListener('click', function () {
+                        currentPage = i;
+                        displayProducts();
+                    });
+                    pageNumbersContainer.appendChild(pageNumberSpan);
+                }
+                if (totalPages === 0 || filteredProducts.length <= productsPerPage) {
+                    paginationControls.style.display = 'none';
+                } else {
+                    paginationControls.style.display = 'block';
+                }
+            }
+
+            prevPageBtn.addEventListener('click', function () {
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayProducts();
+                }
+            });
+
+            nextPageBtn.addEventListener('click', function () {
+                const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    displayProducts();
+                }
+            });
+
+            categoryFilters.forEach(filter => {
+                filter.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    categoryFilters.forEach(f => f.classList.remove('active'));
+                    this.classList.add('active');
+
+                    currentFilter = this.dataset.categoryId;
+                    const categoryName = this.textContent;
+
+                    currentCategoryTitle.textContent = categoryName;
+
+                    currentPage = 1;
+                    searchInput.value = "";
+                    currentSearchTerm = "";
+                    autocompleteSuggestions.style.display = 'none';
+                    didYouMeanDiv.style.display = 'none';
+                    displayProducts();
+                });
+            });
+
+            searchButton.addEventListener('click', function () {
+                currentSearchTerm = searchInput.value.trim();
+                currentPage = 1;
+                autocompleteSuggestions.style.display = 'none';
+                displayProducts();
+            });
+
+            searchInput.addEventListener('input', function () {
+                const searchTerm = this.value.trim().toLowerCase();
+                currentSearchTerm = searchTerm;
+
+                if (searchTerm.length >= 2) {
+                    const suggestions = allProductNames.filter(name =>
+                        name.includes(searchTerm)
+                    ).slice(0, 5);
+
+                    autocompleteSuggestions.innerHTML = '';
+                    if (suggestions.length > 0) {
+                        suggestions.forEach(suggestion => {
+                            const suggestionDiv = document.createElement('div');
+                            suggestionDiv.textContent = suggestion;
+                            suggestionDiv.addEventListener('click', function () {
+                                searchInput.value = suggestion;
+                                currentSearchTerm = suggestion.toLowerCase();
+                                autocompleteSuggestions.style.display = 'none';
+                                currentPage = 1;
+                                displayProducts();
+                            });
+                            autocompleteSuggestions.appendChild(suggestionDiv);
+                        });
+                        autocompleteSuggestions.style.display = 'block';
+                    } else {
+                        autocompleteSuggestions.style.display = 'none';
+                    }
+                } else {
+                    autocompleteSuggestions.style.display = 'none';
+                }
+                currentPage = 1;
+                displayProducts();
+            });
+
+            searchInput.addEventListener('keyup', function (e) {
+                if (e.key === 'Enter') {
+                    currentSearchTerm = searchInput.value.trim();
+                    currentPage = 1;
+                    autocompleteSuggestions.style.display = 'none';
+                    displayProducts();
+                }
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!searchInput.contains(e.target) && !autocompleteSuggestions.contains(e.target)) {
+                    autocompleteSuggestions.style.display = 'none';
+                }
+            });
+
+            // --- "Sepete Ekle" Fonksiyonelliği (AJAX) ---
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const productId = this.dataset.productId;
+
+                    fetch('/Product/AddToBasket', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ productId: parseInt(productId), quantity: 1 })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => { throw new Error(text); });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            basketItemCountSpan.textContent = data.basketItemCount;
+
+                            // BAŞARILI DURUM İÇİN YENİ SWEETALERT2 STİLİ
+                            Swal.fire({
+                                title: 'Sepete Eklendi!',
+                                text: 'Ürün sepetinize başarıyla eklendi.',
+                                icon: 'success',
+                                showCancelButton: true, // Sepete gitme seçeneği için
+                                confirmButtonText: 'Sepeti Görüntüle',
+                                cancelButtonText: 'Alışverişe Devam Et',
+                                confirmButtonColor: '#1abc9c', // Yeşil renk
+                                cancelButtonColor: '#34495e', // Lacivert renk
+                                timer: 5000, // 5 saniye sonra otomatik kapanma (kullanıcı eylem yapmazsa)
+                                timerProgressBar: true,
+                                allowOutsideClick: true, // Dışarı tıklamayla kapanabilir
+                                customClass: {
+                                    popup: 'swal2-custom-popup',
+                                    title: 'swal2-custom-title',
+                                    htmlContainer: 'swal2-custom-text'
+                                }
+                            }).then((result) => {
+                                // Kullanıcı 'Sepeti Görüntüle'ye tıkladıysa
+                                if (result.isConfirmed) {
+                                    window.location.href = '/Basket/Index'; // Sepet sayfasına yönlendir
+                                }
+                                // Kullanıcı 'Alışverişe Devam Et'e tıkladıysa veya bildirim otomatik kapandıysa bir şey yapma
+                            });
+
+                        } else {
+                            // HATA DURUMU İÇİN YENİ SWEETALERT2 STİLİ
+                            const errorMessage = data.message || 'Ürün sepete eklenirken bir hata oluştu.';
+                            Swal.fire({
+                                title: 'Oops...', // Daha ilgi çekici bir başlık
+                                text: errorMessage,
+                                icon: 'error',
+                                confirmButtonText: 'Tekrar Dene',
+                                confirmButtonColor: '#e74c3c', // Kırmızı renk
+                                customClass: {
+                                    popup: 'swal2-custom-popup',
+                                    title: 'swal2-custom-title',
+                                    htmlContainer: 'swal2-custom-text'
+                                }
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('AJAX işlemi sırasında hata oluştu:', error);
+                        // GENEL HATA DURUMU İÇİN YENİ SWEETALERT2 STİLİ
+                        Swal.fire({
+                            title: 'Bağlantı Hatası!',
+                            text: 'Sunucuya ulaşırken bir sorun oluştu. İnternet bağlantınızı kontrol edin veya daha sonra tekrar deneyin.',
+                            icon: 'warning', // Uyarı ikonu daha uygun
+                            confirmButtonText: 'Tamam',
+                            confirmButtonColor: '#f39c12', // Turuncu renk
+                            customClass: {
+                                popup: 'swal2-custom-popup',
+                                title: 'swal2-custom-title',
+                                htmlContainer: 'swal2-custom-text'
+                            }
+                        });
+                    });
+                });
+            });
+
+            displayProducts();
+        });
+    </script>
+</body>
+</html>

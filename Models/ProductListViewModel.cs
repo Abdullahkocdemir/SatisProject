@@ -4,7 +4,10 @@ namespace SatışProject.Models
 {
     public class ProductListViewModel
     {
-        public List<Product> Products { get; set; } = new List<Product>();
-        public List<Category> Categories { get; set; } = new List<Category>();
+        public IEnumerable<Product> Products { get; set; } = new List<Product>();
+        public IEnumerable<Category> Categories { get; set; } = new List<Category>();
+
+        // Sepetteki toplam ürün adedini tutacak yeni özellik
+        public int BasketItemCount { get; set; }
     }
 }

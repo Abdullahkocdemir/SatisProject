@@ -31,6 +31,8 @@ namespace SatışProject.Context
         public DbSet<WhyUs> Whies { get; set; } = null!;
         public DbSet<Testimonial> Testimonials { get; set; } = null!;
         public DbSet<Contact> Contacts { get; set; } = null!;
+        public DbSet<Basket> Baskets { get; set; } = null!;
+        public DbSet<BasketItem> BasketItems { get; set; }
 
 
         // Model konfigürasyonları
@@ -61,6 +63,19 @@ namespace SatışProject.Context
                 .WithMany(b => b.Products)
                 .HasForeignKey(p => p.BrandId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<BasketItem>()
+    .HasOne(bi => bi.Product)
+    .WithMany() // Or WithMany(p => p.BasketItems) if Product has a BasketItems collection
+    .HasForeignKey(bi => bi.ProductId);
+
+            modelBuilder.Entity<BasketItem>()
+                .HasOne(bi => bi.Basket)
+                .WithMany(b => b.BasketItems)
+                .HasForeignKey(bi => bi.BasketId);
+
+
 
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)

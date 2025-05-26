@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SatýþProject.Context;
 using SatýþProject.Entities;
-using SatýþProject.Context; 
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 using SatýþProject.Hubs;
+using SatýþProject.Models;
+using SatýþProject.Extensions;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,10 +21,20 @@ builder.Services.AddControllersWithViews()
             _ => "Geçerli bir sayý giriniz." // Custom error message
         );
     });
+
 builder.Services.AddDbContext<SatýsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddSignalR(); // SignalR servisi eklenmiþ, doðru
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Oturum 30 dakika hareketsizlikten sonra sona erecek
+    options.Cookie.HttpOnly = true; // Oturum çerezini istemci tarafý betiklerinden eriþilemez yap
+    options.Cookie.IsEssential = true; // Oturum çerezini uygulamanýn iþlevselliði için gerekli yap
+});
+
+builder.Services.AddScoped<ShoppingCartService>(); // Sepet servisimizi ekledik
 
 builder.Services.AddIdentity<AppUser, AppRole>(options =>
 {
@@ -60,14 +73,18 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Oturum middleware'ini UseRouting ve UseEndpoints arasýna ekleyin
+app.UseSession();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHub<MessageHub>("/messageHub"); 
+app.MapHub<MessageHub>("/messageHub");
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
 
 using (var scope = app.Services.CreateScope())
 {
