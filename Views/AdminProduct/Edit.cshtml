@@ -1,7 +1,6 @@
 ﻿@model SatışProject.Entities.Product
-
 @{
-    ViewData["Title"] = "Yeni Ürün Ekle";
+    ViewData["Title"] = "Ürün Düzenle";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -12,29 +11,43 @@
 <div class="container mt-5">
     <div class="card shadow border-0 rounded-4">
         <div class="card-header bg-dark text-white rounded-top-4">
-            <h4 class="mb-0"><i class="bi bi-box-fill me-2"></i>Yeni Ürün Ekle</h4>
+            <h4 class="mb-0"><i class="bi bi-box-fill me-2"></i>Ürün Düzenle</h4>
         </div>
         <div class="card-body p-4">
-            <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                <input type="hidden" asp-for="ProductId" />
+                <input type="hidden" asp-for="CreatedDate" />
+                <input type="hidden" asp-for="SKU" />
+                <input type="hidden" asp-for="Barcode" />
+                <input type="hidden" asp-for="ImageUrl" /> @* Keep existing image path if no new image is uploaded *@
+
                 <div class="row g-4">
                     <div class="col-md-6">
                         <label class="form-label">Ürün Adı</label>
                         <input asp-for="Name" class="form-control" placeholder="Ürün adını giriniz..." />
+                        <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Fotoğraf Yükle</label>
+                        <label class="form-label">Fotoğraf Yükle (Yeni bir fotoğraf seçmezseniz mevcut görsel kalır)</label>
                         <input type="file" name="imageFile" class="form-control" />
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <div class="mt-2">
+                                <img src="@Model.ImageUrl" alt="Ürün Görseli" style="max-width: 150px; height: auto;" />
+                            </div>
+                        }
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Satış Fiyatı</label>
-                        <input asp-for="UnitPrice" class="form-control" />
+                        <input asp-for="UnitPrice" type="number" step="0.01" class="form-control" />
+                        <span asp-validation-for="UnitPrice" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Maliyet Fiyatı</label>
-                        <input asp-for="CostPrice" class="form-control" />
+                        <input asp-for="CostPrice" type="number" step="0.01" class="form-control" />
                         <span asp-validation-for="CostPrice" class="text-danger"></span>
                     </div>
 
@@ -46,7 +59,8 @@
 
                     <div class="col-md-6">
                         <label class="form-label">Vergi Oranı (%)</label>
-                        <input asp-for="TaxRate" class="form-control" />
+                        <input asp-for="TaxRate" type="number" step="0.01" class="form-control" />
+                        <span asp-validation-for="TaxRate" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6">
@@ -54,6 +68,7 @@
                         <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
                             <option value="">Kategori Seçiniz</option>
                         </select>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6">
@@ -61,6 +76,7 @@
                         <select asp-for="BrandId" class="form-select" asp-items="ViewBag.Brands">
                             <option value="">Marka Seçiniz</option>
                         </select>
+                        <span asp-validation-for="BrandId" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6">
@@ -71,26 +87,29 @@
                                 <option value="@( (int)status )">@status.GetDisplayName()</option>
                             }
                         </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Aktif mi?</label>
+                        <label class="form-label">Silindi mi?</label>
                         <select asp-for="IsDeleted" class="form-select">
-                            <option value="true">Hayır</option>
-                            <option value="false">Evet</option>
+                            <option value="true">Evet</option>
+                            <option value="false">Hayır</option>
                         </select>
+                        <span asp-validation-for="IsDeleted" class="text-danger"></span>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-check form-switch mt-4">
-                        <input class="form-check-input" type="checkbox" id="popularProductSwitch" asp-for="popularProduct">
-                        <label class="form-check-label" for="popularProductSwitch">Popüler Ürün</label>
+
+                    <div class="col-md-6">
+                        <div class="form-check form-switch mt-4">
+                            <input class="form-check-input" type="checkbox" id="popularProductSwitch" asp-for="popularProduct">
+                            <label class="form-check-label" for="popularProductSwitch">Popüler Ürün</label>
+                        </div>
                     </div>
                 </div>
 
                 <div class="mt-4 text-end">
                     <button type="submit" class="btn btn-success px-4 me-2">
-                        <i class="bi bi-save2 me-1"></i>Kaydet
+                        <i class="bi bi-save2 me-1"></i>Güncelle
                     </button>
                     <a href="/AdminProduct/Index" class="btn btn-outline-secondary px-4">
                         <i class="bi bi-x-circle me-1"></i>İptal
@@ -100,8 +119,10 @@
         </div>
     </div>
 </div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
+

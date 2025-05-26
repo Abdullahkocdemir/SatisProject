@@ -17,8 +17,10 @@
                     <h4 class="mb-0"> Kategori Güncelleme</h4>
                 </div>
                 <div class="card-body">
-                    <form method="post">
+                    <form method="post" asp-action="Edit">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="CategoryId" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                         <div class="mb-3">
                             <label asp-for="Name" class="form-label">Kategori Adı</label>
@@ -27,25 +29,42 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="IsActive" class="form-label">Durum</label>
+                            <label asp-for="Icon" class="form-label">İkon Sınıfı</label>
+                            <input asp-for="Icon" class="form-control" placeholder="Örn: bi bi-house" />
+                            <span asp-validation-for="Icon" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Durum</label>
                             <div>
                                 <div class="form-check form-check-inline">
-                                    <input asp-for="IsActive" class="form-check-input" type="radio" value="true" checked />
-                                    <label class="form-check-label" for="IsActive">Aktif</label>
+
+                                    <input asp-for="IsActive" class="form-check-input" type="radio" value="true" id="IsActiveTrue" />
+                                    <label class="form-check-label" for="IsActiveTrue">Aktif</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input asp-for="IsActive" class="form-check-input" type="radio" value="false" />
-                                    <label class="form-check-label" for="IsActive">Pasif</label>
+
+                                    <input asp-for="IsActive" class="form-check-input" type="radio" value="false" id="IsActiveFalse" />
+                                    <label class="form-check-label" for="IsActiveFalse">Pasif</label>
                                 </div>
                             </div>
                             <span asp-validation-for="IsActive" class="text-danger"></span>
                         </div>
 
+                        <div class="mb-4">
+                            <label class="form-label">Popüler Kategori mi?</label>
+                            <div class="form-check form-switch">
+                                <input asp-for="popularCategory" class="form-check-input" type="checkbox" role="switch" />
+                                <label class="form-check-label" asp-for="popularCategory">Evet</label>
+                            </div>
+                            <span asp-validation-for="popularCategory" class="text-danger"></span>
+                        </div>
+
                         <div class="mt-4 text-end">
                             <button type="submit" class="btn btn-success px-4 me-2">
-                                <i class="bi bi-save2 me-1"></i>Kaydet
+                                <i class="bi bi-save2 me-1"></i>Güncelle
                             </button>
-                            <a href="/Product/Index" class="btn btn-outline-secondary px-4">
+                            <a href="/AdminCategory/Index" class="btn btn-outline-secondary px-4">
                                 <i class="bi bi-x-circle me-1"></i>İptal
                             </a>
                         </div>
@@ -55,3 +74,9 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SatışProject.Context;
 
@@ -11,9 +12,11 @@ using SatışProject.Context;
 namespace SatışProject.Migrations
 {
     [DbContext(typeof(SatısContext))]
-    partial class SatısContextModelSnapshot : ModelSnapshot
+    [Migration("20250525233923_Mig_SonDüzenleme_Yapıldı")]
+    partial class Mig_SonDüzenleme_Yapıldı
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -311,36 +314,6 @@ namespace SatışProject.Migrations
                     b.HasKey("CategoryId");
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("SatışProject.Entities.Contact", b =>
-                {
-                    b.Property<int>("ContactId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ContactId"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("VarChar");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("VarChar");
-
-                    b.Property<string>("NameSurname")
-                        .IsRequired()
-                        .HasColumnType("VarChar");
-
-                    b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasColumnType("VarChar");
-
-                    b.HasKey("ContactId");
-
-                    b.ToTable("Contacts");
                 });
 
             modelBuilder.Entity("SatışProject.Entities.Customer", b =>
@@ -854,28 +827,6 @@ namespace SatışProject.Migrations
                     b.ToTable("SaleItems");
                 });
 
-            modelBuilder.Entity("SatışProject.Entities.Testimonial", b =>
-                {
-                    b.Property<int>("TestimonialId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TestimonialId"));
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Icon")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TestimonialName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("TestimonialId");
-
-                    b.ToTable("Testimonials");
-                });
-
             modelBuilder.Entity("SatışProject.Entities.UserLoginHistory", b =>
                 {
                     b.Property<int>("UserLoginHistoryID")
@@ -907,28 +858,6 @@ namespace SatışProject.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserLoginHistories");
-                });
-
-            modelBuilder.Entity("SatışProject.Entities.WhyUs", b =>
-                {
-                    b.Property<int>("WhyUsId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WhyUsId"));
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Icon")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("WhyUsId");
-
-                    b.ToTable("Whies");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

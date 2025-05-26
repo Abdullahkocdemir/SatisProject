@@ -1,32 +1,50 @@
 using Microsoft.AspNetCore.Mvc;
-using SatışProject.Models;
-using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
+using SatışProject.Models; // ViewModel için
+using SatışProject.Entities;
+using SatışProject.Context; // Product için
 
 namespace SatışProject.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly SatısContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(SatısContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
+        {
+            // Öne çıkan ürünler için bir filtreleme yapabiliriz, örneğin ilk 8 ürün veya özel bir property'e göre.
+            // Şimdilik sadece ilk 8 ürünü alalım.
+            var featuredProducts = await _context.Products
+                                                .Include(p => p.Category)
+                                                .Include(p => p.Brand)
+                                                .Where(p => !p.IsDeleted)
+                                                .OrderBy(p => p.ProductId) // Veya başka bir sıralama kriteri
+                                                .Take(12) // İlk 8 ürünü al
+                                                .ToListAsync();
+
+            // Ana sayfa için sadece ürün listesi içeren bir ViewModel de oluşturabiliriz,
+            // veya ProductListViewModel'i de kullanabiliriz. Şimdilik ProductListViewModel'i kullanalım.
+            var model = new ProductListViewModel
+            {
+                Products = featuredProducts,
+                Categories = new List<Category>() // Ana sayfada kategorilere ihtiyacın yoksa boş bırakabilirsin
+            };
+
+            return View(model);
+        }
+        public IActionResult Index2()
         {
             return View();
         }
-
+        // Privacy gibi diğer action'lar...
         public IActionResult Privacy()
         {
             return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

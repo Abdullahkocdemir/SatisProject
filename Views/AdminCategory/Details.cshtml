@@ -21,6 +21,14 @@
                     </div>
 
                     <div class="col-md-6">
+                        <label class="form-label">İkon</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="@Model.Icon"></i></span>
+                            <input class="form-control" value="@Model.Icon" readonly />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
                         <label class="form-label">Durumu</label><br />
                         @if (Model.IsActive)
                         {

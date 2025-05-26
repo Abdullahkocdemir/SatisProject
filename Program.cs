@@ -11,7 +11,13 @@ var builder = WebApplication.CreateBuilder(args);
 QuestPDF.Settings.License = LicenseType.Community;
 
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddControllersWithViews()
+    .AddMvcOptions(options =>
+    {
+        options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(
+            _ => "Geçerli bir sayý giriniz." // Custom error message
+        );
+    });
 builder.Services.AddDbContext<SatýsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 

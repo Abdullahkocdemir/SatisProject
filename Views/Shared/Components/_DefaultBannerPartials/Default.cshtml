@@ -1,0 +1,30 @@
+﻿<section class="hero-slider">
+    <div class="slider-images" id="slider-images">
+        <div class="slider-image" style="background-image: url('https://via.placeholder.com/1200x450/3498db/ffffff?text=En+Yeni+Matkaplar')">
+            En Yeni Matkaplar Stokta!
+        </div>
+        <div class="slider-image" style="background-image: url('https://via.placeholder.com/1200x450/2ecc71/ffffff?text=Kaliteli+El+Aletleri')">
+            Kaliteli El Aletleri Tek Tıkla Kapınızda!
+        </div>
+        <div class="slider-image" style="background-image: url('https://via.placeholder.com/1200x450/e74c3c/ffffff?text=Buyuk+Kampanyalar')">
+            Büyük Kampanyaları Kaçırmayın!
+        </div>
+    </div>
+</section>
+
+<script>
+    let slideIndex = 0;
+    const slides = document.getElementById('slider-images');
+    const totalSlides = slides.children.length;
+
+    function showSlides() {
+        slideIndex++;
+        if (slideIndex >= totalSlides) {
+            slideIndex = 0;
+        }
+        slides.style.transform = `translateX(-${slideIndex * (100 / totalSlides)}%)`;
+        setTimeout(showSlides, 3000); // Her 3 saniyede bir değiştir
+    }
+
+    showSlides(); // Slider'ı başlat
+</script>

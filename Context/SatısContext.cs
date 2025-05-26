@@ -28,6 +28,9 @@ namespace SatışProject.Context
         public DbSet<UserLoginHistory> UserLoginHistories { get; set; } = null!;
         public DbSet<Message> Messages { get; set; } = null!;
         public DbSet<MessageRecipient> MessageRecipients { get; set; } = null!;
+        public DbSet<WhyUs> Whies { get; set; } = null!;
+        public DbSet<Testimonial> Testimonials { get; set; } = null!;
+        public DbSet<Contact> Contacts { get; set; } = null!;
 
 
         // Model konfigürasyonları

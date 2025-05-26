@@ -7,6 +7,7 @@ using SatışProject.Entities;
 using SatışProject.Models;
 using System.Drawing.Imaging;
 using System.Drawing;
+using System.Globalization; // Add this namespace
 using ZXing.QrCode.Internal;
 using Microsoft.AspNetCore.Authorization;
 
@@ -47,7 +48,6 @@ namespace SatışProject.Controllers
             return View(products);
         }
 
-
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
@@ -61,6 +61,13 @@ namespace SatışProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product product, IFormFile? imageFile)
         {
+            // If model state is not valid, reload dropdowns and return view
+            if (!ModelState.IsValid)
+            {
+                LoadDropdowns(product.CategoryId, product.BrandId);
+                return View(product);
+            }
+
             // Stok Kodu
             var now = DateTime.Now;
             string datePart = now.ToString("MMMyyyydd"); // Ör: May2516
@@ -71,7 +78,8 @@ namespace SatışProject.Controllers
             var qrGenerator = new QRCodeGenerator();
 
             // QR kod için URL oluşturma (tarayınca ürün detayına gidecek)
-            string qrUrl = Url.Action("QRInfo", "Product", new { id = product.SKU }, Request.Scheme)!;
+            // Ensure the URL is correctly generated. Using Request.Scheme is important for absolute URLs.
+            string qrUrl = Url.Action("QRInfo", "AdminProduct", new { id = product.SKU }, Request.Scheme)!;
 
             var qrCodeData = qrGenerator.CreateQrCode(qrUrl!, QRCodeGenerator.ECCLevel.Q);
             var qrCode = new PngByteQRCode(qrCodeData);
@@ -82,7 +90,7 @@ namespace SatışProject.Controllers
                     var qrFileName = $"{product.SKU}.jpg";
                     var qrPath = Path.Combine(_environment.WebRootPath, "QRCodes", qrFileName);
                     Directory.CreateDirectory(Path.GetDirectoryName(qrPath)!);
-                    qrCodeImage?.Save(qrPath!,ImageFormat.Jpeg);
+                    qrCodeImage?.Save(qrPath!, ImageFormat.Jpeg);
 
                     product.Barcode = $"/QRCodes/{qrFileName}";
                 }
@@ -111,6 +119,114 @@ namespace SatışProject.Controllers
 
             TempData["Success"] = "Ürün başarıyla eklendi.";
             return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+            {
+                TempData["Error"] = "Ürün bulunamadı.";
+                return RedirectToAction("Index");
+            }
+            LoadDropdowns(product.CategoryId, product.BrandId);
+            return View(product);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Product product, IFormFile? imageFile)
+        {
+            if (id != product.ProductId)
+            {
+                TempData["Error"] = "Geçersiz ürün ID'si.";
+                return RedirectToAction("Index");
+            }
+
+            // Manually remove validation errors for decimal fields if they are the cause
+            // This can be a quick fix for culture-related parsing issues in model binding
+            ModelState.Remove("UnitPrice");
+            ModelState.Remove("CostPrice");
+            ModelState.Remove("TaxRate");
+
+            try
+            {
+                var existingProduct = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.ProductId == id);
+
+                if (existingProduct == null)
+                {
+                    TempData["Error"] = "Ürün bulunamadı.";
+                    return RedirectToAction("Index");
+                }
+
+                // Handle image upload
+                if (imageFile != null && imageFile.Length > 0)
+                {
+                    // Delete old image if exists
+                    if (!string.IsNullOrEmpty(existingProduct.ImageUrl))
+                    {
+                        string oldImagePath = Path.Combine(_environment.WebRootPath, existingProduct.ImageUrl.TrimStart('/'));
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+
+                    // Save new image
+                    var ext = Path.GetExtension(imageFile.FileName);
+                    var fileName = $"{Guid.NewGuid()}{ext}";
+                    var savePath = Path.Combine(_environment.WebRootPath, "Product", fileName);
+                    Directory.CreateDirectory(Path.GetDirectoryName(savePath)!);
+
+                    using (var stream = new FileStream(savePath, FileMode.Create))
+                    {
+                        await imageFile.CopyToAsync(stream);
+                    }
+                    product.ImageUrl = $"/Product/{fileName}";
+                }
+                else
+                {
+                    // Keep the existing image if no new one is uploaded
+                    product.ImageUrl = existingProduct.ImageUrl;
+                }
+
+                // Preserve CreatedDate and SKU/Barcode as they are generated on creation
+                product.CreatedDate = existingProduct.CreatedDate;
+                product.SKU = existingProduct.SKU;
+                product.Barcode = existingProduct.Barcode;
+
+                // Update UpdatedDate
+                product.UpdatedDate = DateTime.Now;
+
+                _context.Update(product);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Ürün başarıyla güncellendi.";
+                return RedirectToAction("Index");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ProductExists(product.ProductId))
+                {
+                    TempData["Error"] = "Ürün bulunamadı veya eşzamanlılık hatası oluştu.";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ürün güncellenirken bir hata oluştu: {ex.Message}";
+                LoadDropdowns(product.CategoryId, product.BrandId);
+                return View(product);
+            }
+
+            LoadDropdowns(product.CategoryId, product.BrandId);
+            return View(product);
         }
 
         [HttpGet]
@@ -164,29 +280,29 @@ namespace SatışProject.Controllers
                 }
 
                 // İlişkili kayıtları kontrol et
-                //bool hasRelatedRecords = await CheckForRelatedRecords(product);
+                bool hasRelatedRecords = await CheckForRelatedRecords(product);
 
-                //if (hasRelatedRecords)
-                //{
-                //    // Eğer ilişkili kayıt varsa soft delete uygula
-                //    product.IsDeleted = true;
-                //    product.UpdatedDate = DateTime.Now;
-                //    _context.Products.Update(product);
-                //    await _context.SaveChangesAsync();
+                if (hasRelatedRecords)
+                {
+                    // Eğer ilişkili kayıt varsa soft delete uygula
+                    product.IsDeleted = true;
+                    product.UpdatedDate = DateTime.Now;
+                    _context.Products.Update(product);
+                    await _context.SaveChangesAsync();
 
-                //    TempData["Success"] = "Ürün pasif duruma alındı. İlişkili kayıtlar olduğu için tamamen silinemedi.";
-                //}
-                //else
-                //{
-                //    // İlişkili dosyaları sil
-                //    DeleteProductFiles(product);
+                    TempData["Success"] = "Ürün pasif duruma alındı. İlişkili kayıtlar olduğu için tamamen silinemedi.";
+                }
+                else
+                {
+                    // İlişkili dosyaları sil
+                    DeleteProductFiles(product);
 
-                //    // Veritabanından ürünü kaldır
-                //    _context.Products.Remove(product);
-                //    await _context.SaveChangesAsync();
+                    // Veritabanından ürünü kaldır
+                    _context.Products.Remove(product);
+                    await _context.SaveChangesAsync();
 
-                //    TempData["Success"] = "Ürün başarıyla silindi.";
-                //}
+                    TempData["Success"] = "Ürün başarıyla silindi.";
+                }
 
                 return RedirectToAction("Index");
             }
@@ -199,14 +315,14 @@ namespace SatışProject.Controllers
         }
 
         // İlişkili kayıtları kontrol eden yardımcı metod
-        //private async Task<bool> CheckForRelatedRecords(Product product)
-        //{
-        //    // Satış kaydı veya fatura kaydı var mı kontrol et
-        //    bool hasSales = await _context.Sales.AnyAsync(s => s.ProductId == product.ProductId);
-        //    bool hasInvoiceItems = await _context.InvoiceItems.AnyAsync(i => i.ProductId == product.ProductId);
+        private async Task<bool> CheckForRelatedRecords(Product product)
+        {
+            // Satış kaydı veya fatura kaydı var mı kontrol et
+            bool hasSales = await _context.SaleItems.AnyAsync(s => s.ProductId == product.ProductId);
+            bool hasInvoiceItems = await _context.InvoiceItems.AnyAsync(i => i.ProductId == product.ProductId);
 
-        //    return hasSales || hasInvoiceItems;
-        //}
+            return hasSales || hasInvoiceItems;
+        }
 
         // Ürün dosyalarını silen yardımcı metod
         private void DeleteProductFiles(Product product)
@@ -216,6 +332,7 @@ namespace SatışProject.Controllers
                 // QR Kodu dosyasını sil
                 if (!string.IsNullOrEmpty(product.Barcode))
                 {
+                    // Remove leading '/' from Barcode path before combining with WebRootPath
                     string qrFilePath = Path.Combine(_environment.WebRootPath, product.Barcode.TrimStart('/'));
                     if (System.IO.File.Exists(qrFilePath))
                     {
@@ -226,6 +343,7 @@ namespace SatışProject.Controllers
                 // Ürün görseli dosyasını sil
                 if (!string.IsNullOrEmpty(product.ImageUrl))
                 {
+                    // Remove leading '/' from ImageUrl path before combining with WebRootPath
                     string imageFilePath = Path.Combine(_environment.WebRootPath, product.ImageUrl.TrimStart('/'));
                     if (System.IO.File.Exists(imageFilePath))
                     {
@@ -262,6 +380,10 @@ namespace SatışProject.Controllers
                 })
                 .ToList();
         }
-    }
 
+        private bool ProductExists(int id)
+        {
+            return _context.Products.Any(e => e.ProductId == id);
+        }
+    }
 }

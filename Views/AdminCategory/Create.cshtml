@@ -16,6 +16,7 @@
         </div>
         <div class="card-body p-4 bg-light rounded-bottom-4">
             <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken() {{-- Add Antiforgery Token for security --}}
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 <div class="mb-3">
@@ -24,19 +25,37 @@
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-3">
+                    <label asp-for="Icon" class="form-label">İkon Sınıfı</label>
+                    <input asp-for="Icon" class="form-control" placeholder="Örn: bi bi-house" />
+                    <span asp-validation-for="Icon" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label">Aktif mi?</label>
                     <div class="form-check form-switch">
                         <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" />
                         <label class="form-check-label" asp-for="IsActive">Evet</label>
                     </div>
+                    <span asp-validation-for="IsActive" class="text-danger"></span>
                 </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Popüler Kategori mi?</label>
+                    <div class="form-check form-switch">
+                        <input asp-for="popularCategory" class="form-check-input" type="checkbox" role="switch" />
+                        <label class="form-check-label" asp-for="popularCategory">Evet</label>
+                    </div>
+                    <span asp-validation-for="popularCategory" class="text-danger"></span>
+                </div> 
+
 
                 <div class="text-end">
                     <button type="submit" class="btn btn-success px-4 me-2">
                         <i class="bi bi-save2 me-1"></i>Kaydet
                     </button>
-                    <a href="/Product/Index" class="btn btn-outline-secondary px-4">
+                    <a href="/AdminCategory/Index" class="btn btn-outline-secondary px-4">
+                        {{-- Changed link to Index --}}
                         <i class="bi bi-x-circle me-1"></i>İptal
                     </a>
                 </div>

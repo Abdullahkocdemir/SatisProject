@@ -64,6 +64,8 @@ namespace SatışProject.Entities
         [ForeignKey("Brand")]
         public int BrandId { get; set; }
 
+
+
         // Marka nesnesi
         public virtual Brand? Brand { get; set; } 
 
@@ -78,6 +80,8 @@ namespace SatışProject.Entities
 
         // Ürün durumu, default Available (mevcut)
         public ProductStatus Status { get; set; } = ProductStatus.InStock;
+
+        public bool popularProduct { get; set; }
 
         // Satış detayları koleksiyonu
         public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();

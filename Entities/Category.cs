@@ -14,6 +14,10 @@ namespace SatışProject.Entities
         public string Name { get; set; } = null!;
         public bool IsActive { get; set; }
 
+        public string Icon { get; set;} = null!;
+
+        public bool popularCategory { get; set; }
+
         // Kategoriye ait ürünler koleksiyonu, virtual.
         public virtual ICollection<Product> Products { get; set; } = new List<Product>();
     }

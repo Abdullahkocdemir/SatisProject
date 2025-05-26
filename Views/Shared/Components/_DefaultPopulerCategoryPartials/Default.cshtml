@@ -1,0 +1,11 @@
+﻿@model List<Category>
+<h2>Popüler Kategoriler</h2>
+<div class="categories-grid">
+    @foreach (var item in Model)
+    {
+        <a href="#" class="category-card">
+            <i class="@item.Icon"></i>
+            <h3>@item.Name</h3>
+        </a>
+    }
+</div>
