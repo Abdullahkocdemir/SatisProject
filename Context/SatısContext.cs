@@ -32,7 +32,8 @@ namespace SatışProject.Context
         public DbSet<Testimonial> Testimonials { get; set; } = null!;
         public DbSet<Contact> Contacts { get; set; } = null!;
         public DbSet<Basket> Baskets { get; set; } = null!;
-        public DbSet<BasketItem> BasketItems { get; set; }
+        public DbSet<BasketItem> BasketItems { get; set; } = null!;
+        public DbSet<ToDoItem> ToDoItems { get; set; } = null!;
 
 
         // Model konfigürasyonları
@@ -63,6 +64,11 @@ namespace SatışProject.Context
                 .WithMany(b => b.Products)
                 .HasForeignKey(p => p.BrandId)
                 .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<ToDoItem>()
+                         .HasOne(t => t.Employee)
+                         .WithMany(e => e.ToDoItems)
+                         .HasForeignKey(t => t.EmployeeId)
+                          .OnDelete(DeleteBehavior.Cascade); // Çalışan silinince görevleri de silinsin
 
 
             modelBuilder.Entity<BasketItem>()
@@ -95,21 +101,6 @@ namespace SatışProject.Context
                 .WithMany(e => e.Sales)
                 .HasForeignKey(s => s.EmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            // SaleItem -> Sale ve Product ilişkileri (SaleItem sınıfın yoksa eklemen gerekir)
-            // Eğer SaleItem sınıfın varsa, bu ilişkileri de eklemelisin.
-            // Örneğin:
-            // modelBuilder.Entity<SaleItem>()
-            //    .HasOne(si => si.Sale)
-            //    .WithMany(s => s.SaleItems)
-            //    .HasForeignKey(si => si.SaleId)
-            //    .OnDelete(DeleteBehavior.Cascade);
-
-            // modelBuilder.Entity<SaleItem>()
-            //    .HasOne(si => si.Product)
-            //    .WithMany(p => p.SaleItems)
-            //    .HasForeignKey(si => si.ProductId)
-            //    .OnDelete(DeleteBehavior.Restrict);
 
             // Fatura -> Müşteri ilişkisi
             modelBuilder.Entity<Invoice>()

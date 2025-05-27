@@ -53,5 +53,7 @@ namespace SatışProject.Entities
         public virtual AppUser AppUser { get; set; } = null!;
 
         public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
+
+        public virtual ICollection<ToDoItem> ToDoItems { get; set; } = new List<ToDoItem>();
     }
 }
