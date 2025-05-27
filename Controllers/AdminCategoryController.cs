@@ -69,21 +69,19 @@ namespace SatışProject.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    // Handle concurrency if needed, or simply reload if not found
                     if (!_context.Categories.Any(e => e.CategoryId == category.CategoryId))
                     {
                         TempData["Error"] = "Kategori bulunamadı veya eşzamanlılık hatası oluştu.";
                         return RedirectToAction("Index");
                     }
-                    throw; // Rethrow if it's a true concurrency issue
+                    throw; 
                 }
                 catch (Exception ex)
                 {
                     TempData["Error"] = $"Kategori güncellenirken bir hata oluştu: {ex.Message}";
-                    return View(category); // Return to view with current data to show errors
+                    return View(category); 
                 }
             }
-            // If ModelState is not valid, return the view with validation errors
             return View(category);
         }
 

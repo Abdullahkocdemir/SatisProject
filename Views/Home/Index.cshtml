@@ -1,8 +1,36 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Hırdavat Dünyası - Ana Sayfa";
+    Layout = null;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <link rel="stylesheet" href="~/css/WebSite.css" />
+</head>
+<body>
+    @await Component.InvokeAsync("_DefaultNavBarPartials")
+
+    <main class="container">
+
+        @await Component.InvokeAsync("_DefaultBannerPartials")
+        @await Component.InvokeAsync("_DefaultPopulerCategoryPartials")
+        @await Component.InvokeAsync("_DefaultPopulerProductPartials")
+        @await Component.InvokeAsync("_DefaultWhyUsePartials")
+        @await Component.InvokeAsync("_DefaultTestimonialPartials")
+        @await Component.InvokeAsync("_DefaultContactPartials")
+        @await Component.InvokeAsync("_DefaultGoogleMapsPartials")
+
+    </main>
+
+    @await Component.InvokeAsync("_DefaultFooterPartials")
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+</body>
+</html>
