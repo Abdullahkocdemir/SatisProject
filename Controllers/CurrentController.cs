@@ -14,21 +14,18 @@ namespace SatışProject.Controllers
             _context = context;
         }
 
-        // Müşteri Listeleme
         public IActionResult Index()
         {
             var values = _context.Customers.ToList();
             return View(values);
         }
 
-        // Müşteri Ekleme (GET)
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
-        // Müşteri Ekleme (POST)
         [HttpPost]
         public async Task<IActionResult> Create(Customer customer)
         {
@@ -41,7 +38,6 @@ namespace SatışProject.Controllers
             return View(customer);
         }
 
-        // Müşteri Güncelleme (GET)
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -52,7 +48,6 @@ namespace SatışProject.Controllers
             return View(customer);
         }
 
-        // Müşteri Güncelleme (POST)
         [HttpPost]
         public async Task<IActionResult> Edit(Customer customer)
         {
@@ -82,7 +77,6 @@ namespace SatışProject.Controllers
 
 
 
-        // 🔍 Müşteri Detayları
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {

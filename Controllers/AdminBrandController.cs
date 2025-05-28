@@ -14,21 +14,18 @@ namespace SatışProject.Controllers
             _context = context;
         }
 
-        // Marka listesini gösteren ana sayfa (Index View)
         public IActionResult Index()
         {
             var values = _context.Brands.ToList();
             return View(values);
         }
 
-        // Yeni marka ekleme formunu gösteren GET metodu
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
-        // Yeni marka oluşturma işlemini yapan POST metodu (Logo işlemi kaldırıldı)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Brand brand)
@@ -42,7 +39,6 @@ namespace SatışProject.Controllers
             return View(brand);
         }
 
-        // Düzenleme formunu gösteren GET metodu
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -53,7 +49,6 @@ namespace SatışProject.Controllers
             return View(brand);
         }
 
-        // Marka düzenleme işlemi (POST, logo işlemleri kaldırıldı)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Brand brand)
@@ -81,7 +76,6 @@ namespace SatışProject.Controllers
             return View(brand);
         }
 
-        // Marka silme işlemi (Logo silme işlemi kaldırıldı)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)

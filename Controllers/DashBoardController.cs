@@ -1,18 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SatışProject.Models; // ViewModel'iniz burada olmalı
-using SatışProject.Entities; // Entity'leriniz burada olmalı
-using SatışProject.Context; // DbContext'iniz burada olmalı
-using Microsoft.AspNetCore.Identity; // Kullanıcı bilgilerine erişim için
-using Microsoft.AspNetCore.Authorization; // Yetkilendirme için
+using SatışProject.Models;
+using SatışProject.Entities;
+using SatışProject.Context;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims; 
 
 namespace SatışProject.Controllers
 {
-    [Authorize] // Sadece giriş yapmış kullanıcılar erişebilir
+    [Authorize] 
     public class DashBoardController : Controller
     {
         private readonly SatısContext _context;
-        private readonly UserManager<AppUser> _userManager; // Kullanıcı bilgilerini almak için
+        private readonly UserManager<AppUser> _userManager;
 
         public DashBoardController(SatısContext context, UserManager<AppUser> userManager)
         {
@@ -25,37 +26,30 @@ namespace SatışProject.Controllers
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null)
             {
-                // Kullanıcı bulunamazsa veya oturum açmamışsa giriş sayfasına yönlendir
                 return RedirectToAction("Login", "Account");
             }
 
             var viewModel = new AdminDashboardViewModel();
-            // Assign user's first and last name
-            viewModel.UserFirstName = currentUser.FirstName; // Assuming AppUser has a FirstName property
-            viewModel.UserLastName = currentUser.LastName;   // Assuming AppUser has a LastName property
+            viewModel.UserFirstName = currentUser.FirstName;
+            viewModel.UserLastName = currentUser.LastName;
 
-
-            // Kullanıcının kendi satış istatistikleri
             var userSales = _context.Sales
                 .Where(s => s.Employee != null && s.Employee.AppUserId == currentUser.Id);
 
-            viewModel.TotalOrders = await userSales.CountAsync(); // Kullanıcının toplam siparişleri
+            viewModel.TotalOrders = await userSales.CountAsync();
             viewModel.TotalRevenue = await userSales
                 .Where(s => s.Status == SaleStatus.Completed)
-                .SumAsync(s => s.GrandTotal); // Kullanıcının tamamlanmış satış geliri
+                .SumAsync(s => s.GrandTotal);
 
-            // Toplam Müşteriler ve Toplam Ürünler (bu değerler tüm sistem için gösterilebilir)
             viewModel.TotalCustomers = await _context.Customers.CountAsync(c => c.IsActive);
             viewModel.TotalProducts = await _context.Products.CountAsync(p => p.Status == ProductStatus.InStock);
 
-            // Kullanıcının son 5 satışı
             viewModel.RecentOrders = await userSales
                 .Include(s => s.Customer)
                 .OrderByDescending(s => s.SaleDate)
                 .Take(5)
                 .ToListAsync();
 
-            // Kullanıcının en çok satan ürünleri (sadece kendi satışları içinde)
             var userTopSellingProducts = await _context.SaleItems
                 .Where(si => si.Sale != null && si.Sale.Employee != null && si.Sale.Employee.AppUserId == currentUser.Id && si.Sale.SaleDate >= DateTime.Now.AddDays(-30))
                 .GroupBy(si => new { si.ProductId, si.Product!.Name })
@@ -69,7 +63,6 @@ namespace SatışProject.Controllers
                 viewModel.TopSellingProducts.Add(item.Name, item.TotalQuantitySold);
             }
 
-            // Kullanıcının kendi satış istatistikleri (grafik için)
             var salesStatsRaw = await userSales
                 .Where(s => s.SaleDate >= DateTime.Now.AddYears(-1))
                 .GroupBy(s => new { s.SaleDate.Year, s.SaleDate.Month })
@@ -95,8 +88,26 @@ namespace SatışProject.Controllers
             {
                 viewModel.SalesStatistics.Add(Tuple.Create(stat.Date, stat.TotalSales));
             }
+
             viewModel.EmployeeSalesStatistics = new Dictionary<string, List<Tuple<string, decimal>>>();
-            viewModel.RecentActivities = new List<RecentActivityViewModel>(); 
+            viewModel.RecentActivities = new List<RecentActivityViewModel>();
+
+            var employee = await _context.Employees
+                                        .Where(e => e.AppUserId == currentUser.Id)
+                                        .FirstOrDefaultAsync();
+
+            if (employee != null)
+            {
+                viewModel.ToDoItems = await _context.ToDoItems
+                                                    .Where(t => t.EmployeeId == employee.EmployeeID)
+                                                    .OrderByDescending(t => t.CreatedDate)
+                                                    .ToListAsync();
+                ViewBag.EmployeeId = employee.EmployeeID;
+            }
+            else
+            {
+                viewModel.ToDoItems = new List<ToDoItem>(); 
+            }
 
             return View(viewModel);
         }

@@ -4,32 +4,41 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-
-
-<div class="container mt-4">
-    <h2>@ViewData["Title"]</h2>
-    <hr />
-    <div class="row">
-        <div class="col-md-6">
-            <form asp-action="Create">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="EmployeeId" /> @* Çalışan ID'sini gizli alan olarak gönderiyoruz *@
-
-                <div class="mb-3">
-                    <label asp-for="Description" class="form-label"></label>
-                    <input asp-for="Description" class="form-control" />
-                    <span asp-validation-for="Description" class="text-danger"></span>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-dark text-white text-center">
+                    <h3 class="fw-light my-3">@ViewData["Title"]</h3>
                 </div>
-                <div class="mb-3">
-                    <label asp-for="DueDate" class="form-label"></label>
-                    <input asp-for="DueDate" type="date" class="form-control" />
-                    <span asp-validation-for="DueDate" class="text-danger"></span>
+                <div class="card-body p-4">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <input type="hidden" asp-for="EmployeeId" /> @* Çalışan ID'sini gizli alan olarak gönderiyoruz *@
+
+                        <div class="mb-4">
+                            <label asp-for="DueDate" class="form-label fw-bold"></label>
+                            <input asp-for="DueDate" type="date" class="form-control form-control-lg" />
+                            <span asp-validation-for="DueDate" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label fw-bold"></label>
+                            <textarea asp-for="Description" class="form-control form-control-lg" rows="5" placeholder="Görevin detaylarını buraya yazın..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-success btn-lg flex-grow-1 flex-md-grow-0">
+                                <i class="fas fa-plus-circle me-2"></i> Görev Oluştur
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary btn-lg flex-grow-1 flex-md-grow-0">
+                                <i class="fas fa-arrow-alt-circle-left me-2"></i> Listeye Geri Dön
+                            </a>
+                        </div>
+                    </form>
                 </div>
-                <div class="mb-3">
-                    <input type="submit" value="Oluştur" class="btn btn-primary" />
-                    <a asp-action="Index" class="btn btn-secondary ms-2">Listeye Geri Dön</a>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

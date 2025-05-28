@@ -36,6 +36,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\Employees\" />
+    <Folder Include="wwwroot\Fatura\" />
     <Folder Include="wwwroot\fonts\" />
     <Folder Include="wwwroot\Product\" />
   </ItemGroup>

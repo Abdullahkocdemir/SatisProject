@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 
 namespace SatışProject.Controllers
 {
-    //[Authorize]   // Hazırsa aç
-    [AutoValidateAntiforgeryToken]          // Tüm POST’lar için otomatik CSRF koruması
+    [AutoValidateAntiforgeryToken]// Tüm POST’lar için otomatik CSRF koruması
     public class ToDoListController : Controller
     {
         private readonly SatısContext _context;
@@ -21,12 +20,10 @@ namespace SatışProject.Controllers
             _userManager = userManager;
         }
 
-        /*-------------------------------------------------
-         *  LISTE
-         *------------------------------------------------*/
+
         public async Task<IActionResult> Index()
         {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             if (userId is null) return RedirectToAction("Login", "Account");
 
             var employee = await _context.Employees
@@ -42,13 +39,10 @@ namespace SatışProject.Controllers
             return View(items);
         }
 
-        /*-------------------------------------------------
-         *  CREATE
-         *------------------------------------------------*/
         [HttpGet]
         public async Task<IActionResult> Create(int employeeId)
         {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var employee = await _context.Employees.FirstOrDefaultAsync(e => e.AppUserId == userId);
 
             if (employee is null || employee.EmployeeID != employeeId)
@@ -60,9 +54,10 @@ namespace SatışProject.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([Bind("Description,DueDate,EmployeeId")] ToDoItem item)
         {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var employee = await _context.Employees.FirstOrDefaultAsync(e => e.AppUserId == userId);
 
+            // POST işleminde de yetki kontrolünü yapın
             if (employee is null || employee.EmployeeID != item.EmployeeId)
             {
                 ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok.");
@@ -75,16 +70,13 @@ namespace SatışProject.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        /*-------------------------------------------------
-         *  EDIT
-         *------------------------------------------------*/
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var item = await _context.ToDoItems.FindAsync(id);
             if (item is null) return NotFound();
 
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var employee = await _context.Employees.FirstOrDefaultAsync(e => e.AppUserId == userId);
 
             if (employee is null || item.EmployeeId != employee.EmployeeID)
@@ -98,9 +90,10 @@ namespace SatışProject.Controllers
         {
             if (id != item.ToDoItemID) return NotFound();
 
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var employee = await _context.Employees.FirstOrDefaultAsync(e => e.AppUserId == userId);
 
+            // POST düzenleme işleminde de yetki kontrolünü yapın
             if (employee is null || employee.EmployeeID != item.EmployeeId)
             {
                 ModelState.AddModelError(string.Empty, "Bu öğeyi düzenlemek için yetkiniz yok.");
@@ -112,7 +105,7 @@ namespace SatışProject.Controllers
                 var original = await _context.ToDoItems.AsNoTracking().FirstOrDefaultAsync(t => t.ToDoItemID == id);
                 if (original is null) return NotFound();
 
-                item.CreatedDate = original.CreatedDate;   // Oluşturulma tarihini koru
+                item.CreatedDate = original.CreatedDate;    // Oluşturulma tarihini koru
                 _context.Update(item);
                 await _context.SaveChangesAsync();
             }
@@ -124,10 +117,6 @@ namespace SatışProject.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
-        /*-------------------------------------------------
-         *  DELETE  (AJAX)
-         *------------------------------------------------*/
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
@@ -135,9 +124,10 @@ namespace SatışProject.Controllers
             if (item is null)
                 return Json(new { success = false, message = "Görev bulunamadı." });
 
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var employee = await _context.Employees.FirstOrDefaultAsync(e => e.AppUserId == userId);
 
+            // Silme yetkisini kontrol edin
             if (employee is null || item.EmployeeId != employee.EmployeeID)
                 return Json(new { success = false, message = "Bu öğeyi silmek için yetkiniz yok." });
 
@@ -146,18 +136,16 @@ namespace SatışProject.Controllers
             return Json(new { success = true, message = "Görev başarıyla silindi." });
         }
 
-        /*-------------------------------------------------
-         *  TOGGLE COMPLETE (AJAX)
-         *------------------------------------------------*/
         [HttpPost]
         public async Task<IActionResult> ToggleComplete(int id)
         {
             var item = await _context.ToDoItems.FindAsync(id);
             if (item is null) return NotFound();
 
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var employee = await _context.Employees.FirstOrDefaultAsync(e => e.AppUserId == userId);
 
+            // Tamamlanma durumunu değiştirme yetkisini kontrol edin
             if (employee is null || item.EmployeeId != employee.EmployeeID)
                 return Unauthorized();
 

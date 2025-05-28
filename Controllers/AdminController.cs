@@ -32,7 +32,6 @@ namespace SatışProject.Controllers
 
         #region Employee Management (Çalışan Yönetimi)
 
-        // Tüm aktif kullanıcı ve rollerini listeleyen sayfa
         public async Task<IActionResult> Index()
         {
             var users = await _userManager.Users
@@ -45,25 +44,23 @@ namespace SatışProject.Controllers
             foreach (var user in users)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-                model.Add((user, roles)); // Tuple olarak kullanıcı ve rolleri ekleniyor
+                model.Add((user, roles)); 
             }
 
             return View(model);
         }
 
-        // Yeni çalışan oluşturma sayfası (GET)
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            ViewBag.Departments = _context.Departments.Where(d => d.IsActive).ToList(); // Aktif departmanlar
+            ViewBag.Departments = _context.Departments.Where(d => d.IsActive).ToList();
 
-            var roles = await _roleManager.Roles.ToListAsync(); // Roller dropdown için
+            var roles = await _roleManager.Roles.ToListAsync();
             ViewBag.Roles = roles;
 
             return View();
         }
 
-        // Yeni çalışan oluşturma işlemi (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(EmployeeCreateViewModel model)
@@ -92,12 +89,10 @@ namespace SatışProject.Controllers
                 photoPath = await SavePhotoAsync(model.ProfilePhoto);
             }
 
-            // İşlemleri transaction içinde yapıyoruz (ya hep ya hiç)
             using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             try
             {
-                // Yeni kullanıcı oluşturuluyor
                 var user = new AppUser
                 {
                     FirstName = model.FirstName,
@@ -118,7 +113,6 @@ namespace SatışProject.Controllers
                     return View(model);
                 }
 
-                // Kullanıcıya bağlı çalışan kaydı oluşturuluyor
                 var employee = new Employee
                 {
                     AppUserId = user.Id,
@@ -156,7 +150,7 @@ namespace SatışProject.Controllers
                     return View(model);
                 }
 
-                transaction.Complete(); // Tüm işlemler başarılıysa commit
+                transaction.Complete(); 
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -166,7 +160,6 @@ namespace SatışProject.Controllers
             }
         }
 
-        // Çalışan düzenleme sayfası (GET)
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -177,11 +170,10 @@ namespace SatışProject.Controllers
 
             if (employee == null) return NotFound();
 
-            PopulateSelectLists(); // Dropdown listeleri hazırla
+            PopulateSelectLists(); 
             return View(employee);
         }
 
-        // Çalışan düzenleme işlemi (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Employee employee, IFormFile? profilePhoto)
@@ -198,7 +190,6 @@ namespace SatışProject.Controllers
 
             if (dbEmployee == null) return NotFound();
 
-            // Alanlar güncelleniyor
             dbEmployee.Address = employee.Address;
             dbEmployee.City = employee.City;
             dbEmployee.Country = employee.Country;
@@ -208,12 +199,11 @@ namespace SatışProject.Controllers
             dbEmployee.Notes = employee.Notes;
             dbEmployee.Salary = employee.Salary;
 
-            // Profil fotoğrafı güncelleniyor
             if (profilePhoto != null && dbEmployee.AppUser != null)
             {
                 string? oldPhoto = dbEmployee.AppUser.ProfilePhotoUrl;
                 if (!string.IsNullOrEmpty(oldPhoto))
-                    DeletePhoto(oldPhoto); // Eski fotoğraf siliniyor
+                    DeletePhoto(oldPhoto); 
 
                 string newPath = await SavePhotoAsync(profilePhoto);
                 dbEmployee.AppUser.ProfilePhotoUrl = newPath;
@@ -224,7 +214,6 @@ namespace SatışProject.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Çalışan detay sayfası
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -242,7 +231,6 @@ namespace SatışProject.Controllers
             return View(employee);
         }
 
-        // Çalışan silme (Soft Delete)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -253,13 +241,12 @@ namespace SatışProject.Controllers
 
             if (employee == null) return NotFound();
 
-            employee.IsActive = false; // Çalışan devre dışı
-
+            employee.IsActive = false; 
             if (employee.AppUser != null)
             {
                 employee.AppUser.IsActive = false;
                 employee.AppUser.ClosedAt = DateTime.Now;
-                employee.AppUser.ProfilePhotoUrl = null; // Fotoğraf referansı siliniyor
+                employee.AppUser.ProfilePhotoUrl = null; 
             }
 
             await _context.SaveChangesAsync();
@@ -270,7 +257,6 @@ namespace SatışProject.Controllers
 
         #region Role Management (Rol Yönetimi)
 
-        // Rol düzenleme sayfası
         [HttpGet]
         public async Task<IActionResult> EditRole(string id)
         {
@@ -280,7 +266,6 @@ namespace SatışProject.Controllers
             return View(role);
         }
 
-        // Rol düzenleme işlemi
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditRole(AppRole role)
@@ -307,7 +292,6 @@ namespace SatışProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteRole(string id)
         {
-            // DEBUG: Method çağrılıyor mu kontrol et
             System.Diagnostics.Debug.WriteLine($"DeleteRole method called with ID: {id}");
             Console.WriteLine($"DeleteRole method called with ID: {id}");
 
@@ -334,7 +318,6 @@ namespace SatışProject.Controllers
 
                 System.Diagnostics.Debug.WriteLine($"Role found: {role.Name}");
 
-                // 3. Sistem rollerini koruma (isteğe bağlı)
                 var protectedRoles = new[] { "Admin", "SuperAdmin", "System" };
                 if (protectedRoles.Contains(role.Name, StringComparer.OrdinalIgnoreCase))
                 {
@@ -343,7 +326,6 @@ namespace SatışProject.Controllers
                     return RedirectToAction("Roles");
                 }
 
-                // 4. Bu rolün atanmış kullanıcıları var mı kontrolü
                 var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name);
                 if (usersInRole != null && usersInRole.Any())
                 {
@@ -352,7 +334,6 @@ namespace SatışProject.Controllers
                     return RedirectToAction("Roles");
                 }
 
-                // 5. Rol silme işlemi
                 System.Diagnostics.Debug.WriteLine($"Attempting to delete role: {role.Name}");
                 var result = await _roleManager.DeleteAsync(role);
 
@@ -406,43 +387,38 @@ namespace SatışProject.Controllers
         #endregion
 
         #region User Role Management (Kullanıcı-Rol İlişkisi)
-        // Tüm rolleri listeleme sayfası
         [HttpGet]
         public async Task<IActionResult> Roles()
         {
-            var roles = await _roleManager.Roles.ToListAsync(); // Veritabanındaki tüm rolleri çek
-            return View(roles); // Rolleri Roles.cshtml sayfasına gönder
+            var roles = await _roleManager.Roles.ToListAsync(); 
+            return View(roles); 
         }
 
-        // Yeni rol oluşturma sayfasını gösterir
         [HttpGet]
         public IActionResult CreateRole()
         {
-            return View(); // Boş bir form döndürür
+            return View(); 
         }
 
-        // Yeni rol oluşturma işlemini yapar
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateRole(AppRole role)
         {
             if (!ModelState.IsValid)
-                return View(role); // Model doğrulanmazsa aynı formu geri döndür
+                return View(role); 
 
-            var result = await _roleManager.CreateAsync(role); // Yeni rol oluşturur
+            var result = await _roleManager.CreateAsync(role); 
 
             if (result.Succeeded)
-                return RedirectToAction("Roles"); // Başarılıysa roller listesine yönlendir
+                return RedirectToAction("Roles"); 
 
-            // Hata varsa hata mesajlarını modele ekle
             foreach (var error in result.Errors)
                 ModelState.AddModelError("", error.Description);
 
-            return View(role); // Hatalarla birlikte formu yeniden göster
+            return View(role); 
         }
 
 
-        // Belirli bir kullanıcının rollerini görüntüleme
         [HttpGet]
         public async Task<IActionResult> UserRoles(string userId)
         {
@@ -473,7 +449,6 @@ namespace SatışProject.Controllers
             return View(model);
         }
 
-        // Kullanıcıya rol ekleme
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddUserRole(string userId, string roleName)
@@ -494,7 +469,6 @@ namespace SatışProject.Controllers
             return RedirectToAction("UserRoles", new { userId });
         }
 
-        // Kullanıcıdan rol kaldırma
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveUserRole(string userId, string roleName)
@@ -523,17 +497,15 @@ namespace SatışProject.Controllers
 
         #region Helper Methods (Yardımcı Metotlar)
 
-        // Dropdownlar için departman listesi
         private void PopulateSelectLists()
         {
             ViewBag.Departments = _context.Departments.Where(d => d.IsActive).ToList();
         }
 
-        // Profil fotoğrafını sunucuya kaydet
         private async Task<string> SavePhotoAsync(IFormFile file)
         {
             string folder = Path.Combine(_env.WebRootPath, "Employees");
-            Directory.CreateDirectory(folder); // Klasör yoksa oluştur
+            Directory.CreateDirectory(folder); 
 
             string fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
             string path = Path.Combine(folder, fileName);
@@ -541,7 +513,7 @@ namespace SatışProject.Controllers
             using var stream = new FileStream(path, FileMode.Create);
             await file.CopyToAsync(stream);
 
-            return $"/Employees/{fileName}"; // Web için kullanılacak path
+            return $"/Employees/{fileName}"; 
         }
 
         // Fotoğrafı sil (sunucudan)

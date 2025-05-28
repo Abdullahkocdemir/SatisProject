@@ -1,9 +1,16 @@
 ﻿@model SatışProject.Models.AdminDashboardViewModel
+@using Microsoft.AspNetCore.Antiforgery
+@inject IAntiforgery Antiforgery
 
 @{
     ViewData["Title"] = "Kullanıcı Dashboard";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    // CSRF token'ı view'da erişilebilir hale getir
+    var tokens = Antiforgery.GetAndStoreTokens(ViewContext.HttpContext);
 }
+
+<meta name="request-verification-token" content="@tokens.RequestToken" />
 
 <div class="container-fluid">
 
@@ -136,29 +143,207 @@
             </div>
         </div>
     </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Yapılacaklar Listem</h5>
+                    @* employeeId'nin ViewBag'den geldiğinden emin olun *@
+                    @if (ViewBag.EmployeeId != null)
+                    {
+                        <a asp-controller="ToDoList" asp-action="Create" asp-route-employeeId="@ViewBag.EmployeeId" class="btn btn-sm btn-primary">Yeni Görev Ekle</a>
+                    }
+                    else
+                    {
+                        @* Eğer EmployeeId yoksa butonu devre dışı bırakabilir veya gizleyebilirsiniz *@
+                        <button class="btn btn-sm btn-primary" disabled title="Çalışan kaydınız bulunmadığı için yeni görev ekleyemezsiniz.">Yeni Görev Ekle</button>
+                    }
+                </div>
+                <div class="card-body">
+                    @if (!Model.ToDoItems.Any())
+                    {
+                        <div id="no-tasks-message" class="alert alert-info" role="alert">
+                            Henüz yapılacak bir göreviniz bulunmuyor. Yeni bir görev eklemek için "Yeni Görev Ekle" butonunu kullanabilirsiniz.
+                        </div>
+                    }
+                    else
+                    {
+                        <ul id="todo-list" class="list-group">
+                            @foreach (var item in Model.ToDoItems)
+                            {
+                                <li id="todoItem_@item.ToDoItemID"
+                                    class="list-group-item d-flex justify-content-between align-items-center @(item.IsCompleted ? "list-group-item-success" : "")">
+
+                                    <div>
+                                        <input type="checkbox"
+                                               id="todo-checkbox-@item.ToDoItemID"
+                                               class="form-check-input me-2"
+                                               data-id="@item.ToDoItemID"
+                                        @(item.IsCompleted ? "checked" : "") />
+                                        <label for="todo-checkbox-@item.ToDoItemID"
+                                               class="mb-0 @(item.IsCompleted ? "text-decoration-line-through" : "")">
+                                            <strong>@item.Description</strong>
+                                            @if (item.DueDate.HasValue)
+                                            {
+                                                <small class="text-muted ms-2">Bitiş Tarihi: @item.DueDate.Value.ToShortDateString()</small>
+                                            }
+                                            <br />
+                                            <small class="text-muted">Oluşturulma Tarihi: @item.CreatedDate.ToShortDateString()</small>
+                                        </label>
+                                    </div>
+
+                                    <div>
+                                        <a asp-controller="ToDoList" asp-action="Edit" asp-route-id="@item.ToDoItemID" class="btn btn-sm btn-warning">Düzenle</a>
+                                        <button type="button"
+                                                class="btn btn-sm btn-danger ms-1 delete-button"
+                                                data-id="@item.ToDoItemID">
+                                            Sil
+                                        </button>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        $(document).ready(function () {
-            // Hoşgeldiniz mesajının rengini değiştiren JavaScript
-            var userNameSpan = document.getElementById('userName');
-            var colors = [
-                'rgb(255, 0, 0)',   // Red
-                'rgb(0, 255, 0)',   // Green
-                'rgb(0, 0, 255)'    // Blue
-            ];
-            var colorIndex = 0;
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-            function changeColor() {
-                userNameSpan.style.color = colors[colorIndex];
-                colorIndex = (colorIndex + 1) % colors.length;
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const csrf = document.querySelector('meta[name="request-verification-token"]').content;
+
+            /*--------------- HOŞGELDİNİZ MESAJI RENK DEĞİŞTİRME ---------------*/
+            const userNameSpan = document.getElementById('userName');
+            if (userNameSpan) {
+                const colors = ['rgb(255, 0, 0)', 'rgb(0, 255, 0)', 'rgb(0, 0, 255)'];
+                let colorIndex = 0;
+
+                function changeColor() {
+                    userNameSpan.style.color = colors[colorIndex];
+                    colorIndex = (colorIndex + 1) % colors.length;
+                }
+                setInterval(changeColor, 1500);
             }
 
-            // Her 1.5 saniyede bir rengi değiştir (ayarlayabilirsiniz)
-            setInterval(changeColor, 1500);
+            /*--------------- YAPILACAKLAR LİSTESİ - TAMAMLANMA DURUMU ---------------*/
+            document.querySelectorAll('#todo-list .form-check-input').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    const id = cb.dataset.id;
 
+                    fetch(`/ToDoList/ToggleComplete/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': csrf,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.text().then(text => { throw new Error(text) });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (!data.success) {
+                                Swal.fire('Hata!', data.message || 'Durum güncellenemedi.', 'error');
+                                cb.checked = !cb.checked; // Hata durumunda checkbox'ı geri al
+                                return;
+                            }
+
+                            const li = cb.closest('li');
+                            li.classList.toggle('list-group-item-success', data.isCompleted);
+                            li.querySelector('label').classList.toggle('text-decoration-line-through', data.isCompleted);
+                        })
+                        .catch(err => {
+                            console.error('Toggle Complete Hatası:', err);
+                            Swal.fire('Hata!', 'Durum güncellenirken beklenmeyen bir sorun oluştu.', 'error');
+                            cb.checked = !cb.checked; // Hata durumunda checkbox'ı geri al
+                        });
+                });
+            });
+
+            /*--------------- YAPILACAKLAR LİSTESİ - SİLME İŞLEMİ ---------------*/
+            document.querySelectorAll('#todo-list .delete-button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    const li = document.getElementById(`todoItem_${id}`);
+
+                    Swal.fire({
+                        title: 'Emin misiniz?',
+                        text: 'Bu görevi geri alamazsınız!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Evet, Sil!',
+                        cancelButtonText: 'İptal Et'
+                    }).then(result => {
+                        if (!result.isConfirmed) return;
+
+                        fetch(`/ToDoList/Delete/${id}`, {
+                            method: 'POST',
+                            headers: {
+                                'RequestVerificationToken': csrf,
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    return response.text().then(text => { throw new Error(text) });
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (!data.success) {
+                                    Swal.fire('Hata!', data.message || 'Görev silinirken bir sorun oluştu.', 'error');
+                                    return;
+                                }
+
+                                li.remove(); // Listeden öğeyi kaldır
+                                Swal.fire('Silindi!', data.message, 'success');
+                                updateNoTasksMessage(); // Boş liste mesajını güncelle
+                            })
+                            .catch(err => {
+                                console.error('Delete Hatası:', err);
+                                Swal.fire('Hata!', 'Silme işlemi sırasında beklenmeyen bir sorun oluştu.', 'error');
+                            });
+                    });
+                });
+            });
+
+            /*--------------- BOŞ LİSTE MESAJI YÖNETİMİ ---------------*/
+            function updateNoTasksMessage() {
+                const todoList = document.getElementById('todo-list');
+                let noTasksMessage = document.getElementById('no-tasks-message');
+                const container = document.querySelector('.card-body'); // ToDoList card'ının body'si
+
+                if (todoList && todoList.children.length === 0) {
+                    if (!noTasksMessage) {
+                        noTasksMessage = document.createElement('div');
+                        noTasksMessage.id = 'no-tasks-message';
+                        noTasksMessage.className = 'alert alert-info';
+                        noTasksMessage.setAttribute('role', 'alert');
+                        noTasksMessage.textContent = 'Henüz yapılacak bir göreviniz bulunmuyor. Yeni bir görev eklemek için "Yeni Görev Ekle" butonunu kullanabilirsiniz.';
+                        container.appendChild(noTasksMessage);
+                    }
+                } else if (noTasksMessage) {
+                    noTasksMessage.remove();
+                }
+            }
+
+            // Sayfa yüklendiğinde mesajın doğru durumda olmasını sağla
+            updateNoTasksMessage();
+
+            /*--------------- CHART.JS GRAFİKLERİ ---------------*/
             // Kendi Satış İstatistikleri Grafiği
             var salesCtx = document.getElementById('salesChart').getContext('2d');
             var salesChart = new Chart(salesCtx, {
@@ -243,8 +428,9 @@
 
             // Tab geçişi yapıldığında Chart.js grafiklerini yeniden boyutlandırmak için
             $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-                if (e.target.id === 'general-sales-tab') {
+                if (e.target.id === 'some-tab-id-that-contains-chart') {
                     salesChart.resize();
+                    productsChart.resize();
                 }
             });
         });

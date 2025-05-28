@@ -17,7 +17,6 @@ namespace SatışProject.Controllers
             _context = context;
         }
 
-        // Sepet sayfasını görüntüleme
         public async Task<IActionResult> Index()
         {
             string? basketIdString = HttpContext.Session.GetString("BasketId");
@@ -58,7 +57,6 @@ namespace SatışProject.Controllers
             return View(viewModel);
         }
 
-        // Sepet miktar güncelleme (AJAX)
         [HttpPost]
         public async Task<IActionResult> UpdateQuantity(int basketItemId, int newQuantity)
         {
@@ -129,7 +127,6 @@ namespace SatışProject.Controllers
             });
         }
 
-        // Sepetten ürün çıkarma (AJAX)
         [HttpPost]
         public async Task<IActionResult> RemoveItem(int basketItemId)
         {
@@ -170,7 +167,6 @@ namespace SatışProject.Controllers
             });
         }
 
-        // Sepet özeti (AJAX için)
         [HttpGet]
         public async Task<IActionResult> GetBasketSummary()
         {

@@ -2,13 +2,14 @@
 
 @{
     ViewData["Title"] = "Satış Kalemi Düzenle";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <div class="container-fluid">
     <h2 class="mb-4">@ViewData["Title"]</h2>
 
     <div class="card shadow">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-dark text-white">
             <h5 class="card-title mb-0">Satış No: @Model.Sale?.SaleNumber</h5>
         </div>
         <div class="card-body">

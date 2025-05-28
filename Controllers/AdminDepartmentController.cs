@@ -14,7 +14,6 @@ namespace SatışProject.Controllers
             _context = context;
         }
 
-        // SADECE aktif olanları listeler
         public IActionResult Index()
         {
             var values = _context.Departments
@@ -35,7 +34,7 @@ namespace SatışProject.Controllers
         {
             if (ModelState.IsValid)
             {
-                department.IsActive = true; // Yeni departmanlar varsayılan olarak aktif
+                department.IsActive = true; 
                 _context.Add(department);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

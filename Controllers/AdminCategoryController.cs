@@ -29,7 +29,7 @@ namespace SatışProject.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken] // Added for security
+        [ValidateAntiForgeryToken] 
         public IActionResult Create(Category category)
         {
             if (ModelState.IsValid)
@@ -48,14 +48,14 @@ namespace SatışProject.Controllers
             var category = _context.Categories.Find(id);
             if (category == null)
             {
-                TempData["Error"] = "Kategori bulunamadı."; // Using TempData for consistency
+                TempData["Error"] = "Kategori bulunamadı."; 
                 return NotFound();
             }
             return View(category);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken] // Added for security
+        [ValidateAntiForgeryToken]
         public IActionResult Edit(Category category)
         {
             if (ModelState.IsValid)
@@ -89,7 +89,7 @@ namespace SatışProject.Controllers
         public IActionResult Details(int id)
         {
             var category = _context.Categories
-                .Include(c => c.Products) // Include products to see related items if necessary
+                .Include(c => c.Products) 
                 .FirstOrDefault(c => c.CategoryId == id);
 
             if (category == null)
@@ -111,7 +111,6 @@ namespace SatışProject.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Kategoriye bağlı ürünler var mı kontrol et
             var hasProducts = _context.Products.Any(p => p.CategoryId == id);
             if (hasProducts)
             {

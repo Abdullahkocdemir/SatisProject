@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SatışProject.Context;
 using SatışProject.Entities;
-using System.Linq; // Added for FirstOrDefault
+using System.Linq; 
 
 namespace SatışProject.Controllers
 {

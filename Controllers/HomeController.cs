@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SatışProject.Models; // ViewModel için
+using SatışProject.Models; 
 using SatışProject.Entities;
-using SatışProject.Context; // Product için
+using SatışProject.Context;
 
 namespace SatışProject.Controllers
 {
@@ -17,22 +17,19 @@ namespace SatışProject.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // Öne çıkan ürünler için bir filtreleme yapabiliriz, örneğin ilk 8 ürün veya özel bir property'e göre.
-            // Şimdilik sadece ilk 8 ürünü alalım.
+
             var featuredProducts = await _context.Products
                                                 .Include(p => p.Category)
                                                 .Include(p => p.Brand)
                                                 .Where(p => !p.IsDeleted)
-                                                .OrderBy(p => p.ProductId) // Veya başka bir sıralama kriteri
-                                                .Take(12) // İlk 8 ürünü al
+                                                .OrderBy(p => p.ProductId) 
+                                                .Take(12) 
                                                 .ToListAsync();
 
-            // Ana sayfa için sadece ürün listesi içeren bir ViewModel de oluşturabiliriz,
-            // veya ProductListViewModel'i de kullanabiliriz. Şimdilik ProductListViewModel'i kullanalım.
             var model = new ProductListViewModel
             {
                 Products = featuredProducts,
-                Categories = new List<Category>() // Ana sayfada kategorilere ihtiyacın yoksa boş bırakabilirsin
+                Categories = new List<Category>() 
             };
 
             return View(model);
@@ -41,7 +38,6 @@ namespace SatışProject.Controllers
         {
             return View();
         }
-        // Privacy gibi diğer action'lar...
         public IActionResult Privacy()
         {
             return View();

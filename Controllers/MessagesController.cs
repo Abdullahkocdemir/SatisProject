@@ -1,13 +1,12 @@
-﻿// SatışProject.Web/Controllers/MessagesController.cs
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SatışProject.Context;
 using SatışProject.Entities;
-using Microsoft.AspNetCore.SignalR; // IHubContext için ekle
+using Microsoft.AspNetCore.SignalR; 
 using SatışProject.Models;
-using SatışProject.Hubs; // Kendi Hub'ını kullanmak için
+using SatışProject.Hubs; 
 
 namespace SatışProject.Controllers
 {
@@ -45,7 +44,7 @@ namespace SatışProject.Controllers
             {
                 MessageId = mr.MessageId,
                 SenderFullName = mr.Message.Sender.FullName,
-                SenderUserName = mr.Message.Sender.UserName,
+                SenderUserName = mr.Message.Sender.UserName!,
                 Subject = mr.Message.Subject,
                 Content = mr.Message.Content,
                 SentAt = mr.Message.SentAt,
@@ -122,7 +121,7 @@ namespace SatışProject.Controllers
                 {
                     MessageId = sentMessage.MessageId,
                     SenderFullName = sentMessage.Sender.FullName,
-                    SenderUserName = sentMessage.Sender.UserName,
+                    SenderUserName = sentMessage.Sender.UserName!,
                     Subject = sentMessage.Subject,
                     Content = sentMessage.Content,
                     SentAt = sentMessage.SentAt,
@@ -130,7 +129,7 @@ namespace SatışProject.Controllers
                     Recipients = sentMessage.Recipients.Select(r => new MessageRecipientViewModel
                     {
                         RecipientFullName = r.Recipient.FullName,
-                        RecipientUserName = r.Recipient.UserName,
+                        RecipientUserName = r.Recipient.UserName!,
                         IsRead = r.IsRead
                     }).ToList()
                 };
@@ -148,7 +147,7 @@ namespace SatışProject.Controllers
             {
                 MessageId = messageRecipient.MessageId,
                 SenderFullName = messageRecipient.Message.Sender.FullName,
-                SenderUserName = messageRecipient.Message.Sender.UserName,
+                SenderUserName = messageRecipient.Message.Sender.UserName!,
                 Subject = messageRecipient.Message.Subject,
                 Content = messageRecipient.Message.Content,
                 SentAt = messageRecipient.Message.SentAt,

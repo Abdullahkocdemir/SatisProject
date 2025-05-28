@@ -7,7 +7,7 @@ using SatışProject.Entities;
 using SatışProject.Models;
 using System.Drawing.Imaging;
 using System.Drawing;
-using System.Globalization; // Add this namespace
+using System.Globalization; 
 using ZXing.QrCode.Internal;
 using Microsoft.AspNetCore.Authorization;
 
@@ -27,13 +27,11 @@ namespace SatışProject.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult Index(int? categoryId)
         {
-            // Ürünleri kategori ve marka ile birlikte al
             var productsQuery = _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Brand)
-                .Where(p => !p.IsDeleted); // Soft delete'e dikkat
+                .Where(p => !p.IsDeleted); 
 
-            // Eğer filtreleme yapılmışsa
             if (categoryId.HasValue)
             {
                 productsQuery = productsQuery.Where(p => p.CategoryId == categoryId.Value);
@@ -41,7 +39,6 @@ namespace SatışProject.Controllers
 
             var products = productsQuery.ToList();
 
-            // Kategori listesini ViewBag ile gönder (dropdown için)
             ViewBag.Categories = _context.Categories.ToList();
             ViewBag.SelectedCategoryId = categoryId;
 
@@ -61,7 +58,6 @@ namespace SatışProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product product, IFormFile? imageFile)
         {
-            // If model state is not valid, reload dropdowns and return view
             if (!ModelState.IsValid)
             {
                 LoadDropdowns(product.CategoryId, product.BrandId);
@@ -70,15 +66,12 @@ namespace SatışProject.Controllers
 
             // Stok Kodu
             var now = DateTime.Now;
-            string datePart = now.ToString("MMMyyyydd"); // Ör: May2516
+            string datePart = now.ToString("MMMyyyydd"); 
             string randomCode = new Random().Next(100000, 999999).ToString();
             product.SKU = $"{datePart}-{randomCode}";
 
-            // QR Kod Oluşturma - URL içeren QR kod
             var qrGenerator = new QRCodeGenerator();
 
-            // QR kod için URL oluşturma (tarayınca ürün detayına gidecek)
-            // Ensure the URL is correctly generated. Using Request.Scheme is important for absolute URLs.
             string qrUrl = Url.Action("QRInfo", "AdminProduct", new { id = product.SKU }, Request.Scheme)!;
 
             var qrCodeData = qrGenerator.CreateQrCode(qrUrl!, QRCodeGenerator.ECCLevel.Q);
@@ -146,8 +139,6 @@ namespace SatışProject.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Manually remove validation errors for decimal fields if they are the cause
-            // This can be a quick fix for culture-related parsing issues in model binding
             ModelState.Remove("UnitPrice");
             ModelState.Remove("CostPrice");
             ModelState.Remove("TaxRate");
@@ -162,10 +153,8 @@ namespace SatışProject.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // Handle image upload
                 if (imageFile != null && imageFile.Length > 0)
                 {
-                    // Delete old image if exists
                     if (!string.IsNullOrEmpty(existingProduct.ImageUrl))
                     {
                         string oldImagePath = Path.Combine(_environment.WebRootPath, existingProduct.ImageUrl.TrimStart('/'));
@@ -175,7 +164,6 @@ namespace SatışProject.Controllers
                         }
                     }
 
-                    // Save new image
                     var ext = Path.GetExtension(imageFile.FileName);
                     var fileName = $"{Guid.NewGuid()}{ext}";
                     var savePath = Path.Combine(_environment.WebRootPath, "Product", fileName);
@@ -189,16 +177,13 @@ namespace SatışProject.Controllers
                 }
                 else
                 {
-                    // Keep the existing image if no new one is uploaded
                     product.ImageUrl = existingProduct.ImageUrl;
                 }
 
-                // Preserve CreatedDate and SKU/Barcode as they are generated on creation
                 product.CreatedDate = existingProduct.CreatedDate;
                 product.SKU = existingProduct.SKU;
                 product.Barcode = existingProduct.Barcode;
 
-                // Update UpdatedDate
                 product.UpdatedDate = DateTime.Now;
 
                 _context.Update(product);
@@ -246,7 +231,6 @@ namespace SatışProject.Controllers
             return View(product);
         }
 
-        // QR kod tarandığında gösterilecek ürün bilgileri sayfası
         [HttpGet]
         public async Task<IActionResult> QRInfo(string id)
         {
@@ -279,12 +263,10 @@ namespace SatışProject.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // İlişkili kayıtları kontrol et
                 bool hasRelatedRecords = await CheckForRelatedRecords(product);
 
                 if (hasRelatedRecords)
                 {
-                    // Eğer ilişkili kayıt varsa soft delete uygula
                     product.IsDeleted = true;
                     product.UpdatedDate = DateTime.Now;
                     _context.Products.Update(product);
@@ -294,10 +276,8 @@ namespace SatışProject.Controllers
                 }
                 else
                 {
-                    // İlişkili dosyaları sil
                     DeleteProductFiles(product);
 
-                    // Veritabanından ürünü kaldır
                     _context.Products.Remove(product);
                     await _context.SaveChangesAsync();
 
@@ -308,31 +288,25 @@ namespace SatışProject.Controllers
             }
             catch (Exception ex)
             {
-                // Hata durumunda
                 TempData["Error"] = $"Silme işlemi sırasında bir hata oluştu: {ex.Message}";
                 return RedirectToAction("Index");
             }
         }
 
-        // İlişkili kayıtları kontrol eden yardımcı metod
         private async Task<bool> CheckForRelatedRecords(Product product)
         {
-            // Satış kaydı veya fatura kaydı var mı kontrol et
             bool hasSales = await _context.SaleItems.AnyAsync(s => s.ProductId == product.ProductId);
             bool hasInvoiceItems = await _context.InvoiceItems.AnyAsync(i => i.ProductId == product.ProductId);
 
             return hasSales || hasInvoiceItems;
         }
 
-        // Ürün dosyalarını silen yardımcı metod
         private void DeleteProductFiles(Product product)
         {
             try
             {
-                // QR Kodu dosyasını sil
                 if (!string.IsNullOrEmpty(product.Barcode))
                 {
-                    // Remove leading '/' from Barcode path before combining with WebRootPath
                     string qrFilePath = Path.Combine(_environment.WebRootPath, product.Barcode.TrimStart('/'));
                     if (System.IO.File.Exists(qrFilePath))
                     {
@@ -340,10 +314,8 @@ namespace SatışProject.Controllers
                     }
                 }
 
-                // Ürün görseli dosyasını sil
                 if (!string.IsNullOrEmpty(product.ImageUrl))
                 {
-                    // Remove leading '/' from ImageUrl path before combining with WebRootPath
                     string imageFilePath = Path.Combine(_environment.WebRootPath, product.ImageUrl.TrimStart('/'));
                     if (System.IO.File.Exists(imageFilePath))
                     {
@@ -353,8 +325,6 @@ namespace SatışProject.Controllers
             }
             catch
             {
-                // Dosya silme işlemi başarısız olursa devam et
-                // Sadece veritabanından kayıt silme işlemini etkilememesi için hata yönetimi
             }
         }
 

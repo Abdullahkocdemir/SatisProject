@@ -26,7 +26,7 @@ namespace SatışProject.Controllers
         }
 
 
-        public async Task<IActionResult> Index(int? month, int? year) // month ve year int? (nullable int) olarak kalmalı
+        public async Task<IActionResult> Index(int? month, int? year) 
         {
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null)
@@ -41,30 +41,26 @@ namespace SatışProject.Controllers
             if (employee == null)
             {
                 TempData["ErrorMessage"] = "Kullanıcınızla ilişkili bir çalışan kaydı bulunamadı.";
-                return View(new List<Sale>()); // Boş bir liste döndür
+                return View(new List<Sale>()); 
             }
 
-            // Veritabanından sadece oturum açmış çalışana ait satışları çeker.
             IQueryable<Sale> salesQuery = _context.Sales
                 .Include(x => x.Customer)
                 .Include(x => x.Employee)
-                    .ThenInclude(e => e.AppUser)
-                .Where(x => x.EmployeeId == employee.EmployeeID); // Sadece mevcut çalışanın satışlarını filtreler.
+                    .ThenInclude(e => e!.AppUser)
+                .Where(x => x.EmployeeId == employee.EmployeeID); 
 
             // Ay ve yıl filtrelemesini uygula
-            // Eğer month.HasValue false ise (yani value="" veya hiç gelmediyse), ay filtresi uygulanmaz.
             if (month.HasValue && month.Value > 0 && month.Value <= 12)
             {
                 salesQuery = salesQuery.Where(s => s.SaleDate.Month == month.Value);
             }
             // Eğer year.HasValue false ise (yani value="" veya hiç gelmediyse), yıl filtresi uygulanmaz.
-            if (year.HasValue && year.Value > 0) // Yıl için 0 veya negatif değer gelmeyeceğini varsayalım
+            if (year.HasValue && year.Value > 0) 
             {
                 salesQuery = salesQuery.Where(s => s.SaleDate.Year == year.Value);
             }
 
-            // Seçilen ay ve yılı görünümde tekrar kullanmak için ViewBag'e kaydet
-            // month ve year zaten int? tipinde olduğu için direkt atayabiliriz.
             ViewBag.SelectedMonth = month;
             ViewBag.SelectedYear = year;
 
@@ -108,7 +104,6 @@ namespace SatışProject.Controllers
             return View(newSale);
         }
 
-        // Yeni satış formunun gönderimini işlemek için kullanılan eylem metodu (POST isteği).
         [HttpPost]
         public async Task<IActionResult> Create(Sale sale)
         {
@@ -193,7 +188,6 @@ namespace SatışProject.Controllers
             }
         }
 
-        // Mevcut bir satış kalemini düzenleme formunu görüntülemek için kullanılan eylem metodu (GET isteği).
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -257,7 +251,7 @@ namespace SatışProject.Controllers
                 {
                     var existingSaleItem = await _context.SaleItems
                         .Include(si => si.Sale)
-                        .ThenInclude(s => s.SaleItems)
+                        .ThenInclude(s => s!.SaleItems)
                         .FirstOrDefaultAsync(si => si.Id == saleItem.Id);
 
                     if (existingSaleItem == null)
@@ -318,13 +312,7 @@ namespace SatışProject.Controllers
                     existingSaleItem.Quantity = saleItem.Quantity;
                     existingSaleItem.UnitPrice = newProduct.UnitPrice;
                     existingSaleItem.SubTotal = existingSaleItem.UnitPrice * existingSaleItem.Quantity;
-                    // existingSaleItem.TaxAmount = existingSaleItem.SubTotal * 0.20m; // KDV oranı %20 olarak güncellendi -> KDV oranının View'dan alınması gerektiği için bu satır değişecektir.
-                    // KDV oranı formdan alınmalı, SaleItem modelinde bir TaxRate propertysi varsa oradan, yoksa ViewBag'den ya da sabit bir değerden
-                    // Buraya gelen SaleItem modelinin içindeki TaxAmount değeri, client tarafından hesaplanıp gönderilmiş olmalı.
-                    // Eğer SaleItem modelinde TaxRate diye bir property yoksa, bu değeri client'tan direkt alıp kullanmak yerine
-                    // ya SaleItem modeline eklemelisiniz, ya da burada sabit bir değeri kullanmaya devam etmelisiniz.
-                    // Şu anki senaryoda, client tarafında hesaplanıp gönderildiğini varsayalım ve o değeri kullanalım.
-                    existingSaleItem.TotalAmount = existingSaleItem.SubTotal + existingSaleItem.TaxAmount; // Eğer TaxAmount client'tan doğru geliyorsa
+                    existingSaleItem.TotalAmount = existingSaleItem.SubTotal + existingSaleItem.TaxAmount; 
 
                     _context.SaleItems.Update(existingSaleItem);
 
@@ -352,14 +340,13 @@ namespace SatışProject.Controllers
                     ModelState.AddModelError("", "Satış kalemi güncellenemedi: " + ex.Message);
                     ViewBag.Products = await _context.Products
                         .Where(p => p.Status == ProductStatus.InStock || p.ProductId == saleItem.ProductId)
-                        .OrderBy(p => p.Name) // Added OrderBy for consistency
+                        .OrderBy(p => p.Name) 
                         .ToListAsync();
                     return View(saleItem);
                 }
             }
         }
 
-        // Belirli bir satışın detaylarını görüntülemek için kullanılan eylem metodu.
         public async Task<IActionResult> Details(int id)
         {
             var currentUser = await _userManager.GetUserAsync(User);
@@ -375,7 +362,7 @@ namespace SatışProject.Controllers
             var sale = await _context.Sales
                 .Include(x => x.Customer)
                 .Include(x => x.Employee)
-                    .ThenInclude(e => e.AppUser)
+                    .ThenInclude(e => e!.AppUser)
                 .Include(x => x.SaleItems)
                     .ThenInclude(si => si.Product)
                 .FirstOrDefaultAsync(x => x.Id == id);
@@ -389,21 +376,17 @@ namespace SatışProject.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Kullanıcının yönetici olup olmadığını ViewBag'e ekle
             ViewBag.IsAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
 
             return View(sale);
         }
 
-        // Tüm satışı silmek için kullanılan eylem metodu (POST isteği, ana satış içindir, satış kalemi değil).
-        // Sadece Admin rolündeki kullanıcılar bu işlemi yapabilir.
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null) return RedirectToAction("Login", "Account");
 
-            // Yönetici rolünde değilse silme işlemine izin verme
             if (!await _userManager.IsInRoleAsync(currentUser, "Admin"))
             {
                 TempData["ErrorMessage"] = "Bu işlemi yapmaya yetkiniz bulunmamaktadır.";
@@ -446,8 +429,6 @@ namespace SatışProject.Controllers
             }
         }
 
-        // Bir satış içindeki tek bir satış kalemini silmek için kullanılan yardımcı eylem metodu.
-        // Sadece Admin rolündeki kullanıcılar bu işlemi yapabilir.
         [HttpPost]
         public async Task<IActionResult> DeleteSaleItem(int id)
         {
@@ -462,7 +443,7 @@ namespace SatışProject.Controllers
 
             var saleItem = await _context.SaleItems
                 .Include(si => si.Sale)
-                    .ThenInclude(s => s.SaleItems)
+                    .ThenInclude(s => s!.SaleItems)
                 .FirstOrDefaultAsync(si => si.Id == id);
 
             if (saleItem == null)
@@ -498,7 +479,6 @@ namespace SatışProject.Controllers
                         }
                         else
                         {
-                            // Eğer satışta hiç kalem kalmazsa, tüm ana satışı sil
                             _context.Sales.Remove(parentSale);
                         }
                     }
@@ -515,7 +495,6 @@ namespace SatışProject.Controllers
             }
         }
 
-        // Açılır listeler için ortak ViewBag verilerini yüklemek için kullanılan yardımcı metot.
         private async Task LoadViewBagData(int currentEmployeeId)
         {
             ViewBag.Customers = await _context.Customers.Where(x => x.IsActive).ToListAsync();
@@ -532,7 +511,6 @@ namespace SatışProject.Controllers
 
             ViewBag.Products = products;
 
-            // Sadece mevcut oturum açmış çalışanı ViewBag'e yükler.
             ViewBag.Employees = await _context.Employees
                                              .Include(e => e.AppUser)
                                              .Where(e => e.EmployeeID == currentEmployeeId)
@@ -541,7 +519,6 @@ namespace SatışProject.Controllers
             ViewBag.SaleStatuses = Enum.GetValues(typeof(SaleStatus)).Cast<SaleStatus>();
         }
 
-        // Benzersiz bir satış numarası oluşturmak için kullanılan yardımcı metot.
         private string GenerateSaleNumber()
         {
             string prefix = "SL";

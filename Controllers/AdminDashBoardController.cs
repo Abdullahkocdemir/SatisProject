@@ -20,7 +20,6 @@ namespace SatışProject.Controllers
         {
             var viewModel = new AdminDashboardViewModel();
 
-            // Mevcut diğer istatistikler aynı kalacak...
             viewModel.TotalOrders = await _context.Sales.CountAsync();
             viewModel.TotalRevenue = await _context.Sales
                 .Where(s => s.Status == SaleStatus.Completed)
@@ -72,10 +71,9 @@ namespace SatışProject.Controllers
                 viewModel.SalesStatistics.Add(Tuple.Create(stat.Date, stat.TotalSales));
             }
 
-            // YENİ EKLENECEK KISIM: Çalışan Bazlı Satış İstatistikleri
             var employeeSalesStatsRaw = await _context.Sales
-                .Include(s => s.Employee) // Çalışan bilgilerini dahil et
-                .Where(s => s.SaleDate >= DateTime.Now.AddYears(-1) && s.Employee != null) // Son 1 yıl ve çalışan bilgisi olanlar
+                .Include(s => s.Employee) 
+                .Where(s => s.SaleDate >= DateTime.Now.AddYears(-1) && s.Employee != null) 
                 .GroupBy(s => new { s.Employee!.AppUserId, s.Employee.AppUser.FirstName, s.Employee.AppUser.LastName, s.SaleDate.Year, s.SaleDate.Month })
                 .Select(g => new
                 {
@@ -84,9 +82,8 @@ namespace SatışProject.Controllers
                     g.Key.Month,
                     TotalSales = g.Sum(s => s.GrandTotal)
                 })
-                .ToListAsync(); // Veriyi buraya kadar veritabanından çekiyoruz
+                .ToListAsync(); 
 
-            // Bellek üzerinde çalışan bazında verileri gruplandırıp formatlıyoruz
             var employeeSalesGrouped = employeeSalesStatsRaw
                 .GroupBy(s => s.EmployeeName)
                 .ToDictionary(

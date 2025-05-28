@@ -23,6 +23,8 @@ namespace SatışProject.Models
         public Dictionary<string, List<Tuple<string, decimal>>> EmployeeSalesStatistics { get; set; } = new Dictionary<string, List<Tuple<string, decimal>>>();
 
         public List<RecentActivityViewModel> RecentActivities { get; set; } = new List<RecentActivityViewModel>();
+        public IEnumerable<ToDoItem> ToDoItems { get; set; } = new List<ToDoItem>();
+
     }
 
     public class RecentActivityViewModel

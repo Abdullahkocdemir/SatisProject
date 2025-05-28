@@ -2,14 +2,13 @@
 using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
-using System.Threading.Tasks; // Asenkron işlemler için
-using MimeKit.Text; // HtmlBody için
+using System.Threading.Tasks; 
+using MimeKit.Text; 
 
 namespace SatışProject.Controllers
 {
     public class EmailController : Controller
     {
-        // E-posta gönderme formunu gösterecek sayfa
         [HttpGet]
         public IActionResult Index()
         {
@@ -28,42 +27,32 @@ namespace SatışProject.Controllers
 
                 var bodyBuilder = new BodyBuilder
                 {
-                    HtmlBody = htmlBody // HTML içeriği kullanıyoruz
+                    HtmlBody = htmlBody 
                 };
                 message.Body = bodyBuilder.ToMessageBody();
 
                 using (var client = new SmtpClient())
                 {
-                    // Gmail SMTP sunucusuna bağlanma
                     await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
 
-                    // Kimlik doğrulama (Gmail kullanıcı adı ve Uygulama Şifresi)
                     await client.AuthenticateAsync(senderEmail, senderAppPassword);
 
-                    // E-postayı gönderme
                     await client.SendAsync(message);
 
-                    // Bağlantıyı kapatma
                     await client.DisconnectAsync(true);
                 }
-                return true; // E-posta başarıyla gönderildi
+                return true; 
             }
             catch (System.Exception ex)
             {
-                // Hata detaylarını loglayabilirsiniz. (örn: Serilog, NLog)
                 Console.WriteLine($"E-posta gönderme hatası: {ex.Message}");
-                // Log the full exception for debugging: Console.WriteLine(ex.ToString());
-                return false; // E-posta gönderme başarısız oldu
+                return false; 
             }
         }
 
-
-        // Bu metot, SendGenericEmail metodunu kullanarak harici bir istekten e-posta göndermek içindir.
-        // Genellikle, bu tür bir metodu doğrudan bir form POST'u için kullanırsınız.
         [HttpPost]
         public async Task<IActionResult> SendEmailFromForm(string receiverEmail, string subject, string body)
         {
-            // Bu kısımda validation (doğrulama) ekleyebilirsiniz.
             if (string.IsNullOrEmpty(receiverEmail) || string.IsNullOrEmpty(subject) || string.IsNullOrEmpty(body))
             {
                 TempData["ErrorMessage"] = "Lütfen tüm alanları doldurun.";
@@ -72,17 +61,17 @@ namespace SatışProject.Controllers
 
             // Kendi Gmail bilgileriniz
             string myGmailAddress = "kcdmirapo96@gmail.com";
-            string myGmailAppPassword = "oauifwpqhjjgrzgn"; // **ÖNEMLİ: Kendi Gmail Uygulama Şifreniz**
-            string senderDisplayName = "KOÇDEMİR HIRDAVAT"; // Gönderen görünen adı
+            string myGmailAppPassword = "oauifwpqhjjgrzgn"; 
+            string senderDisplayName = "KOÇDEMİR HIRDAVAT"; 
 
             bool success = await SendGenericEmail(
                 senderDisplayName,
                 myGmailAddress,
                 myGmailAppPassword,
-                "Değerli Müşterimiz", // Alıcı adını modelden almanız gerekebilir. Şimdilik sabit bir değer verdim.
+                "Değerli Müşterimiz", 
                 receiverEmail,
                 subject,
-                body // Bu metot doğrudan formdan gelen body'yi kullanır, dilerseniz HTML formatına çevirebilirsiniz.
+                body 
             );
 
             if (success)
