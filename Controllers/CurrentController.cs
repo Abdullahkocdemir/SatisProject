@@ -77,17 +77,31 @@ namespace SatışProject.Controllers
 
 
 
+        // CustomerController.cs
+
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
+            // Müşteriyi, ilişkili satışlarını ve her satışın ürünlerini getiren sorgu
             var customer = await _context.Customers
+                // 1. Gelen 'id' parametresine eşit olan MÜŞTERİYİ BUL.
+                .Where(c => c.CustomerID == id)
+
+                // 2. Bulunan müşterinin 'Sales' koleksiyonunu YÜKLE.
                 .Include(c => c.Sales)
-                .Include(c => c.Invoices)
-                .FirstOrDefaultAsync(c => c.CustomerID == id);
+                    // 3. Yüklenen HER BİR 'Sale' kaydının içindeki 'SaleItems' (ürünlerini) YÜKLE.
+                    .ThenInclude(s => s.SaleItems)
 
+                // 5. Sorguyu çalıştır ve sonucu al.
+                .FirstOrDefaultAsync();
+
+            // Müşteri veritabanında bulunamazsa, NotFound (404) sayfası döndür.
             if (customer == null)
+            {
                 return NotFound();
+            }
 
+            // Müşteri nesnesini (ilişkili verileriyle birlikte) View'a gönder.
             return View(customer);
         }
     }

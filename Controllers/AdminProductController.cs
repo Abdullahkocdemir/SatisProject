@@ -7,7 +7,7 @@ using SatışProject.Entities;
 using SatışProject.Models;
 using System.Drawing.Imaging;
 using System.Drawing;
-using System.Globalization; 
+using System.Globalization;
 using ZXing.QrCode.Internal;
 using Microsoft.AspNetCore.Authorization;
 
@@ -30,7 +30,7 @@ namespace SatışProject.Controllers
             var productsQuery = _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Brand)
-                .Where(p => !p.IsDeleted); 
+                .Where(p => !p.IsDeleted);
 
             if (categoryId.HasValue)
             {
@@ -58,15 +58,13 @@ namespace SatışProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product product, IFormFile? imageFile)
         {
-            if (!ModelState.IsValid)
-            {
-                LoadDropdowns(product.CategoryId, product.BrandId);
-                return View(product);
-            }
+
+            LoadDropdowns(product.CategoryId, product.BrandId);
+
 
             // Stok Kodu
             var now = DateTime.Now;
-            string datePart = now.ToString("MMMyyyydd"); 
+            string datePart = now.ToString("MMMyyyydd");
             string randomCode = new Random().Next(100000, 999999).ToString();
             product.SKU = $"{datePart}-{randomCode}";
 

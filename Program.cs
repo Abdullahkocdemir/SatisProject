@@ -34,7 +34,6 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true; // Oturum çerezini uygulamanýn iþlevselliði için gerekli yap
 });
 
-builder.Services.AddScoped<ShoppingCartService>(); // Sepet servisimizi ekledik
 
 builder.Services.AddIdentity<AppUser, AppRole>(options =>
 {

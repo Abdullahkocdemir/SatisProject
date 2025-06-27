@@ -1,37 +1,167 @@
-﻿@model SatışProject.Entities.Customer
-
+﻿@using SatışProject.Entities
+@model Customer
 @{
-    ViewData["Title"] = "Müşteri Detay";
+    ViewData["Title"] = "Müşteri Detayları";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    // --- HESAPLAMALAR ---
+    // Model'den gelen satışlar null değilse ve silinmemişse onları al.
+    var activeSales = Model.Sales?.Where(s => !s.IsDeleted) ?? new List<Sale>();
+
+    // Satış istatistikleri
+    var totalSalesCount = activeSales.Count();
+    var totalSalesAmount = activeSales.Sum(s => s.GrandTotal);
+    var totalProductsSold = activeSales.Sum(s => s.SaleItems?.Sum(si => si.Quantity) ?? 0);
+
+    // Fatura Dosyası olan satışların sayısı
+    var totalInvoicesCount = activeSales.Count(s => !string.IsNullOrEmpty(s.InvoiceFilePath));
 }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-user-tie"></i> Müşteri Detayları: @Model.CompanyName
+                    </h4>
+                    <div>
+                        <a asp-action="Edit" asp-route-id="@Model.CustomerID" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Düzenle
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Geri Dön
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                    </div>
 
-<div class="container mt-5">
-    <div class="card shadow border-0 rounded-4">
-        <div class="card-header bg-dark text-white rounded-top-4">
-            <h4 class="mb-0"><i class="bi bi-person-vcard-fill me-2"></i>Müşteri Detayı</h4>
-        </div>
-        <div class="card-body p-4 bg-light">
-            <div class="row g-3">
-                <div class="col-md-6"><strong>Şirket Adı:</strong> @Model.CompanyName</div>
-                <div class="col-md-6"><strong>Email:</strong> @Model.Email</div>
-                <div class="col-md-6"><strong>Telefon:</strong> @Model.PhoneNumber</div>
-                <div class="col-md-6"><strong>Adres:</strong> @Model.Address</div>
-                <div class="col-md-6"><strong>Şehir:</strong> @Model.City</div>
-                <div class="col-md-6"><strong>Ülke:</strong> @Model.Country</div>
-                <div class="col-md-6"><strong>Vergi No:</strong> @Model.TaxNumber</div>
-                <div class="col-md-6"><strong>Vergi Dairesi:</strong> @(string.IsNullOrEmpty(Model.TaxOffice) ? "-" : Model.TaxOffice)</div>
-                <div class="col-md-6"><strong>Durumu:</strong> @Model.IsActive</div>
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card text-white bg-primary">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                                    <h4>@totalSalesCount</h4>
+                                    <p class="mb-0">Toplam Satış</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-white bg-success">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-lira-sign fa-2x mb-2"></i>
+                                    <h4>@totalSalesAmount.ToString("N2") TL</h4>
+                                    <p class="mb-0">Toplam Satış Tutarı</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-white bg-danger">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-file-alt fa-2x mb-2"></i> <!-- Güncellenmiş ikon -->
+                                    <h4>@totalInvoicesCount</h4>
+                                    <p class="mb-0">Kayıtlı Fatura</p>
+                                </div>
+                            </div>
+                        </div>
 
-            </div>
+                        <div class="col-md-3">
+                            <div class="card text-white bg-info">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-boxes fa-2x mb-2"></i>
+                                    <h4>@totalProductsSold</h4>
+                                    <p class="mb-0">Toplam Satılan Ürün</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="mt-4 text-end">
-                <a href="/Current/Index" class="btn btn-secondary px-4">
-                    <i class="bi bi-arrow-left-circle me-1"></i> Geri Dön
-                </a>
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-history"></i> Satış Geçmişi</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            @if (activeSales.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover mb-0">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th>Satış No</th>
+                                                <th>Tarih</th>
+                                                <th>Ürün Adedi</th>
+                                                <th>Tutar</th>
+                                                <th>Durum</th>
+                                                <th>Fatura Dosyası</th>
+                                                <th>İşlemler</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var sale in activeSales.OrderByDescending(s => s.SaleDate))
+                                            {
+                                                <tr>
+                                                    <td><strong>@sale.SaleNumber</strong></td>
+                                                    <td>@sale.SaleDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                                    <td><span class="badge badge-pill" style="background-color:#6f42c1; color:white;">@(sale.SaleItems?.Sum(si => si.Quantity) ?? 0) adet</span></td>
+                                                    <td><strong class="text-success">@sale.GrandTotal.ToString("C2")</strong></td>
+                                                    <td>
+                                                        @switch (sale.Status)
+                                                        {
+                                                            case SaleStatus.Completed:
+                                                                <span class="badge" style="background-color: #28a745; color: white;">Tamamlandı</span>
+                                                                ; break;
+                                                            case SaleStatus.Pending:
+                                                                <span class="badge" style="background-color: #ffc107; color: black;">Beklemede</span>
+                                                                ; break;
+                                                            case SaleStatus.Cancelled:
+                                                                <span class="badge" style="background-color: #dc3545; color: white;">İptal</span>
+                                                                ; break;
+                                                            default:
+                                                                <span class="badge" style="background-color: #6c757d; color: white;">-</span>
+                                                                ; break;
+                                                        }
+                                                    </td>
+
+                                                    <td>
+                                                        @if (!string.IsNullOrEmpty(sale.InvoiceFilePath))
+                                                        {
+                                                            // Dosya yolunu bir link olarak gösteriyoruz. 'wwwroot' içindeyse, ~ kullanabilirsiniz.
+                                                            <a href="~/@sale.InvoiceFilePath" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                                <i class="fas fa-file-pdf"></i> Görüntüle
+                                                            </a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted">Yok</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <a href="/Sale/Details/@sale.Id" class="btn btn-sm btn-outline-primary" title="Satış Detayı">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info m-3">
+                                    <i class="fas fa-info-circle"></i> Bu müşteriye ait herhangi bir satış kaydı bulunmamaktadır.
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Stilleriniz aynı kalabilir */
+</style>

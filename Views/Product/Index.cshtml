@@ -1,7 +1,7 @@
 ﻿@model SatışProject.Models.ProductListViewModel
 @{
     ViewData["Title"] = "Hırdavat Dünyası - Ürünlerimiz";
-    Layout = null; // Layout kullanmadığınızı varsayıyorum
+    Layout = null; 
 }
 
 <!DOCTYPE html>
@@ -16,26 +16,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css">
 </head>
 <body>
-    <header class="navbar">
-        <div class="container">
-            <a href="/" class="navbar-brand">Hırdavat Dünyası</a>
-            <nav>
-                <ul class="navbar-nav">
-                    <li><a href="/">Ana Sayfa</a></li>
-                    <li><a href="/Product/Index" class="active">Ürünler</a></li>
-                    <li><a href="#">Kampanyalar</a></li>
-                    <li><a href="#">Hakkımızda</a></li>
-                    <li><a href="#">İletişim</a></li>
-                    <li class="cart-icon-container">
-                        <a href="/Basket/Index" class="cart-link">
-                            <i class="fas fa-shopping-cart"></i> Sepet
-                            <span id="basket-item-count" class="basket-count">@Model.BasketItemCount</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+    @await Component.InvokeAsync("_DefaultLayoutHeaderPartials")
 
     <main class="container">
         <div class="main-content-wrapper">
@@ -85,43 +66,7 @@
         </div>
     </main>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-section about-us">
-                <h4>Hırdavat Dünyası</h4>
-                <p>
-                    Hırdavat Dünyası olarak, en kaliteli ve dayanıklı el aletlerini, yapı malzemelerini ve endüstriyel çözümleri sizlere sunuyoruz. Projelerinizi güvenle tamamlayın!
-                </p>
-                <div class="social-icons">
-                    <a href="#" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
-                    <a href="#" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" target="_blank" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                </div>
-            </div>
-
-            <div class="footer-section useful-links">
-                <h4>Hızlı Erişim</h4>
-                <ul>
-                    <li><a href="#">Anasayfa</a></li>
-                    <li><a href="/Product/Index">Tüm Ürünler</a></li>
-                    <li><a href="#">Hesabım</a></li>
-                    <li><a href="#">Sipariş Takibi</a></li>
-                    <li><a href="#">Gizlilik Politikası</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section contact-info-footer">
-                <h4>Bilgi</h4>
-                <p><i class="fas fa-map-marker-alt"></i> Örnek Mah. Deneme Cad. No:123, Bursa, Türkiye</p>
-                <p><i class="fas fa-phone"></i> +90 (555) 123 45 67</p>
-                <p><i class="fas fa-envelope"></i> info@hirdavatdunyasi.com</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© @DateTime.Now.Year Hırdavat Dünyası. Tüm Hakları Saklıdır.</p>
-        </div>
-    </footer>
+    @await Component.InvokeAsync("_DefaultLayoutFooterPartials")
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>

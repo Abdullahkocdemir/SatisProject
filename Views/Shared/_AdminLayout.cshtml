@@ -65,7 +65,7 @@
                 <a href="/AdminCategory/Index" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "AdminCategory" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")">
                     <span class="menu-text">Kategoriler</span>
                 </a>
-                <a href="/AdminBrand/Index/" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "AdminBrand" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")"> @* Admin değil AdminBrand controller olmalı *@
+                <a href="/AdminBrand/Index/" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "AdminBrand" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")"> 
                     <span class="menu-text">Markalar</span>
                 </a>
             </div>
@@ -96,12 +96,12 @@
             {
                 <a href="#" class="menu-item has-submenu">
                     <i class="fas fa-users-cog"></i>
-                    <span class="menu-text">Çalışan Yönetimi</span>
+                    <span class="menu-text">Site Yönetimi</span>
                     <i class="fas fa-chevron-down menu-toggle"></i>
                 </a>
                 <div class="submenu">
-                    <a href="/AdminEmploye/Index" class="menu-item">
-                        <span class="menu-text">Çalışanlar</span>
+                    <a href="/AdminTestimonial/Index" class="menu-item">
+                        <span class="menu-text">Referanslarımız</span>
                     </a>
                     <a href="/AdminDepartment/Index/" class="menu-item">
                         <span class="menu-text">Departmanlar</span>
@@ -158,7 +158,7 @@
                     <i class="fas fa-chevron-down menu-toggle"></i>
                 </a>
                 <div class="submenu">
-                    <a href="/Admin/Index/" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Admin" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")"> @* Action Index olarak düzeltildi *@
+                    <a href="/Admin/Index/" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Admin" && ViewContext.RouteData.Values["action"]!.ToString() == "Index" ? "active" : "")"> 
                         <span class="menu-text">Kullanıcı Yönetimi</span>
                     </a>
                     <a href="/Admin/Roles" class="menu-item @(ViewContext.RouteData.Values["controller"]!.ToString() == "Admin" && ViewContext.RouteData.Values["action"]!.ToString() == "Roles" ? "active" : "")">
@@ -189,7 +189,7 @@
                 <div class="dropdown">
                     <button class="dropdown-toggle" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-bell"></i>
-                        <span class="badge bg-danger">3</span> @* Bu bildirim sayısı dinamikleştirilmeli *@
+                        <span class="badge bg-danger">3</span> 
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
                         <li><h6 class="dropdown-header">Bildirimler</h6></li>
@@ -211,7 +211,7 @@
                 <div class="dropdown">
                     <button class="dropdown-toggle" type="button" id="messagesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-envelope"></i>
-                        <span class="badge bg-primary">5</span> @* Bu mesaj sayısı dinamikleştirilmeli *@
+                        <span class="badge bg-primary">5</span> 
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="messagesDropdown">
                         <li><h6 class="dropdown-header">Mesajlar</h6></li>

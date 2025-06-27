@@ -1,11 +1,9 @@
-﻿/* WebSite2 Css - Consolidated */
-
-/* Base Styles */
+﻿
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f7f6; /* Açık gri arka plan */
+    background-color: #f4f7f6;
     color: #333;
     line-height: 1.6;
 }
@@ -16,34 +14,33 @@ body {
     padding: 0 15px;
 }
 
-/* Navbar */
 .navbar {
-    background-color: #2c3e50; /* Koyu Mavi/Gri */
+    background-color: #2c3e50; 
     padding: 15px 0;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-    position: sticky; /* Sayfa kaydırıldığında sabit kalmasını sağlar */
+    position: sticky; 
     top: 0;
-    z-index: 1000; /* Diğer öğelerin üzerinde görünmesini sağlar */
+    z-index: 1000; 
 }
 
-    .navbar .container {
+.navbar .container {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin: 0 auto; /* Kapsayıcıyı ortala */
+        margin: 0 auto; 
     }
 
 .navbar-brand {
     color: white;
     text-decoration: none;
-    font-size: 2.5em; /* Marka adını büyüt */
+    font-size: 2.5em; 
     font-weight: 700;
     letter-spacing: 1px;
     transition: color 0.3s ease;
 }
 
-    .navbar-brand:hover {
-        color: #1abc9c; /* Turkuaz tonu */
+.navbar-brand:hover {
+        color: #1abc9c; 
     }
 
 .navbar-nav {
@@ -51,23 +48,23 @@ body {
     padding: 0;
     margin: 0;
     display: flex;
-    align-items: center; /* Sepetim butonu ile hizalama için */
+    align-items: center; 
 }
 
-    .navbar-nav li {
-        margin-left: 30px; /* Menü öğeleri arası boşluk */
+.navbar-nav li {
+        margin-left: 30px;
     }
 
-        .navbar-nav li a {
+.navbar-nav li a {
             color: white;
             text-decoration: none;
             font-weight: 600;
             font-size: 1.1em;
             transition: color 0.3s ease, transform 0.2s ease;
-            position: relative; /* Alt çizgi efekti için */
+            position: relative; 
         }
 
-            .navbar-nav li a::after { /* Alt çizgi efekti */
+.navbar-nav li a::after { 
                 content: '';
                 position: absolute;
                 width: 0;
@@ -78,17 +75,17 @@ body {
                 transition: width 0.3s ease;
             }
 
-            .navbar-nav li a:hover {
+.navbar-nav li a:hover {
                 color: #1abc9c;
-                transform: translateY(-2px); /* Hafif yukarı kalkma */
-            }
+                transform: translateY(-2px); 
+}
 
-                .navbar-nav li a:hover::after {
+.navbar-nav li a:hover::after {
                     width: 100%;
                 }
 
-            .navbar-nav li a[href="/Product/Index"] {
-                color: #ffd700; /* Example yellow color */
+.navbar-nav li a[href="/Product/Index"] {
+                color: #ffd700; 
                 font-weight: bold;
             }
 
@@ -101,7 +98,7 @@ body {
 .cart-link {
     display: flex;
     align-items: center;
-    color: white; /* Or your preferred link color */
+    color: white; 
     text-decoration: none;
     padding: 0 10px;
 }
@@ -111,41 +108,40 @@ body {
     }
 
 .basket-count {
-    background-color: #ff4500; /* Orange-red for visibility */
+    background-color: #ff4500; 
     color: white;
     border-radius: 50%;
     padding: 2px 7px;
     font-size: 0.75em;
     position: absolute;
-    top: -5px; /* Adjust as needed */
-    right: 0px; /* Adjust as needed */
-    min-width: 20px; /* Ensures it's always a circle */
+    top: -5px; 
+    right: 0px; 
+    min-width: 20px; 
     text-align: center;
-    line-height: 1; /* Aligns number vertically */
+    line-height: 1; 
     display: flex;
     justify-content: center;
     align-items: center;
     height: 20px;
 }
 
-/* Page Layout */
 .main-content-wrapper {
     display: flex;
     gap: 30px;
     margin-top: 30px;
-    flex-direction: row; /* Default for larger screens */
+    flex-direction: row; 
 }
 
 .category-sidebar {
-    flex: 0 0 250px; /* Fixed width */
+    flex: 0 0 250px; 
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     padding: 25px;
-    height: fit-content; /* Shrink to fit content */
+    height: fit-content; 
 }
 
-    .category-sidebar h3 {
+.category-sidebar h3 {
         font-size: 1.6em;
         color: #34495e;
         margin-bottom: 20px;
@@ -153,17 +149,17 @@ body {
         padding-bottom: 10px;
     }
 
-    .category-sidebar ul {
+.category-sidebar ul {
         list-style: none;
         padding: 0;
         margin: 0;
     }
 
-        .category-sidebar ul li {
+.category-sidebar ul li {
             margin-bottom: 10px;
         }
 
-            .category-sidebar ul li a {
+.category-sidebar ul li a {
                 display: block;
                 padding: 10px 15px;
                 background-color: #f0f4f7;
@@ -174,30 +170,29 @@ body {
                 font-weight: 500;
             }
 
-                .category-sidebar ul li a:hover, .category-sidebar ul li a.active {
+.category-sidebar ul li a:hover, .category-sidebar ul li a.active {
                     background-color: #1abc9c;
                     color: white;
                 }
 
 .product-listing-area {
-    flex-grow: 1; /* Takes up remaining space */
+    flex-grow: 1; 
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     padding: 25px;
 }
 
-/* Headings */
 h2 {
     text-align: center;
-    margin-top: 0; /* Adjusted for product-listing-area */
+    margin-top: 0; 
     margin-bottom: 30px;
     font-size: 2.2em;
     color: #34495e;
     position: relative;
 }
 
-    h2::after {
+ h2::after {
         content: '';
         position: absolute;
         width: 80px;
@@ -209,9 +204,8 @@ h2 {
         border-radius: 2px;
     }
 
-/* Search Box */
 .search-container {
-    position: relative; /* For autocomplete positioning */
+    position: relative; 
     text-align: center;
     margin-bottom: 30px;
     padding: 15px;
@@ -224,7 +218,7 @@ h2 {
     gap: 10px;
 }
 
-    .search-container input[type="text"] {
+.search-container input[type="text"] {
         width: 70%;
         padding: 12px 20px;
         border: 1px solid #ccc;
@@ -234,12 +228,12 @@ h2 {
         transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
 
-        .search-container input[type="text"]:focus {
+.search-container input[type="text"]:focus {
             border-color: #1abc9c;
             box-shadow: 0 0 8px rgba(26, 188, 156, 0.3);
         }
 
-    .search-container button {
+.search-container button {
         background-color: #1abc9c;
         color: white;
         border: none;
@@ -255,13 +249,12 @@ h2 {
             transform: translateY(-2px);
         }
 
-/* Autocomplete Suggestions */
 #autocomplete-suggestions {
     position: absolute;
-    top: 100%; /* Directly below the search box */
+    top: 100%; 
     left: 50%;
     transform: translateX(-50%);
-    width: calc(70% + 20px); /* Input width + padding */
+    width: calc(70% + 20px); 
     background-color: white;
     border: 1px solid #ddd;
     border-top: none;
@@ -270,153 +263,162 @@ h2 {
     overflow-y: auto;
     z-index: 10;
     box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-    display: none; /* Hidden by default */
+    display: none; 
 }
 
-    #autocomplete-suggestions div {
+#autocomplete-suggestions div {
         padding: 10px 15px;
         cursor: pointer;
         text-align: left;
         border-bottom: 1px solid #eee;
     }
 
-        #autocomplete-suggestions div:last-child {
+#autocomplete-suggestions div:last-child {
             border-bottom: none;
         }
 
-        #autocomplete-suggestions div:hover {
+#autocomplete-suggestions div:hover {
             background-color: #f0f0f0;
         }
 
-/* "Did You Mean?" Section */
 #did-you-mean {
     text-align: center;
     margin-top: 15px;
     font-size: 1.1em;
     color: #555;
-    display: none; /* Hidden by default */
+    display: none; 
 }
 
-    #did-you-mean span {
+#did-you-mean span {
         font-weight: bold;
         color: #e74c3c;
         cursor: pointer;
     }
 
-        #did-you-mean span:hover {
+#did-you-mean span:hover {
             text-decoration: underline;
         }
 
-/* Product Grid */
+
+/* Ana ürün ızgarası (grid) konteynerinin stilleri */
 .product-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Default 3 columns */
-    gap: 25px; /* Spacing between products */
-    padding: 25px 0;
+    display: grid; /* Öğeleri bir ızgara (grid) düzeninde gösterir. */
+    grid-template-columns: repeat(4, 1fr); /* Izgarayı 3 adet eşit genişlikte sütuna böler. */
+    gap: 25px; /* Izgara hücreleri (ürün kartları) arasına 25 piksellik bir boşluk koyar. */
+    padding: 25px 0; /* Izgaranın üstüne ve altına 25 piksel, sağına ve soluna 0 piksel iç boşluk (padding) ekler. */
 }
 
+/* Her bir ürün kartının genel stilleri */
 .product-card {
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 440px; /* Fixed height for product cards */
-    border: 1px solid #eee;
+    background-color: #ffffff; /* Arka plan rengini beyaz yapar. */
+    border-radius: 10px; /* Kartın köşelerini 10 piksel yuvarlatır. */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Karta hafif, derinlik hissi veren bir gölge ekler. */
+    overflow: hidden; /* Kartın sınırlarından taşan içeriği (örneğin büyüyen resim) gizler. */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Kartın pozisyonu ve gölgesi değiştiğinde 0.3 saniyelik yumuşak bir animasyon ekler. */
+    text-align: center; /* Kart içindeki metinleri yatayda ortalar. */
+    display: flex; /* İçindeki öğeleri esnek bir kutu (flexbox) düzenine sokar. */
+    flex-direction: column; /* Flexbox öğelerini dikey olarak (alt alta) sıralar. */
+    justify-content: space-between; /* Dikeydeki içeriği (resim, bilgi, buton) aralarında boşluk bırakarak kartın tamamına yayar. */
+    height: 460px; /* Her kartın yüksekliğini sabit 440 piksel yapar. */
+    border: 1px solid #eee; /* Karta çok açık gri renkte 1 piksellik bir kenarlık ekler. */
 }
 
+    /* Fare ile ürün kartının üzerine gelindiğinde (hover) uygulanacak stiller */
     .product-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+        transform: translateY(-8px); /* Kartı 8 piksel yukarı kaydırarak havaya kalkma efekti verir. */
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2); /* Gölgeyi daha belirgin hale getirir. */
     }
 
+    /* Ürün kartının içindeki link (<a>) elementi için stiller */
     .product-card a {
-        text-decoration: none;
-        color: inherit;
-        display: flex; /* For vertical alignment */
-        flex-direction: column;
-        flex-grow: 1; /* Makes the link cover the whole card area */
-        justify-content: space-between; /* Separates image and info */
+        text-decoration: none; /* Linklerin altındaki çizgiyi kaldırır. */
+        color: inherit; /* Yazı rengini bir üst elementten (product-card) almasını sağlar. */
+        display: flex; /* Linkin içindekileri de flexbox düzenine sokar. */
+        flex-direction: column; /* Öğeleri dikeyde sıralar. */
+        flex-grow: 1; /* Linkin, kart içinde kalan tüm dikey boşluğu kaplamasını sağlar. */
+        justify-content: space-between; /* İçeriği (bilgi ve buton) dikeyde yayar. */
     }
 
+/* Ürün resminin bulunduğu kapsayıcının stilleri */
 .product-image-container {
-    width: 100%;
-    height: 240px; /* Image area height */
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #ecf0f1;
-    border-bottom: 1px solid #ddd;
+    width: 100%; /* Genişliği, kartın genişliğinin %100'ü yapar. */
+    height: 240px; /* Yüksekliği sabit 240 piksel yapar. */
+    overflow: hidden; /* Kapsayıcıdan taşan resmi gizler (büyütme efektinde önemlidir). */
+    display: flex; /* İçindeki resmi ortalamak için flexbox kullanır. */
+    justify-content: center; /* Resmi yatayda ortalar. */
+    align-items: center; /* Resmi dikeyde ortalar. */
+    background-color: #ecf0f1; /* Resim yüklenene kadar veya resim küçükse görünecek arka plan rengi. */
+    border-bottom: 1px solid #ddd; /* Resim alanının altına ayırıcı bir çizgi ekler. */
 }
 
+    /* Resmin (<img>) kendisi için stiller */
     .product-image-container img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain; /* Keeps aspect ratio */
-        transition: transform 0.3s ease;
+        width: 100%; /* Resmin genişliğini kapsayıcısına sığdırır. */
+        height: 100%; /* Resmin yüksekliğini kapsayıcısına sığdırır. */
+        object-fit: contain; /* Resmin en-boy oranını koruyarak kapsayıcının içine sığmasını sağlar. */
+        transition: transform 0.3s ease; /* Resmin boyut değiştirmesi için 0.3 saniyelik yumuşak bir geçiş ekler. */
     }
 
+/* Fare kartın üzerine geldiğinde resme uygulanacak stil */
 .product-card:hover .product-image-container img {
-    transform: scale(1.08);
+    transform: scale(1.08); /* Resmi %8 oranında büyüterek bir yakınlaşma efekti yaratır. */
 }
 
+/* Ürün bilgilerinin (başlık, fiyat) bulunduğu bölüm */
 .product-info {
-    padding: 20px 15px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    padding: 20px 15px; /* Bölümün içine üst/alttan 20px, sağ/soldan 15px boşluk ekler. */
+    flex-grow: 1; /* Bu bölümün dikeyde kalan boşluğu doldurmasını sağlar. */
+    display: flex; /* İçindeki başlık ve fiyatı hizalamak için flexbox kullanır. */
+    flex-direction: column; /* Öğeleri dikeyde sıralar. */
+    justify-content: space-between; /* Başlık ve fiyat arasını açarak dikeyde yayar. */
 }
 
+/* Ürün başlığı için stiller */
 .product-title {
-    font-size: 1.25em;
-    font-weight: 700;
-    margin-bottom: 10px;
-    color: #34495e;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-height: 2.5em; /* Minimum height for two lines */
-    display: -webkit-box; /* For multi-line ellipsis */
-    -webkit-line-clamp: 2; /* Max 2 lines */
-    -webkit-box-orient: vertical;
+    font-size: 1.25em; /* Yazı tipi boyutunu ayarlar. */
+    font-weight: 700; /* Yazı tipini kalın (bold) yapar. */
+    margin-bottom: 10px; /* Altına 10 piksellik bir dış boşluk bırakır. */
+    color: #34495e; /* Yazı rengini koyu mavi-gri yapar. */
+    white-space: nowrap; /* Metnin alt satıra inmesini engeller, tek satırda kalmaya zorlar. */
+    overflow: hidden; /* Tek satıra sığmayan metni gizler. */
+    text-overflow: ellipsis; /* Sığmayan ve gizlenen metnin sonuna "..." ekler. */
+    min-height: 2.5em; /* Başlık alanına en az iki satırlık bir yükseklik verir, böylece kartların dikey hizalaması bozulmaz. */
+    display: -webkit-box; /* Çok satırlı metinlerde "..." göstermek için tarayıcıya özel bir flexbox modeli kullanır. */
+    -webkit-line-clamp: 2; /* Metni en fazla 2 satır ile sınırlar. */
+    -webkit-box-orient: vertical; /* Yukarıdaki kuralın çalışması için flex yönünü dikey yapar. */
 }
 
+/* Ürün fiyatı için stiller */
 .product-price {
-    font-size: 1.6em;
-    font-weight: bold;
-    color: #e74c3c;
-    margin-top: auto; /* Pushes price to the bottom */
-    margin-bottom: 15px;
+    font-size: 1.6em; /* Fiyatın yazı boyutunu belirgin şekilde büyük yapar. */
+    font-weight: bold; /* Yazı tipini kalın yapar. */
+    color: #e74c3c; /* Yazı rengini dikkat çekici bir kırmızı tonu yapar. */
+    margin-top: auto; /* Üstündeki başlık ile arayı otomatik olarak açarak fiyatı aşağıya iter. */
+    margin-bottom: 15px; /* Fiyatın altına (butonun üstüne) 15 piksellik bir boşluk bırakır. */
 }
 
+/* "Sepete Ekle" butonu için stiller */
 .add-to-cart-btn {
-    background-color: #2ecc71;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1.1em;
-    font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
-    width: calc(100% - 30px); /* Adjust for card padding */
-    margin: 0 15px 15px 15px; /* Center with bottom padding */
-    flex-shrink: 0; /* Prevents button from shrinking */
+    background-color: #2ecc71; /* Arka plan rengini canlı bir yeşil yapar. */
+    color: white; /* Yazı rengini beyaz yapar. */
+    border: none; /* Kenarlığı kaldırır. */
+    padding: 12px 25px; /* Butonun içine dikeyde 12px, yatayda 25px boşluk ekler. */
+    border-radius: 8px; /* Butonun köşelerini 8 piksel yuvarlatır. */
+    cursor: pointer; /* Fare üzerine gelince imleci el işareti yapar. */
+    font-size: 1.1em; /* Yazı tipi boyutunu ayarlar. */
+    font-weight: bold; /* Yazı tipini kalın yapar. */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease; /* Renk, pozisyon ve gölge değişimleri için yumuşak geçişler ekler. */
+    width: calc(100% - 30px); /* Genişliği, yanlardaki 15px'lik boşlukları çıkararak kartın içini dolduracak şekilde ayarlar. */
+    margin: 0 15px 15px 15px; /* Butonu ortalar ve altından 15px boşluk bırakır. */
+    flex-shrink: 0; /* Flexbox düzeni içinde butonun küçülmesini engeller, boyutunu korur. */
 }
 
+    /* Fare "Sepete Ekle" butonunun üzerine geldiğinde uygulanacak stiller */
     .add-to-cart-btn:hover {
-        background-color: #27ae60;
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+        background-color: #27ae60; /* Arka plan rengini biraz daha koyu bir yeşil yapar. */
+        transform: translateY(-3px); /* Butonu 3 piksel yukarı kaydırır. */
+        box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); /* Butona yeşil tonlarında bir parlama/gölge efekti ekler. */
     }
-
-/* Pagination Controls */
 .pagination-controls {
     text-align: center;
     margin-top: 30px;
@@ -466,10 +468,9 @@ h2 {
         background-color: #e0e0e0;
     }
 
-/* Hero Slider (Homepage specific) */
 .hero-slider {
     width: 100%;
-    height: 450px; /* Slider height */
+    height: 450px; 
     overflow: hidden;
     position: relative;
     margin-top: 20px;
@@ -479,17 +480,17 @@ h2 {
 
 .slider-images {
     display: flex;
-    width: 300%; /* For 3 images */
+    width: 300%; 
     height: 100%;
     transition: transform 1s ease-in-out;
 }
 
 .slider-image {
-    width: 33.33%; /* Each image takes 1/3 of the container */
+    width: 33.33%; 
     height: 100%;
     background-size: cover;
     background-position: center;
-    flex-shrink: 0; /* Prevents shrinking */
+    flex-shrink: 0; 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -499,10 +500,9 @@ h2 {
     font-weight: bold;
 }
 
-/* Categories Grid (Homepage specific) */
 .categories-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Smaller category cards */
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
     gap: 20px;
     padding: 25px 0;
     text-align: center;
@@ -520,7 +520,7 @@ h2 {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 160px; /* Category card height */
+    height: 160px; 
 }
 
     .category-card:hover {
